@@ -13,11 +13,17 @@ export async function GET(req: NextRequest) {
   if (!token) return new Response("token query param is required", { status: 400 });
 
   const engineUrl = process.env.ENGINE_URL;
-  const forceMock = req.nextUrl.searchParams.get("mock") === "1";
+  // ?mock=1 is a dev convenience only — a configured ENGINE_URL in production
+  // must never be short-circuited to fake data by a query param. Mock only
+  // ever fires for real when there's no engine to fall back to.
+  const forceMock = req.nextUrl.searchParams.get("mock") === "1" && process.env.NODE_ENV !== "production";
 
-  // ponytail: no engine configured (or explicit ?mock=1) -> serve a canned
-  // event sequence. This is both the local dev fallback (no RPC/gateway
-  // wired up yet) and the offline demo path for judges without a live engine.
+  // ponytail: no engine configured (or explicit dev-only ?mock=1) -> serve a
+  // canned event sequence. This is both the local dev fallback (no RPC/
+  // gateway wired up yet) and the offline demo path for judges without a
+  // live engine. mockSseStream prepends a `demo` event so RunView can
+  // render an unmissable "simulated data" banner — a mock verdict must
+  // never be visually indistinguishable from a real fork proof.
   if (!engineUrl || forceMock) {
     return new Response(mockSseStream(token as Hex), {
       headers: sseHeaders,
@@ -40,7 +46,7 @@ const sseHeaders = {
 // ---- mock event stream (ponytail: dev/offline fallback only, never touches the real engine) ----
 
 function mockSseStream(token: Hex): ReadableStream<Uint8Array> {
-  const script = mockScript(token);
+  const script: [number, RunEvent][] = [[0, { type: "demo" }], ...mockScript(token)];
   let i = 0;
   return new ReadableStream({
     async pull(controller) {

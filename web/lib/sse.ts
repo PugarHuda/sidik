@@ -11,7 +11,11 @@ export type RunEvent =
   | { type: "verdict"; verdict: Verdict }
   | { type: "narration"; text: string }
   | { type: "done" }
-  | { type: "error"; message: string };
+  | { type: "error"; message: string }
+  // ponytail: client-only marker the mock-stream proxy prepends when serving
+  // simulated data instead of a real engine run. The real engine never sends
+  // this — it's how RunView knows to show the "not a live fork run" banner.
+  | { type: "demo" };
 
 /**
  * Opens `url` and yields parsed SSE frames as typed RunEvents. Uses

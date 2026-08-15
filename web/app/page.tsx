@@ -49,7 +49,11 @@ export default function Home() {
             if (valid) run(address.trim());
           }}
         >
+          <label htmlFor="token-address" className="sr-only">
+            Token address
+          </label>
           <input
+            id="token-address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="0x…"

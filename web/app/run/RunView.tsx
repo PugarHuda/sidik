@@ -53,6 +53,8 @@ function logLine(e: RunEvent): string {
       return `DONE      run complete`;
     case "error":
       return `ERROR     ${e.message}`;
+    case "demo":
+      return `DEMO      simulated data — not a live fork run`;
   }
 }
 
@@ -183,6 +185,8 @@ export default function RunView({ token }: { token: string }) {
   const isDone = events.some((e) => e.type === "done") && !errorEvent;
   const isError = !!errorEvent;
   const isRunning = !isDone && !isError;
+  const isDemo = events.some((e) => e.type === "demo");
+  const traceEvents = events.filter((e) => e.type !== "demo");
 
   const findLast = <T extends RunEvent["type"]>(t: T): Ev<T> | undefined => {
     for (let i = events.length - 1; i >= 0; i--) {
@@ -218,14 +222,20 @@ export default function RunView({ token }: { token: string }) {
         </span>
       </div>
 
+      {isDemo && (
+        <div className="animate-reveal rounded-md border border-na/50 bg-na/10 px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-widest text-na">
+          Demo — simulated data, not a live fork run
+        </div>
+      )}
+
       <div className="rounded-md border border-border bg-panel p-4 font-mono text-sm">
         <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-widest text-fg-dim">
           {isRunning && <span className="h-2 w-2 rounded-full bg-accent animate-recording" />}
           live trace
         </div>
         <div className="flex max-h-64 flex-col gap-1 overflow-y-auto">
-          {events.length === 0 && <div className="text-fg-dim">connecting…</div>}
-          {events.map((e, i) => (
+          {traceEvents.length === 0 && <div className="text-fg-dim">connecting…</div>}
+          {traceEvents.map((e, i) => (
             <div
               key={i}
               className={`animate-reveal ${e.type === "error" ? "text-fail" : "text-fg-dim"}`}
