@@ -87,7 +87,7 @@ function shortRevert(e: any): string {
 // (an actual EVM revert somewhere in the cause chain, or a message that says
 // so). Everything else (RPC/network/timeout) is a real infra failure and
 // must propagate, not be reported as a false "reverted".
-function isRevertError(e: unknown): boolean {
+export function isRevertError(e: unknown): boolean {
   if (e instanceof BaseError) {
     const revert = e.walk(
       (err) => err instanceof ContractFunctionRevertedError || err instanceof ExecutionRevertedError,

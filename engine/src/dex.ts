@@ -1,6 +1,7 @@
 import { createPublicClient, http, encodeFunctionData, parseAbi } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, ProbeCtx, Hex } from "@sidik/shared";
+import { isRevertError } from "./fork.js";
 
 // ponytail: V2 only; Base liquidity is largely Aerodrome/Uniswap V3 — add
 // adapters if RPC shows thin V2 coverage. Router + Factory per Uniswap's
@@ -51,7 +52,11 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx): Promise<DexResul
   const approveData = encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [ROUTER, amount] });
   const approveTx = await fork.send({ from: ctx.testWallet, to: ctx.token, data: approveData });
   if (approveTx.reverted) {
-    return { ok: false, amount: amount.toString(), hash: approveTx.hash, revertReason: approveTx.revertReason ?? "approve reverted" };
+    // Some honeypots block specifically at approve() (blacklist/ownership gates) —
+    // that reason is exactly the evidence we want, so derive it the same way as a swap revert.
+    const reason = approveTx.revertReason
+      ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: ctx.token, data: approveData });
+    return { ok: false, amount: amount.toString(), hash: approveTx.hash, revertReason: reason ?? "approve reverted" };
   }
 
   const sellData = encodeFunctionData({
@@ -71,12 +76,16 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx): Promise<DexResul
 // revert (see engine/src/fork.ts). Replay the identical call as a read-only
 // eth_call — post-revert state is unchanged, so it reproduces the same
 // revert with its reason attached, without needing debug_traceTransaction.
-async function deriveRevertReason(fork: ForkClient, args: { account: Hex; to: Hex; data: Hex }): Promise<string> {
+async function deriveRevertReason(fork: ForkClient, args: { account: Hex; to: Hex; data: Hex }): Promise<string | undefined> {
   const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
   try {
     await pub.call(args);
-    return "sell reverted (reason unavailable)";
+    return undefined; // call succeeded on replay — no revert to report
   } catch (e: any) {
+    // Only a genuine EVM revert is real evidence; an infra/RPC hiccup during
+    // the replay must not be fabricated into a fake "revert reason" (same
+    // distinction fork.ts's isRevertError makes for send()).
+    if (!isRevertError(e)) return undefined;
     return String(e?.shortMessage ?? e?.message ?? e).slice(0, 200);
   }
 }
