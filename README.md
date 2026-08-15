@@ -126,12 +126,13 @@ root to `web/` and add:
 |---|---|---|
 | `ENGINE_URL` | yes (for real runs) | Public URL of the deployed engine, e.g. `https://sidik-engine.up.railway.app` (no trailing slash) |
 
-**Without `ENGINE_URL` set in production, `/api/run` returns an error.** The
-offline mock stream (`mockSseStream` in `web/app/api/run/route.ts`) only
-ever fires when `NODE_ENV !== "production"`, or via the explicit `?mock=1`
-dev query param — it is not a silent production fallback, and it's always
-tagged with a visible "simulated data" banner in the UI so a mock verdict
-can never be mistaken for a real fork proof.
+**Without `ENGINE_URL` set, `/api/run` falls back to a DEMO-bannered mock
+stream** (`mockSseStream` in `web/app/api/run/route.ts`) clearly labeled
+"simulated data" in the UI — **including in production.** This is an
+intentional offline-demo fallback (the page is always demoable even with no
+live engine deployed), not a silent failure; only the `?mock=1` query
+override is gated to non-production. You **must** set `ENGINE_URL` to serve
+real fork proofs instead of the mock.
 
 ### 3. Verify end-to-end
 
