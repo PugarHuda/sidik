@@ -19,7 +19,11 @@ const ERC20_ABI = parseAbi([
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
 
-const ZERO: Hex = "0x0000000000000000000000000000000000dEaD";
+// ponytail: sentinel for "no LP-owner candidate found" — the genuine null
+// address, not a burn-style placeholder. Named distinctly from prescan.ts's
+// ZERO (a general zero-address/pair-not-found sentinel) so the two don't
+// read as the same concept despite sharing a value.
+const NO_LP_OWNER: Hex = "0x0000000000000000000000000000000000000000" as Hex;
 
 export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const ownerLpPct = Number(raw.ownerLpPct ?? 0);
@@ -27,7 +31,7 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const before = String(raw.holderValueBefore ?? "0");
   const after = String(raw.holderValueAfter ?? "0");
   const pct = `${Math.round(ownerLpPct)}%`;
-  const txHashes = [raw.pullTxHash as Hex].filter(Boolean) as Hex[];
+  const txHashes = [raw.pullTxHash as Hex].filter((h) => h && h !== "0x") as Hex[];
   const numbers = { ownerLpPct: pct, holderValueBefore: before, holderValueAfter: after, lpOwner };
 
   // "Collapsed" = after is a small fraction of before (rug drained the pool).
@@ -59,17 +63,17 @@ export const lpRugProbe: Probe = {
   async setup() { /* no fork funding needed; lpOwner is impersonated, not funded */ },
   async execute(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
     const pool = ctx.scan.poolAddress;
-    if (!pool) return { lpOwner: ZERO, ownerLpPct: 0, holderValueBefore: "0", holderValueAfter: "0", pullTxHash: "0x" as Hex };
+    if (!pool) return { lpOwner: NO_LP_OWNER, ownerLpPct: 0, holderValueBefore: "0", holderValueAfter: "0", pullTxHash: "0x" as Hex };
 
     const totalSupply = await fork.read<bigint>({ address: pool, abi: ERC20_ABI, functionName: "totalSupply" });
-    if (totalSupply === 0n) return { lpOwner: ZERO, ownerLpPct: 0, holderValueBefore: "0", holderValueAfter: "0", pullTxHash: "0x" as Hex };
+    if (totalSupply === 0n) return { lpOwner: NO_LP_OWNER, ownerLpPct: 0, holderValueBefore: "0", holderValueAfter: "0", pullTxHash: "0x" as Hex };
 
     // ponytail: LP-holder discovery is a bounded candidate scan (owner + top
     // holders); a full LP-holder index is deferred — refine in the RPC batch.
     const candidates = [ctx.scan.owner, ...ctx.scan.topHolders.map((h) => h.address)]
       .filter((a): a is Hex => Boolean(a));
 
-    let lpOwner: Hex = ZERO;
+    let lpOwner: Hex = NO_LP_OWNER;
     let lpBalance = 0n;
     for (const candidate of candidates) {
       const bal = await fork.read<bigint>({ address: pool, abi: ERC20_ABI, functionName: "balanceOf", args: [candidate] });
@@ -94,7 +98,7 @@ export const lpRugProbe: Probe = {
     const holderValueBefore = await priceHolder();
 
     if (lpBalance === 0n) {
-      return { lpOwner: ZERO, ownerLpPct: 0, holderValueBefore, holderValueAfter: holderValueBefore, pullTxHash: "0x" as Hex };
+      return { lpOwner: NO_LP_OWNER, ownerLpPct: 0, holderValueBefore, holderValueAfter: holderValueBefore, pullTxHash: "0x" as Hex };
     }
 
     const ownerLpPct = Math.round(Number((lpBalance * 10000n) / totalSupply) / 100);

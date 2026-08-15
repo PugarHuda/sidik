@@ -20,9 +20,9 @@ export const EXAMPLES: ExampleToken[] = [
   // ponytail: placeholder — replace with a REAL known Base honeypot token
   // during the RPC batch (needs runtime confirmation that the token
   // actually exhibits honeypot behavior; do not fabricate a real address here).
-  { label: "Example honeypot (placeholder)", address: "0x0000000000000000000000000000000000dEaD", kind: "honeypot" },
+  { label: "Example honeypot (placeholder)", address: "0x000000000000000000000000000000000000dEaD", kind: "honeypot" },
   // ponytail: placeholder — replace with a REAL known Base high-fee token
   // during the RPC batch (needs runtime confirmation of the fee behavior;
   // do not fabricate a real address here).
-  { label: "Example high-fee token (placeholder)", address: "0x000000000000000000000000000000000000fE", kind: "highfee" },
+  { label: "Example high-fee token (placeholder)", address: "0x00000000000000000000000000000000000000fE", kind: "highfee" },
 ];

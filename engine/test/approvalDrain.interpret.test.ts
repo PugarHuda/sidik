@@ -14,4 +14,11 @@ describe("interpretApprovalDrain", () => {
     const v = interpretApprovalDrain({ approvals: [], drainedUsd: "0", drainTxHash: "0x" }, ctx);
     expect(v.status).toBe("NA");
   });
+  it("FAILs when a real drain happened but the token is unpriceable (drainedUsd stuck at 0)", () => {
+    const v = interpretApprovalDrain({
+      approvals: [{ spender: "0xsp", allowance: "max", reachableUsd: "0" }],
+      drainedUsd: "0", drainTxHash: "0xd", drained: true,
+    }, ctx);
+    expect(v.status).toBe("FAIL");
+  });
 });

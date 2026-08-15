@@ -11,8 +11,8 @@ const TEST_WALLET = "0x000000000000000000000000000000000000dEaD" as const;
 // pair (known-safe) and a known honeypot once BASE_ARCHIVE_RPC + a fork
 // block are available. `examples.ts` doesn't exist yet (out of Task 5
 // scope); wire it in when the controller supplies real addresses.
-const SAFE_TOKEN = "0x0000000000000000000000000000000000dEaD" as Hex;
-const HONEYPOT_TOKEN = "0x0000000000000000000000000000000000bEEF" as Hex;
+const SAFE_TOKEN = "0x000000000000000000000000000000000000dEaD" as Hex;
+const HONEYPOT_TOKEN = "0x000000000000000000000000000000000000bEEF" as Hex;
 
 function ctxFor(token: Hex): ProbeCtx {
   const scan: PreScan = {

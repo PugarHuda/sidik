@@ -11,4 +11,8 @@ describe("interpretHiddenFee", () => {
     const v = interpretHiddenFee({ sent: "1000", received: "1000", feeBps: 0, xferTxHash: "0xh" }, ctx);
     expect(v.status).toBe("PASS");
   });
+  it("is NA (not PASS) when the buy acquired no tokens to test", () => {
+    const v = interpretHiddenFee({ sent: "0", received: "0", feeBps: 0, xferTxHash: "0x" }, ctx);
+    expect(v.status).toBe("NA");
+  });
 });

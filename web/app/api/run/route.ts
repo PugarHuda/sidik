@@ -70,14 +70,14 @@ function mockScript(token: Hex): [number, RunEvent][] {
     symbol: kind === "safe" ? "USDC" : kind === "honeypot" ? "TRAP" : "FEE",
     decimals: kind === "safe" ? 6 : 18,
     hasPool: true,
-    poolAddress: "0x1111111111111111111111111111111111aaaa",
-    owner: kind === "safe" ? undefined : "0x2222222222222222222222222222222222bbbb",
-    topHolders: [{ address: "0x3333333333333333333333333333333333cccc", balance: "12500000" }],
+    poolAddress: "0x111111111111111111111111111111111111aaaa",
+    owner: kind === "safe" ? undefined : "0x222222222222222222222222222222222222bbbb",
+    topHolders: [{ address: "0x333333333333333333333333333333333333cccc", balance: "12500000" }],
   };
 
   if (kind === "honeypot") {
     const honeypotVerdict: Verdict = {
-      probe: "honeypotSell",
+      probe: "honeypot",
       status: "FAIL",
       title: "Token can be bought but not sold",
       rows: [
@@ -98,8 +98,8 @@ function mockScript(token: Hex): [number, RunEvent][] {
     };
     return [
       [200, { type: "prescan", scan }],
-      [250, { type: "plan", ids: ["honeypotSell", "hiddenFee"] }],
-      [300, { type: "probe:start", id: "honeypotSell" }],
+      [250, { type: "plan", ids: ["honeypot", "hiddenFee"] }],
+      [300, { type: "probe:start", id: "honeypot" }],
       [700, { type: "verdict", verdict: honeypotVerdict }],
       [250, { type: "probe:start", id: "hiddenFee" }],
       [600, { type: "verdict", verdict: feeVerdict }],
@@ -135,7 +135,7 @@ function mockScript(token: Hex): [number, RunEvent][] {
   // preceding probe:start, same as engine/src/orchestrator.ts's cached-run
   // branch. RunView must render these without depending on probe:start.
   const sellVerdict: Verdict = {
-    probe: "honeypotSell",
+    probe: "honeypot",
     status: "PASS",
     title: "Buy and sell both work as claimed",
     rows: [
@@ -155,7 +155,7 @@ function mockScript(token: Hex): [number, RunEvent][] {
   };
   return [
     [200, { type: "prescan", scan }],
-    [250, { type: "plan", ids: ["honeypotSell", "hiddenFee"] }],
+    [250, { type: "plan", ids: ["honeypot", "hiddenFee"] }],
     [400, { type: "verdict", verdict: sellVerdict }],
     [300, { type: "verdict", verdict: feeVerdict }],
     [300, { type: "narration", text: "Bought, sold, and transferred cleanly with no hidden fee. Nothing in this fork run contradicts what the token claims about itself." }],

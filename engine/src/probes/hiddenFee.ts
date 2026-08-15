@@ -13,16 +13,27 @@ const RECIPIENT: Hex = "0x000000000000000000000000000000000000bEEF";
 
 export function interpretHiddenFee(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const sent = String(raw.sent), received = String(raw.received);
+  const txHashes = [raw.xferTxHash as Hex].filter((h) => h && h !== "0x") as Hex[];
+
+  if (sent === "0") {
+    return {
+      probe: "hiddenFee", status: "NA", title: "Could not acquire tokens — no liquidity to test",
+      rows: [{ label: "Transfer 100% of tokens", claimed: "Recipient gets 100%",
+        proven: "No tokens acquired to test", ok: false }],
+      numbers: { sent, received, feePct: "n/a" }, txHashes,
+    };
+  }
+
   const bps = Number(raw.feeBps ?? 0);
   const pct = `${(bps / 100).toFixed(2).replace(/\.00$/, "")}%`;
   const ok = bps === 0;
   return {
     probe: "hiddenFee",
-    status: bps === 0 ? "PASS" : "FAIL",
+    status: ok ? "PASS" : "FAIL",
     title: ok ? "No hidden transfer fee" : `Hidden transfer fee of ${pct}`,
     rows: [{ label: "Transfer 100% of tokens", claimed: "Recipient gets 100%",
       proven: ok ? "Recipient got 100%" : `Recipient got ${pct} less`, ok }],
-    numbers: { sent, received, feePct: pct }, txHashes: [raw.xferTxHash as Hex].filter(Boolean) as Hex[],
+    numbers: { sent, received, feePct: pct }, txHashes,
   };
 }
 

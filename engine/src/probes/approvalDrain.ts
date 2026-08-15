@@ -37,10 +37,15 @@ export function interpretApprovalDrain(raw: RawResult, _ctx: ProbeCtx): Verdict 
   const approvals = (raw.approvals ?? []) as { spender: Hex; allowance: string; reachableUsd: string }[];
   const drainedUsd = String(raw.drainedUsd ?? "0");
   const reachableUsdTotal = approvals.reduce((sum, a) => sum + (Number(a.reachableUsd) || 0), 0);
-  const txHashes = [raw.drainTxHash as Hex].filter(Boolean) as Hex[];
+  const txHashes = [raw.drainTxHash as Hex].filter((h) => h && h !== "0x") as Hex[];
+  // The real safety signal is whether transferFrom actually moved tokens —
+  // drainedUsd is display decoration and can be 0 for an unpriceable token
+  // (no WETH route) even though the drain genuinely happened. A genuine
+  // (non-"0x") drainTxHash is itself proof a drain landed on-chain.
+  const drained = Boolean(raw.drained) || txHashes.length > 0;
   const numbers = {
     reachableUsd: formatUsd(String(reachableUsdTotal)),
-    drainedUsd: formatUsd(drainedUsd),
+    drainedUsd: Number(drainedUsd) > 0 ? formatUsd(drainedUsd) : (drained ? "unpriced" : formatUsd(drainedUsd)),
     approvalCount: String(approvals.length),
   };
 
@@ -52,8 +57,7 @@ export function interpretApprovalDrain(raw: RawResult, _ctx: ProbeCtx): Verdict 
     };
   }
 
-  const drained = Number(drainedUsd) || 0;
-  if (drained > 0) {
+  if (drained) {
     return {
       probe: "approvalDrain", status: "FAIL", title: "Approvals are drainable — funds actually moved",
       rows: [{ label: "Approved spenders can pull funds", claimed: "Approvals are safe",
@@ -123,6 +127,7 @@ export const approvalDrainProbe: Probe = {
     const approvals: { spender: Hex; allowance: string; reachableUsd: string; token: Hex }[] = [];
     let drainedUsdTotal = 0;
     let drainTxHash: Hex = "0x" as Hex;
+    let drained = false;
 
     for (const { token, spender } of latest.values()) {
       const allowance = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "allowance", args: [victim, spender] });
@@ -143,7 +148,7 @@ export const approvalDrainProbe: Probe = {
       if (!reverted) {
         const after = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [ATTACKER] });
         drainedAmt = after - before;
-        if (drainedAmt > 0n) drainTxHash = hash;
+        if (drainedAmt > 0n) { drainTxHash = hash; drained = true; }
       }
       const drainedUsd = drainedAmt === reachable ? reachableUsd : await priceUsd(pub, token, drainedAmt);
       drainedUsdTotal += drainedUsd;
@@ -151,7 +156,7 @@ export const approvalDrainProbe: Probe = {
       approvals.push({ spender, allowance: allowance.toString(), reachableUsd: reachableUsd.toString(), token });
     }
 
-    return { approvals, drainedUsd: drainedUsdTotal.toString(), drainTxHash };
+    return { approvals, drainedUsd: drainedUsdTotal.toString(), drainTxHash, drained };
   },
   interpret: interpretApprovalDrain,
 };

@@ -4,7 +4,7 @@ import { buyExactEth, sellAll } from "../dex.js";
 export function interpretHoneypot(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const bought = String(raw.boughtAmount ?? "0");
   const soldOk = Boolean(raw.soldOk);
-  const txHashes = [raw.buyTxHash as Hex, raw.sellTxHash as Hex].filter(Boolean) as Hex[];
+  const txHashes = [raw.buyTxHash as Hex, raw.sellTxHash as Hex].filter((h) => h && h !== "0x") as Hex[];
 
   if (bought === "0") {
     return {

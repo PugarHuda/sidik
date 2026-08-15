@@ -13,14 +13,16 @@ forked copy of Base mainnet and shows you what actually happens.
 
 - Read-only tools tell you a token *might* be a honeypot.
 - Sidik forks Base at a real block, buys the token with a funded test
-  wallet, tries to sell it, and shows you the revert — with the tx hash and
-  call trace to back it up.
+  wallet, tries to sell it, and shows you the revert — with the on-chain tx
+  hash (linked to Basescan) and the raw verdict data behind it to back it up.
 
 The verdict (`PASS` / `FAIL` / `N/A`) is produced entirely by deterministic
 code reading the result of a real EVM transaction — never by an LLM. The LLM
 only decides *which probes to run* (planner) and *how to narrate the
 results in prose* (narrator); it never invents a number or a verdict. Every
-figure on screen traces back to a real call on a real fork.
+figure on screen traces back to a real call on a real fork, and every
+verdict exposes the tx hash it came from plus an expandable panel of the
+raw data behind it — not a decoded call-trace view.
 
 ## Architecture
 
@@ -30,7 +32,8 @@ token address
   -> planner (LLM, structured output): picks which probes apply, in what order
   -> executor: per probe -> fresh anvil fork of Base -> setup -> execute (real txs) -> interpret (code, not LLM)
   -> narrator (LLM): writes prose from the finished verdicts; numbers are injected, never generated
-  -> output: claimed-vs-proven table, tx hashes, expandable call traces, streamed live over SSE
+  -> output: claimed-vs-proven table, tx hashes (linked to Basescan), an
+     expandable raw-verdict-data panel, streamed live over SSE
 ```
 
 Two packages, one shared types package:
