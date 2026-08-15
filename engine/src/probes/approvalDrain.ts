@@ -10,6 +10,8 @@ const ERC20_ABI = parseAbi([
 
 const APPROVAL_EVENT = parseAbiItem("event Approval(address indexed owner, address indexed spender, uint256 value)");
 
+const APPROVAL_LOOKBACK_BLOCKS = 3_000n;
+
 // ponytail: duplicated from dex.ts (not exported there) rather than exporting
 // it just for this probe — same Uniswap V2 router/WETH already used elsewhere.
 const ROUTER: Hex = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24";
@@ -100,9 +102,12 @@ export const approvalDrainProbe: Probe = {
     const victim = ctx.token;
     const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
 
-    // ponytail: bounded lookback instead of scanning from genesis — 200k blocks
-    // is enough for a demo; widen fromBlock if older approvals need to surface.
-    const fromBlock = ctx.block > 200_000n ? ctx.block - 200_000n : 0n;
+    // ponytail: conservative single-call window to stay under provider
+    // eth_getLogs range caps (Alchemy/Infura/QuickNode etc. cap unfiltered
+    // ranges far below 200k, often a few thousand blocks); only catches
+    // RECENT approvals — widen with a chunked/paginated scan once the real
+    // provider's limit is known in the RPC batch.
+    const fromBlock = ctx.block > APPROVAL_LOOKBACK_BLOCKS ? ctx.block - APPROVAL_LOOKBACK_BLOCKS : 0n;
     const logs = await pub.getLogs({ event: APPROVAL_EVENT, args: { owner: victim }, fromBlock, toBlock: ctx.block });
 
     // Dedupe by (token, spender) — latest Approval log overwrites the prior
