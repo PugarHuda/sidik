@@ -1,10 +1,10 @@
-# Bukti — Design Spec
+# Sidik — Design Spec
 
 > An autonomous agent that **proves** what a Base token will do to you by
 > actually doing it in a forked mainnet sandbox — instead of inferring risk
 > from data like every other analytics agent.
 
-- **Project:** Bukti (Indonesian: *proof / evidence*)
+- **Project:** Sidik (Indonesian: *to investigate / detect*; *sidik jari* = fingerprint)
 - **Event:** Orion Builder Hackathon (Base). Submit deadline 2026-09-02 23:59 UTC.
   Internal target submit: **2026-08-30** (3-day buffer for gas/bugs/retry).
 - **Judged on:** usefulness, execution, originality (0–10 each), by
@@ -14,9 +14,9 @@
 ## Thesis
 
 Every other entry (Rigel, BaseScout) is read-only analytics: they *infer*
-risk from on-chain data. Bukti crosses a technical line almost nobody crosses
+risk from on-chain data. Sidik crosses a technical line almost nobody crosses
 in a 3-week hackathon — it **executes** the attack on a forked Base mainnet and
-shows what actually happens. "Rigel/BaseScout tell you what's wrong; Bukti
+shows what actually happens. "Rigel/BaseScout tell you what's wrong; Sidik
 tries to sell the token and shows you the revert."
 
 The differentiator is a **technical moat** (mainnet forking + state override +
@@ -43,7 +43,7 @@ Verdict { status, title, claimedVsProven[], numbers{}, txHashes[], traceRefs[] }
 **Non-negotiable invariant:** the verdict is produced by `interpret` (code),
 never by the LLM. If the sell reverts, `interpret` returns
 `FAIL: honeypot` with the revert reason from the trace. This is the property
-that let BaseScout score 86 — every figure traces to a real call. Bukti keeps
+that let BaseScout score 86 — every figure traces to a real call. Sidik keeps
 it and adds one thing no read-only tool has: an honest **N/A** ("could not
 execute / not applicable"), which reads as integrity to judges.
 
