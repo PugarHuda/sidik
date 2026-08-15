@@ -1,4 +1,5 @@
-import type { RawResult, ProbeCtx, Verdict, Hex } from "@sidik/shared";
+import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
+import { buyExactEth, sellAll } from "../dex.js";
 
 export function interpretHoneypot(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const bought = String(raw.boughtAmount ?? "0");
@@ -26,3 +27,24 @@ export function interpretHoneypot(raw: RawResult, _ctx: ProbeCtx): Verdict {
     numbers: { boughtAmount: bought }, txHashes,
   };
 }
+
+export const honeypotProbe: Probe = {
+  id: "honeypot",
+  title: "Honeypot sell test",
+  applicableWhen: (s) => s.isErc20 && s.hasPool,
+  async setup(fork, ctx) {
+    await fork.setBalanceEth(ctx.testWallet, "10");
+  },
+  async execute(fork, ctx): Promise<RawResult> {
+    const buy = await buyExactEth(fork, ctx, 1n * 10n ** 18n);
+    if (!buy.ok || buy.amount === "0") {
+      return { boughtAmount: "0", soldOk: false, buyTxHash: buy.hash, sellTxHash: "0x" as Hex };
+    }
+    const sell = await sellAll(fork, ctx);
+    return {
+      boughtAmount: buy.amount, soldOk: sell.ok, sellRevertReason: sell.revertReason,
+      buyTxHash: buy.hash, sellTxHash: sell.hash,
+    };
+  },
+  interpret: interpretHoneypot,
+};
