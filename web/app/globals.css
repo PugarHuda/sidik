@@ -1,26 +1,90 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* case-file ink palette — near-black, slightly blue, not pure #000 */
+  --ink: #0a0c0e;
+  --panel: #14171c;
+  --card: #1b1f26;
+  --border: #2a2f38;
+  --fg: #e7eaee;
+  --fg-dim: #8b94a3;
+
+  /* brand accent — indigo "scan" blue, distinct from all three verdict colors */
+  --accent: #6c8cff;
+
+  /* verdict semantics: red = FAIL, green = PASS, amber = NA */
+  --pass: #34d399;
+  --fail: #fb4141;
+  --na: #f5a623;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ink: var(--ink);
+  --color-panel: var(--panel);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-fg-dim: var(--fg-dim);
+  --color-accent: var(--accent);
+  --color-pass: var(--pass);
+  --color-fail: var(--fail);
+  --color-na: var(--na);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--fg);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* signature: a faint fingerprint-ridge watermark, ties "Sidik" (fingerprint)
+   to the page without shouting about it. Concentric arcs via repeating radial. */
+.fingerprint-bg {
+  background-image: repeating-radial-gradient(
+    circle at 50% 40%,
+    rgba(108, 140, 255, 0.14) 0px,
+    rgba(108, 140, 255, 0.14) 1px,
+    transparent 2px,
+    transparent 10px
+  );
+  mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 70%);
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-reveal {
+  animation: reveal 0.35s ease-out both;
+}
+
+@keyframes recording-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-recording {
+  animation: recording-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-reveal,
+  .animate-recording {
+    animation: none;
+  }
 }
