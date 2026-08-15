@@ -1,0 +1,11 @@
+{
+  "name": "sidik",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev:engine": "pnpm --filter @sidik/engine dev",
+    "dev:web": "pnpm --filter web dev",
+    "test": "pnpm --filter @sidik/engine test"
+  }
+}
