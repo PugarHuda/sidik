@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { EXAMPLES } from "@/lib/examples";
+import { EXAMPLES } from "@sidik/shared";
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 

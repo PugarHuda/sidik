@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import type { Hex, PreScan, Verdict } from "@sidik/shared";
 import type { RunEvent } from "@/lib/sse";
-import { EXAMPLES } from "@/lib/examples";
+import { EXAMPLES } from "@sidik/shared";
 
 export const runtime = "nodejs";
 
