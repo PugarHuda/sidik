@@ -32,8 +32,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
-      "lpRug"
+      "lpRug",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -55,6 +55,27 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xd9819fef94ebf6f11648510e08fe0292c99bf36debf892284a462e3a85123fb6",
           "0x893a08057d9d195c42fc926c0ba8a80d46aa00eb4fc42bae0a7da548fc38d617"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0",
+          "holderValueAfter": "0",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -84,30 +105,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xd9819fef94ebf6f11648510e08fe0292c99bf36debf892284a462e3a85123fb6",
           "0xff9634a0c89f16922926eb34dc8feed5109a24ccb75ee155e06e96c4244f27a7"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP is not burned (0%) and its holder could not be identified",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "0%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0",
-          "holderValueAfter": "0",
-          "lpOwner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": []
       }
     ],
-    "narration": "✓ Not a honeypot — buy and sell both succeed\n✓ No hidden fee on buying or transferring\n— LP is not burned (0%) and its holder could not be identified"
+    "narration": "Honeypot check passed: buying and selling both succeeded, with 2240708453 tokens bought and sold without issue.\n\nHidden fee check passed: buy tax was 0%, and a transfer of 2240708453 tokens sent resulted in 2240708453 received (0% fee), confirming full amounts pass through on both buy and transfer.\n\nLP rug check was inconclusive: 0% of LP is burned and the LP owner address is 0x0000000000000000000000000000000000000000, meaning no holder could be identified, so it cannot be confirmed that liquidity is locked or safe."
   },
   "0x48f617e5b1b214a90800348d7944bbc0e9290fbb": {
     "scan": {
@@ -122,8 +122,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
-      "lpRug"
+      "lpRug",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -146,6 +146,27 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x60aaa0d22f4ff4f62f7a6e7ae36cdb538e48a400f7f8fe26429cfe361cd9afac"
         ],
         "reason": "Execution reverted with reason: TransferHelper: TRANSFER_FROM_FAILED."
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0",
+          "holderValueAfter": "0",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -175,30 +196,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xf6712fd40e528cad82f830ca6a5d0c3c34186ac9bba49cf60d8732b01ce189ee",
           "0xabd3c2e54d8ba70ba35a236819282210676051ed6584f6d99069e2db3e322e4b"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP is not burned (0%) and its holder could not be identified",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "0%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0",
-          "holderValueAfter": "0",
-          "lpOwner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": []
       }
     ],
-    "narration": "⚠️ Honeypot — you can buy but cannot sell\n✓ No hidden fee on buying or transferring\n— LP is not burned (0%) and its holder could not be identified"
+    "narration": "This token failed the honeypot check: after buying 2788707521021 tokens, selling reverted with \"TransferHelper: TRANSFER_FROM_FAILED,\" meaning tokens can be bought but not sold. The LP rug check found 0% of LP burned and no identifiable LP holder, so the liquidity's control status is unclear. On a positive note, no hidden fees were found: buying and transferring both delivered 100% of the expected amount (2788707521021 sent and received), with 0% fee and 0% buy tax."
   },
   "0x0e86efe5ba52336c2173ad69ee726e054619e0d8": {
     "scan": {
@@ -213,8 +213,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
-      "lpRug"
+      "lpRug",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -236,6 +236,27 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x1d379f78e938535ded53499b16ef77ea7c443953e173fac534b696238567dd53",
           "0x7f4a42678be71c030beb013a49a153073e3854864df0d87ed25a9ae41919caa1"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 99.98% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "99.98% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "99.98%",
+          "holderValueBefore": "0",
+          "holderValueAfter": "0",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -265,29 +286,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x1d379f78e938535ded53499b16ef77ea7c443953e173fac534b696238567dd53",
           "0x27acae28dd1fe5f8f811be960efd26127eb6c7aad93415fc838fc1dbcb789898"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "PASS",
-        "title": "LP is burned — 99.98% of it cannot be withdrawn by anyone",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "99.98% of LP supply sits at a burn address, beyond any owner's reach",
-            "ok": true
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "0%",
-          "burnedLpPct": "99.98%",
-          "holderValueBefore": "0",
-          "holderValueAfter": "0",
-          "lpOwner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": []
       }
     ],
-    "narration": "✓ Not a honeypot — buy and sell both succeed\n⚠️ Hidden buy tax of 2.99%\n✓ LP is burned — 99.98% of it cannot be withdrawn by anyone"
+    "narration": "Token-safety checks: buying and selling both succeeded, confirming the token is not a honeypot. Liquidity is effectively secured, with 99.98% of LP supply sent to a burn address and 0% held by the owner, so the pool cannot be drained. However, a hidden buy tax was detected: buyers receive 2.99% less than the pool's quoted amount. Plain transfers are unaffected, with recipients receiving 100% of tokens sent. Overall: tradable and liquidity-safe, but the 2.99% hidden buy tax is a real cost buyers should account for."
   }
 };
