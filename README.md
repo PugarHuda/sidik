@@ -116,13 +116,17 @@ environment variables below. Confirm `https://<your-service>/health` returns
 | Var | Required | Purpose |
 |---|---|---|
 | `BASE_ARCHIVE_RPC` | yes | Base archive-node RPC URL (e.g. Alchemy free tier) — `anvil --fork-url` forks from this |
-| `AI_GATEWAY_API_KEY` | yes | Vercel AI Gateway key — the planner and narrator LLM calls run through this |
+| `AI_GATEWAY_API_KEY` | no | Vercel AI Gateway key — the planner and narrator LLM calls run through this |
 | `BASE_FORK_BLOCK` | no | Pins the fork to a specific block for reproducible demo runs; defaults to a hardcoded recent block (see `engine/src/examples.ts`) |
 | `PORT` | no | Defaults to `8787` |
 
-The engine needs **both** `BASE_ARCHIVE_RPC` and `AI_GATEWAY_API_KEY` to
-produce a real fork-proof run — missing either breaks the flow, not just
-degrades it.
+`BASE_ARCHIVE_RPC` is the only hard requirement: without it there is no fork
+and nothing can be proven. `AI_GATEWAY_API_KEY` is not. Every verdict is
+produced by deterministic code, so the LLM only orders the probes and writes
+the prose around them — with the gateway unreachable or unauthorized, the
+planner falls back to running every applicable probe and the narrator to a
+summary built from the verdicts themselves. A run with no LLM at all still
+streams real verdicts with real tx hashes.
 
 ### 2. Web → Vercel
 
