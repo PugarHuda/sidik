@@ -12,10 +12,11 @@ export type RunEvent =
   | { type: "narration"; text: string }
   | { type: "done" }
   | { type: "error"; message: string }
-  // ponytail: client-only marker the mock-stream proxy prepends when serving
-  // simulated data instead of a real engine run. The real engine never sends
-  // this — it's how RunView knows to show the "not a live fork run" banner.
-  | { type: "demo" };
+  // Client-only marker the proxy route prepends when it replays a recorded
+  // run instead of reaching a live engine. The engine itself never sends it.
+  // The data that follows is genuine fork output, just not produced just now,
+  // which is why the banner says "recorded" and not "simulated".
+  | { type: "replay"; block: string };
 
 /**
  * Opens `url` and yields parsed SSE frames as typed RunEvents. Uses

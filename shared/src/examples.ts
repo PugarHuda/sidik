@@ -22,11 +22,14 @@ export const EXAMPLES: ExampleToken[] = [
   // zero address, so it also *claims* renounced ownership — the exact
   // claimed-vs-proven gap Sidik exists to show.
   { label: "Anastasia (honeypot)", address: "0x48F617e5b1B214a90800348D7944bBc0E9290Fbb", kind: "honeypot" },
-  // 1F916 — a real Base token that taxes the pool route while leaving
+  // BRB — a real Base token that taxes the pool route while leaving
   // wallet-to-wallet transfers alone. Verified 2026-08-20 at block
   // 50,200,000: 2.99% taken on both buy and sell, reproducible across trade
   // sizes, while transfer() delivers 100%. It is the demo case for why
-  // testing transfer() by itself is not enough — that test hands this token
-  // a clean PASS.
-  { label: "1F916 (3% buy tax)", address: "0xB357E2546e51fa6f2383e768A7d022d5777Ba152", kind: "highfee" },
+  // testing transfer() by itself is not enough — that test hands this token a
+  // clean PASS. (0xB357E2546e51fa6f2383e768A7d022d5777Ba152 is a second,
+  // identically-taxed token if this one's pool moves.) Its LP is 99.98%
+  // burned, so it is also the one example where all three probes return a
+  // definite verdict rather than an NA.
+  { label: "BRB (3% buy tax)", address: "0x0e86eFe5Ba52336c2173AD69EE726e054619e0d8", kind: "highfee" },
 ];

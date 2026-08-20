@@ -53,8 +53,8 @@ function logLine(e: RunEvent): string {
       return `DONE      run complete`;
     case "error":
       return `ERROR     ${e.message}`;
-    case "demo":
-      return `DEMO      simulated data — not a live fork run`;
+    case "replay":
+      return `REPLAY    recorded fork run at block ${e.block} — no live engine`;
   }
 }
 
@@ -185,8 +185,8 @@ export default function RunView({ token }: { token: string }) {
   const isDone = events.some((e) => e.type === "done") && !errorEvent;
   const isError = !!errorEvent;
   const isRunning = !isDone && !isError;
-  const isDemo = events.some((e) => e.type === "demo");
-  const traceEvents = events.filter((e) => e.type !== "demo");
+  const replay = events.find((e) => e.type === "replay");
+  const traceEvents = events.filter((e) => e.type !== "replay");
 
   const findLast = <T extends RunEvent["type"]>(t: T): Ev<T> | undefined => {
     for (let i = events.length - 1; i >= 0; i--) {
@@ -222,9 +222,9 @@ export default function RunView({ token }: { token: string }) {
         </span>
       </div>
 
-      {isDemo && (
+      {replay && (
         <div className="animate-reveal rounded-md border border-na/50 bg-na/10 px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-widest text-na">
-          Demo — simulated data, not a live fork run
+          Recorded run — real fork proof from block {replay.block}, replayed with no live engine
         </div>
       )}
 

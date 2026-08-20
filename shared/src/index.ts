@@ -4,3 +4,4 @@
 // happy either way.
 export * from "./types";
 export * from "./examples";
+export * from "./fixtures";

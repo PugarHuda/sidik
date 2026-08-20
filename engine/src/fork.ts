@@ -55,12 +55,37 @@ async function spawnAnvil(rpc: string, block: bigint, port: number) {
   throw new Error(`anvil failed to start on port ${port} (${why})${output ? `: ${output.trim()}` : ""}`);
 }
 
+// Forking replays a burst of archive reads upstream, and a free-tier RPC
+// answers some of them with 429 once a couple of forks overlap. That failure
+// is transient and self-clearing, but without a retry it surfaced as a probe
+// reporting NA — an infrastructure hiccup dressed up as a finding about the
+// token. Retry the spawn rather than let that happen.
+const ANVIL_SPAWN_ATTEMPTS = 3;
+const ANVIL_RETRY_BACKOFF_MS = 1_500;
+
+async function spawnAnvilWithRetry(rpc: string, block: bigint) {
+  let last: unknown;
+  for (let attempt = 1; attempt <= ANVIL_SPAWN_ATTEMPTS; attempt++) {
+    // A fresh port each attempt: the previous one may still be held by the
+    // process that just died.
+    const port = await getPort();
+    try {
+      return await spawnAnvil(rpc, block, port);
+    } catch (e) {
+      last = e;
+      if (attempt < ANVIL_SPAWN_ATTEMPTS) {
+        await new Promise((res) => setTimeout(res, ANVIL_RETRY_BACKOFF_MS * attempt));
+      }
+    }
+  }
+  throw last;
+}
+
 export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promise<T>): Promise<T> {
   const rpc = process.env.BASE_ARCHIVE_RPC;
   if (!rpc) throw new Error("BASE_ARCHIVE_RPC is not set");
 
-  const port = await getPort();
-  const { proc, url } = await spawnAnvil(rpc, block, port);
+  const { proc, url } = await spawnAnvilWithRetry(rpc, block);
   const transport = http(url);
   const test = createTestClient({ mode: "anvil", chain: base, transport });
   const pub = createPublicClient({ chain: base, transport });

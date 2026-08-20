@@ -112,3 +112,12 @@ async function runProbe(d: Deps, token: Hex, scan: PreScan, id: string): Promise
 function naVerdict(id: string, title: string): Verdict {
   return { probe: id, status: "NA", title, rows: [], numbers: {}, txHashes: [] };
 }
+
+// A probe that threw never examined the token, so its NA says nothing about
+// the token — only that the run broke. naVerdict is the only path that emits
+// an NA with no rows, which makes emptiness the reliable tell. Callers that
+// must not treat infrastructure failure as a finding (the fixture generator)
+// use this.
+export function isProbeFailure(v: Verdict): boolean {
+  return v.status === "NA" && v.rows.length === 0;
+}
