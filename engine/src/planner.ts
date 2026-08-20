@@ -14,19 +14,31 @@ export function filterApplicable(ids: string[], scan: PreScan): string[] {
   });
 }
 
+function allApplicable(scan: PreScan): string[] {
+  return PROBES.filter((p) => p.applicableWhen(scan)).map((p) => p.id);
+}
+
 export async function planProbes(scan: PreScan): Promise<string[]> {
-  // ponytail: bare gateway model string — resolves via Vercel AI Gateway
-  // (default provider) when AI_GATEWAY_API_KEY is set. Runtime-deferred: no
-  // key configured yet, so this call is untested/uninvoked until then.
-  const { object } = await generateObject({
-    model: "anthropic/claude-sonnet-5",
-    schema: z.object({ probes: z.array(z.enum(PROBE_IDS as [string, ...string[]])) }),
-    prompt: `You are a Base token security auditor choosing which executable probes to run.
+  // The plan is an ordering hint, never a source of truth — every verdict is
+  // produced by deterministic code either way. So an unreachable or
+  // unauthorized gateway must not take the run down with it: fall back to
+  // running everything applicable, exactly as an unusable answer already did.
+  let picked: string[];
+  try {
+    // ponytail: bare gateway model string — resolves via Vercel AI Gateway
+    // (default provider) when AI_GATEWAY_API_KEY is set.
+    const { object } = await generateObject({
+      model: "anthropic/claude-sonnet-5",
+      schema: z.object({ probes: z.array(z.enum(PROBE_IDS as [string, ...string[]])) }),
+      prompt: `You are a Base token security auditor choosing which executable probes to run.
 Token facts: ${JSON.stringify(scan)}.
 Available probes: ${PROBES.map((p) => `${p.id}: ${p.title}`).join("; ")}.
 Return the probes worth running, most important first. Do not invent probes or numbers.`,
-  });
-  const filtered = filterApplicable(object.probes, scan);
+    });
+    picked = filterApplicable(object.probes, scan);
+  } catch {
+    return allApplicable(scan);
+  }
   // safety net: if the model returned nothing usable, run everything applicable.
-  return filtered.length ? filtered : PROBES.filter((p) => p.applicableWhen(scan)).map((p) => p.id);
+  return picked.length ? picked : allApplicable(scan);
 }

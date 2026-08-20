@@ -14,6 +14,11 @@ import type { ForkClient, Hex } from "@sidik/shared";
 // is enough to force broadcast-then-revert-on-chain.
 const FORK_GAS_LIMIT = 5_000_000n;
 
+// Forking a busy archive RPC can take a while, and a rate-limited provider
+// makes it take longer still — a tight budget turns a slow start into a
+// spurious failure mid-demo.
+const ANVIL_START_TIMEOUT_MS = 90_000;
+
 async function spawnAnvil(rpc: string, block: bigint, port: number) {
   // ponytail: spawn("anvil", ...) resolves anvil.exe via PATH on Windows same as any
   // other binary — no shell:true needed unless PATH resolution proves otherwise.
@@ -21,9 +26,23 @@ async function spawnAnvil(rpc: string, block: bigint, port: number) {
     "--fork-url", rpc, "--fork-block-number", String(block),
     "--port", String(port), "--silent",
   ]);
-  // wait until the JSON-RPC responds
+
+  // Keep anvil's own diagnostics instead of discarding them: when it dies on
+  // a bad RPC URL, a rate limit or an unusable fork block, that text is the
+  // only thing that says which. Draining the pipes also stops a chatty anvil
+  // from blocking on a full stdio buffer.
+  let output = "";
+  const keep = (chunk: unknown) => { output = (output + String(chunk)).slice(-2000); };
+  proc.stdout?.on("data", keep);
+  proc.stderr?.on("data", keep);
+  let exited: { code: number | null; signal: NodeJS.Signals | null } | undefined;
+  proc.on("exit", (code, signal) => { exited = { code, signal }; });
+  proc.on("error", (e) => keep(`spawn error: ${e.message}`));
+
   const url = `http://127.0.0.1:${port}`;
-  for (let i = 0; i < 60; i++) {
+  const deadline = performance.now() + ANVIL_START_TIMEOUT_MS;
+  while (performance.now() < deadline) {
+    if (exited) break; // died before ever serving — retrying the fetch is pointless
     try {
       const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }) });
@@ -32,7 +51,8 @@ async function spawnAnvil(rpc: string, block: bigint, port: number) {
     await new Promise((res) => setTimeout(res, 250));
   }
   proc.kill();
-  throw new Error("anvil failed to start");
+  const why = exited ? `exited with code ${exited.code ?? exited.signal}` : `no response within ${ANVIL_START_TIMEOUT_MS}ms`;
+  throw new Error(`anvil failed to start on port ${port} (${why})${output ? `: ${output.trim()}` : ""}`);
 }
 
 export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promise<T>): Promise<T> {

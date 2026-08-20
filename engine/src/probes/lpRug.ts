@@ -19,11 +19,16 @@ const ERC20_ABI = parseAbi([
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
 
-// ponytail: sentinel for "no LP-owner candidate found" — the genuine null
-// address, not a burn-style placeholder. Named distinctly from prescan.ts's
-// ZERO (a general zero-address/pair-not-found sentinel) so the two don't
-// read as the same concept despite sharing a value.
+// Display value for "no LP-owner candidate found". It is NOT how the absence
+// is signalled — raw.lpHolderFound carries that, because the zero address is
+// also a legitimate LP holder (burned LP lands there) and overloading it
+// turned "we found nobody" into a PASS meaning "the LP is burned".
 const NO_LP_OWNER: Hex = "0x0000000000000000000000000000000000000000" as Hex;
+
+// Below this share, the largest LP holder the pre-scan could find is not the
+// party capable of rugging the pool — so pulling their LP proves nothing
+// either way. A PASS there would be a verdict with no evidence behind it.
+const MIN_TESTABLE_LP_PCT = 1;
 
 export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const ownerLpPct = Number(raw.ownerLpPct ?? 0);
@@ -39,7 +44,33 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const afterN = Number(after) || 0;
   const collapsed = beforeN > 0 && afterN <= beforeN * 0.5;
 
-  if (ownerLpPct > 0 && collapsed) {
+  // ponytail: LP-holder discovery is a bounded candidate scan (token owner +
+  // sampled top holders), so it genuinely misses the controller sometimes.
+  // Say so instead of guessing; widen by scanning the pair's own Transfer
+  // logs (rpc.ts can serve the range) if NA shows up too often on real tokens.
+  if (!raw.lpHolderFound || ownerLpPct < MIN_TESTABLE_LP_PCT) {
+    return {
+      probe: "lpRug", status: "NA", title: "Could not identify who controls the LP",
+      rows: [{ label: "LP owner can drain the pool", claimed: "Liquidity is locked/safe",
+        proven: raw.lpHolderFound
+          ? `Largest LP holder found controls only ${pct} of LP supply — too little to test a rug`
+          : "No LP holder could be identified from the pre-scan candidates", ok: false }],
+      numbers, txHashes,
+    };
+  }
+
+  // Without a priced holder position there is nothing to measure the pull
+  // against, so "the pool survived" would be an assertion, not a measurement.
+  if (beforeN === 0) {
+    return {
+      probe: "lpRug", status: "NA", title: "No holder position to measure the pull against",
+      rows: [{ label: "LP owner can drain the pool", claimed: "Liquidity is locked/safe",
+        proven: "Could not price any holder's position before the pull", ok: false }],
+      numbers, txHashes,
+    };
+  }
+
+  if (collapsed) {
     return {
       probe: "lpRug", status: "FAIL", title: "LP rug possible — owner can pull all liquidity",
       rows: [{ label: "LP owner can drain the pool", claimed: "Liquidity is locked/safe",
@@ -63,10 +94,10 @@ export const lpRugProbe: Probe = {
   async setup() { /* no fork funding needed; lpOwner is impersonated, not funded */ },
   async execute(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
     const pool = ctx.scan.poolAddress;
-    if (!pool) return { lpOwner: NO_LP_OWNER, ownerLpPct: 0, holderValueBefore: "0", holderValueAfter: "0", pullTxHash: "0x" as Hex };
+    if (!pool) return { lpOwner: NO_LP_OWNER, lpHolderFound: false, ownerLpPct: 0, holderValueBefore: "0", holderValueAfter: "0", pullTxHash: "0x" as Hex };
 
     const totalSupply = await fork.read<bigint>({ address: pool, abi: ERC20_ABI, functionName: "totalSupply" });
-    if (totalSupply === 0n) return { lpOwner: NO_LP_OWNER, ownerLpPct: 0, holderValueBefore: "0", holderValueAfter: "0", pullTxHash: "0x" as Hex };
+    if (totalSupply === 0n) return { lpOwner: NO_LP_OWNER, lpHolderFound: false, ownerLpPct: 0, holderValueBefore: "0", holderValueAfter: "0", pullTxHash: "0x" as Hex };
 
     // ponytail: LP-holder discovery is a bounded candidate scan (owner + top
     // holders); a full LP-holder index is deferred — refine in the RPC batch.
@@ -98,7 +129,7 @@ export const lpRugProbe: Probe = {
     const holderValueBefore = await priceHolder();
 
     if (lpBalance === 0n) {
-      return { lpOwner: NO_LP_OWNER, ownerLpPct: 0, holderValueBefore, holderValueAfter: holderValueBefore, pullTxHash: "0x" as Hex };
+      return { lpOwner: NO_LP_OWNER, lpHolderFound: false, ownerLpPct: 0, holderValueBefore, holderValueAfter: holderValueBefore, pullTxHash: "0x" as Hex };
     }
 
     const ownerLpPct = Math.round(Number((lpBalance * 10000n) / totalSupply) / 100);
@@ -120,7 +151,7 @@ export const lpRugProbe: Probe = {
     }
     await fork.stopImpersonate(lpOwner);
 
-    return { lpOwner, ownerLpPct, holderValueBefore, holderValueAfter, pullTxHash };
+    return { lpOwner, lpHolderFound: true, ownerLpPct, holderValueBefore, holderValueAfter, pullTxHash };
   },
   interpret: interpretLpRug,
 };

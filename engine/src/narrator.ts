@@ -23,13 +23,21 @@ export function guardProse(prose: string, allowed: Set<string>): string {
 
 export async function narrate(verdicts: Verdict[]): Promise<string> {
   const allowed = allowedNumbers(verdicts);
-  // ponytail: bare gateway model string — runtime-deferred, no AI_GATEWAY_API_KEY yet.
-  const { text } = await generateText({
-    model: "anthropic/claude-sonnet-5",
-    prompt: `Write a short, hype-free summary of these executed token-safety verdicts.
+  let text: string;
+  try {
+    // ponytail: bare gateway model string — resolves via Vercel AI Gateway
+    // (default provider) when AI_GATEWAY_API_KEY is set.
+    ({ text } = await generateText({
+      model: "anthropic/claude-sonnet-5",
+      prompt: `Write a short, hype-free summary of these executed token-safety verdicts.
 Every number you use MUST appear verbatim in the data. Do not invent figures.
 Data: ${JSON.stringify(verdicts)}`,
-  });
+    }));
+  } catch {
+    // The prose is decoration; the verdicts are the product. An unreachable
+    // or unauthorized gateway degrades to the template, it does not fail the run.
+    return templateFallback(verdicts);
+  }
   return guardProse(text, allowed) || templateFallback(verdicts);
 }
 
