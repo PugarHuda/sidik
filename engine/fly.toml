@@ -1,0 +1,47 @@
+# Sidik engine on Fly.io. Deploy from the REPO ROOT so the Dockerfile gets the
+# pnpm workspace as its build context:
+#
+#   flyctl auth login
+#   flyctl launch --no-deploy --copy-config --config engine/fly.toml --name sidik-engine
+#   flyctl secrets set BASE_ARCHIVE_RPC='...' VENICE_API_KEY='...' --app sidik-engine
+#   flyctl deploy --config engine/fly.toml --dockerfile engine/Dockerfile .
+#
+# BASE_ARCHIVE_RPC is the only required secret. Without VENICE_API_KEY the
+# planner and narrator fall back to deterministic behaviour and verdicts are
+# unaffected — see the README.
+
+app = "sidik-engine"
+
+# US East: forking replays hundreds of sequential archive reads upstream, so
+# round-trip latency to the RPC provider dominates a run far more than the
+# distance to whoever is watching. Move this if your provider is elsewhere.
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8787"
+
+[http_service]
+  internal_port = 8787
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  # Cold start is a Node boot, a second or two, and example tokens are served
+  # from the frozen runs without touching the network at all. Set this to 1 if
+  # you want the first judge to hit a warm machine.
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  # anvil holds forked state in memory. One fork at a time fits in 1GB; raise
+  # this if probes start dying on OOM rather than on RPC limits.
+  memory = "1gb"

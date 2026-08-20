@@ -106,10 +106,15 @@ Foundry (`anvil` on `PATH`) + the `shared`+`engine` workspace packages
 docker build -f engine/Dockerfile -t sidik-engine .
 ```
 
-On Railway: create a new service from this repo, set the Dockerfile path to
+The image is verified: built and run locally on 2026-08-21, serving a
+recorded example in 64ms and completing a live three-probe fork run against
+Base in 13.5s inside the container.
+
+On Fly.io, `engine/fly.toml` carries the deploy commands in its header. On
+Railway: create a new service from this repo, set the Dockerfile path to
 `engine/Dockerfile` with the **repo root** as the build context, and set the
-environment variables below. Confirm `https://<your-service>/health` returns
-`{"ok":true}` once deployed — that's the URL you'll use as `ENGINE_URL`.
+environment variables below. Either way, confirm `https://<your-host>/health`
+returns `{"ok":true}` — that's the URL you'll use as `ENGINE_URL`.
 
 **Required env vars (engine host):**
 
@@ -131,9 +136,10 @@ streams real verdicts with real tx hashes.
 
 ### 2. Web → Vercel
 
-Vercel auto-detects the Next.js app in `web/` (Next.js's own build/runtime
-defaults are sufficient here — no `vercel.json` needed). Set the project
-root to `web/` and add:
+Set the project's **Root Directory** to `web` and deploy from the **repo
+root** — `web/` alone is not enough, because it imports `@sidik/shared` from
+the workspace and an upload scoped to `web/` cannot resolve it. No
+`vercel.json` is needed beyond that. Add:
 
 | Var | Required | Purpose |
 |---|---|---|
