@@ -67,43 +67,64 @@ function mockScript(token: Hex): [number, RunEvent][] {
   const scan: PreScan = {
     token,
     isErc20: true,
-    symbol: kind === "safe" ? "USDC" : kind === "honeypot" ? "TRAP" : "FEE",
-    decimals: kind === "safe" ? 6 : 18,
+    symbol: kind === "safe" ? "USDC" : kind === "honeypot" ? "Anastasia" : "FEE",
+    decimals: kind === "safe" ? 6 : kind === "honeypot" ? 8 : 18,
     hasPool: true,
-    poolAddress: "0x111111111111111111111111111111111111aaaa",
-    owner: kind === "safe" ? undefined : "0x222222222222222222222222222222222222bbbb",
-    topHolders: [{ address: "0x333333333333333333333333333333333333cccc", balance: "12500000" }],
+    poolAddress: kind === "honeypot"
+      ? "0xDB4B1756e5B26E523228bf7566A58a8D5F7527dC"
+      : "0x111111111111111111111111111111111111aaaa",
+    owner: kind === "safe" ? undefined
+      : kind === "honeypot" ? "0x0000000000000000000000000000000000000000"
+      : "0x222222222222222222222222222222222222bbbb",
+    topHolders: kind === "honeypot" ? []
+      : [{ address: "0x333333333333333333333333333333333333cccc", balance: "12500000" }],
   };
 
   if (kind === "honeypot") {
+    // Mirrors what the real engine actually proved about this address on a
+    // fork at BASE_FORK_BLOCK. The banner already says "simulated", but the
+    // address is a real named token — attributing invented behaviour to it
+    // would be the exact thing this project argues against.
     const honeypotVerdict: Verdict = {
       probe: "honeypot",
       status: "FAIL",
-      title: "Token can be bought but not sold",
-      rows: [
-        { label: "Can sell after buying", claimed: "Yes — freely tradable", proven: "No — sell reverted", ok: false },
-        { label: "Transfer to third party", claimed: "Unrestricted", proven: "Blocked (blacklist check on transfer)", ok: false },
+      title: "Honeypot — you can buy but cannot sell",
+      rows: [{ label: "Sell after buying", claimed: "Freely tradable", proven: "Sell reverted", ok: false }],
+      numbers: { boughtAmount: "17661591544435" },
+      txHashes: [
+        "0xf88f79a6d0f06881c3bf1303d09c57fce21865a2071190303559678a399da389",
+        "0xf2652c5666595ef5578c7c1b93f847792d26cc8330907df5e16ba3de1ef030e8",
       ],
-      numbers: { "Buy tax": "0%", "Sell tax": "100% (reverts)" },
-      txHashes: ["0xaa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa1"],
-      reason: "sell() reverted: transfer blocked by hidden blacklist on non-owner sender",
+      reason: "Execution reverted with reason: TransferHelper: TRANSFER_FROM_FAILED.",
     };
     const feeVerdict: Verdict = {
       probe: "hiddenFee",
-      status: "FAIL",
-      title: "Undocumented transfer fee",
-      rows: [{ label: "Fee on transfer", claimed: "0% (none documented)", proven: "9% deducted on every transfer", ok: false }],
-      numbers: { "Sent": "1,000 TRAP", "Received": "910 TRAP" },
-      txHashes: ["0xbb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb2"],
+      status: "PASS",
+      title: "No hidden transfer fee",
+      rows: [{ label: "Transfer 100% of tokens", claimed: "Recipient gets 100%", proven: "Recipient got 100%", ok: true }],
+      numbers: { sent: "17661591544435", received: "17661591544435", feePct: "0%" },
+      txHashes: ["0xc559eea80f741887bf676a66730cae1cd33048c17c204a026086f0ddc9f8701b"],
+    };
+    const lpVerdict: Verdict = {
+      probe: "lpRug",
+      status: "NA",
+      title: "Could not identify who controls the LP",
+      rows: [{ label: "LP owner can drain the pool", claimed: "Liquidity is locked/safe",
+        proven: "Largest LP holder found controls only 0% of LP supply — too little to test a rug", ok: false }],
+      numbers: { ownerLpPct: "0%", holderValueBefore: "0", holderValueAfter: "0",
+        lpOwner: "0x0000000000000000000000000000000000000000" },
+      txHashes: [],
     };
     return [
       [200, { type: "prescan", scan }],
-      [250, { type: "plan", ids: ["honeypot", "hiddenFee"] }],
+      [250, { type: "plan", ids: ["honeypot", "hiddenFee", "lpRug"] }],
       [300, { type: "probe:start", id: "honeypot" }],
       [700, { type: "verdict", verdict: honeypotVerdict }],
       [250, { type: "probe:start", id: "hiddenFee" }],
       [600, { type: "verdict", verdict: feeVerdict }],
-      [300, { type: "narration", text: "This token lets you buy freely but blocks every sell — the classic honeypot shape. On top of that, every transfer quietly loses 9% to a fee the contract never discloses. Proven in a live fork, not inferred from bytecode." }],
+      [250, { type: "probe:start", id: "lpRug" }],
+      [500, { type: "verdict", verdict: lpVerdict }],
+      [300, { type: "narration", text: "The buy went through and the sell reverted — the classic honeypot shape, proven on a live fork rather than inferred from bytecode. The token charges no fee on ordinary transfers, and the pre-scan could not establish who controls the pool, so no rug claim is made either way. Its owner() returns the zero address, so it presents as having renounced ownership." }],
       [150, { type: "done" }],
     ];
   }
