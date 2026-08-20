@@ -1,4 +1,5 @@
 import { generateObject } from "ai";
+import { llm } from "./llm.js";
 import { z } from "zod";
 import type { PreScan } from "@sidik/shared";
 import { PROBES, PROBE_IDS } from "./probes/registry.js";
@@ -25,10 +26,8 @@ export async function planProbes(scan: PreScan): Promise<string[]> {
   // running everything applicable, exactly as an unusable answer already did.
   let picked: string[];
   try {
-    // ponytail: bare gateway model string — resolves via Vercel AI Gateway
-    // (default provider) when AI_GATEWAY_API_KEY is set.
     const { object } = await generateObject({
-      model: "anthropic/claude-sonnet-5",
+      model: llm,
       schema: z.object({ probes: z.array(z.enum(PROBE_IDS as [string, ...string[]])) }),
       prompt: `You are a Base token security auditor choosing which executable probes to run.
 Token facts: ${JSON.stringify(scan)}.

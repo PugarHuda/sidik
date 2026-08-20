@@ -4,8 +4,8 @@ import type { PreScan, Verdict } from "@sidik/shared";
 // The gateway is the one dependency Sidik cannot control at demo time. Both
 // LLM calls must degrade to their deterministic fallback rather than throw.
 vi.mock("ai", () => ({
-  generateObject: () => Promise.reject(new Error("AI Gateway requires a valid credit card on file")),
-  generateText: () => Promise.reject(new Error("AI Gateway requires a valid credit card on file")),
+  generateObject: () => Promise.reject(new Error("401 Unauthorized: invalid API key")),
+  generateText: () => Promise.reject(new Error("401 Unauthorized: invalid API key")),
 }));
 
 const { planProbes } = await import("../src/planner.js");

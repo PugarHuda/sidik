@@ -60,8 +60,8 @@ Requires Node >=24, [pnpm](https://pnpm.io), and
 pnpm install
 
 # engine — needs BASE_ARCHIVE_RPC (a Base archive RPC, e.g. Alchemy free
-# tier) and AI_GATEWAY_API_KEY (Vercel AI Gateway) in the environment to run
-# real fork proofs. Runs on :8787.
+# tier) in the environment to run real fork proofs, and optionally
+# VENICE_API_KEY for the LLM prose. Runs on :8787.
 pnpm dev:engine
 
 # web — Next.js dev server. Without ENGINE_URL set it replays the recorded
@@ -116,12 +116,13 @@ environment variables below. Confirm `https://<your-service>/health` returns
 | Var | Required | Purpose |
 |---|---|---|
 | `BASE_ARCHIVE_RPC` | yes | Base archive-node RPC URL (e.g. Alchemy free tier) — `anvil --fork-url` forks from this |
-| `AI_GATEWAY_API_KEY` | no | Vercel AI Gateway key — the planner and narrator LLM calls run through this |
+| `VENICE_API_KEY` | no | Venice AI key — the planner and narrator calls run through it (`claude-sonnet-5`, OpenAI-compatible endpoint) |
+| `SIDIK_MODEL` | no | Overrides the model id, default `claude-sonnet-5` |
 | `BASE_FORK_BLOCK` | no | Pins the fork to a specific block for reproducible demo runs; defaults to a hardcoded recent block (see `engine/src/examples.ts`) |
 | `PORT` | no | Defaults to `8787` |
 
 `BASE_ARCHIVE_RPC` is the only hard requirement: without it there is no fork
-and nothing can be proven. `AI_GATEWAY_API_KEY` is not. Every verdict is
+and nothing can be proven. `VENICE_API_KEY` is not. Every verdict is
 produced by deterministic code, so the LLM only orders the probes and writes
 the prose around them — with the gateway unreachable or unauthorized, the
 planner falls back to running every applicable probe and the narrator to a

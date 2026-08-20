@@ -49,7 +49,8 @@ COPY --chown=app:app engine engine
 
 EXPOSE 8787
 ENV PORT=8787
-# Required at runtime (set on the host, e.g. Railway/Fly): BASE_ARCHIVE_RPC,
-# AI_GATEWAY_API_KEY. Optional: BASE_FORK_BLOCK (pins the fork for
-# reproducible demo runs), PORT (defaults to 8787).
+# Required at runtime (set on the host, e.g. Railway/Fly): BASE_ARCHIVE_RPC.
+# Optional: VENICE_API_KEY (planner + narrator prose; without it both fall
+# back to deterministic behaviour and verdicts are unaffected), SIDIK_MODEL,
+# BASE_FORK_BLOCK (pins the fork for reproducible demo runs), PORT (8787).
 CMD ["pnpm", "--filter", "@sidik/engine", "start"]

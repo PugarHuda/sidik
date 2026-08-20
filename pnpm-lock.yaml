@@ -10,6 +10,9 @@ importers:
 
   engine:
     dependencies:
+      '@ai-sdk/openai-compatible':
+        specifier: ^1.0.48
+        version: 1.0.48(zod@3.25.76)
       '@hono/node-server':
         specifier: ^1
         version: 1.19.17(hono@4.13.2)
@@ -94,6 +97,12 @@ packages:
 
   '@ai-sdk/gateway@2.0.134':
     resolution: {integrity: sha512-n+dVco86tzsoQ5Lq8YI62ALsNQw37P5jJa/1NuzCtezfZCzH1UfgDWE3EZ0U1U3rqHlHFWV1N8D3QD5KBY9myg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/openai-compatible@1.0.48':
+    resolution: {integrity: sha512-Zl5+5VHId7g344LVSjZvPuFuRVej+u+MB+0ibFVGaXG1qUykyjKu2ptHinK5RjDdviCm+Bs+t3ZLegB39e8VyA==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -2822,6 +2831,12 @@ snapshots:
       '@ai-sdk/provider': 2.0.3
       '@ai-sdk/provider-utils': 3.0.32(zod@3.25.76)
       '@vercel/oidc': 3.1.0
+      zod: 3.25.76
+
+  '@ai-sdk/openai-compatible@1.0.48(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.3
+      '@ai-sdk/provider-utils': 3.0.32(zod@3.25.76)
       zod: 3.25.76
 
   '@ai-sdk/provider-utils@3.0.32(zod@3.25.76)':

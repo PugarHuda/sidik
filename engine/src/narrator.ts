@@ -1,4 +1,5 @@
 import { generateText } from "ai";
+import { llm } from "./llm.js";
 import type { Verdict } from "@sidik/shared";
 
 const NUM = /\d[\d,]*(?:\.\d+)?/g;
@@ -25,10 +26,8 @@ export async function narrate(verdicts: Verdict[]): Promise<string> {
   const allowed = allowedNumbers(verdicts);
   let text: string;
   try {
-    // ponytail: bare gateway model string — resolves via Vercel AI Gateway
-    // (default provider) when AI_GATEWAY_API_KEY is set.
     ({ text } = await generateText({
-      model: "anthropic/claude-sonnet-5",
+      model: llm,
       prompt: `Write a short, hype-free summary of these executed token-safety verdicts.
 Every number you use MUST appear verbatim in the data. Do not invent figures.
 Data: ${JSON.stringify(verdicts)}`,
