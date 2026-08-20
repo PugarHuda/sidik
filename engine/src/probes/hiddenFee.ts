@@ -24,6 +24,15 @@ export function interpretHiddenFee(raw: RawResult, _ctx: ProbeCtx): Verdict {
     };
   }
 
+  if (raw.transferReverted) {
+    return {
+      probe: "hiddenFee", status: "FAIL", title: "Transfer reverted — the token cannot be moved",
+      rows: [{ label: "Transfer 100% of tokens", claimed: "Recipient gets 100%",
+        proven: "transfer() reverted; nothing moved", ok: false }],
+      numbers: { sent, received, feePct: "n/a" }, txHashes,
+    };
+  }
+
   const bps = Number(raw.feeBps ?? 0);
   const pct = `${(bps / 100).toFixed(2).replace(/\.00$/, "")}%`;
   const ok = bps === 0;
@@ -48,11 +57,23 @@ export const hiddenFeeProbe: Probe = {
     const sent = await fork.read<bigint>({ address: ctx.token, abi: ERC20_ABI, functionName: "balanceOf", args: [ctx.testWallet] });
     if (sent === 0n) return { sent: "0", received: "0", feeBps: 0, xferTxHash: "0x" as Hex };
 
+    // Measure the RECIPIENT's delta, not its absolute balance — the same
+    // reason buyExactEth does. RECIPIENT is a real mainnet address that
+    // already holds dust in plenty of tokens (USDC among them), and counting
+    // that as "received" produced a negative fee and a false FAIL on a
+    // bluechip.
+    const before = await fork.read<bigint>({ address: ctx.token, abi: ERC20_ABI, functionName: "balanceOf", args: [RECIPIENT] });
     const data = encodeFunctionData({ abi: ERC20_ABI, functionName: "transfer", args: [RECIPIENT, sent] });
-    const { hash } = await fork.send({ from: ctx.testWallet, to: ctx.token, data });
-    const received = await fork.read<bigint>({ address: ctx.token, abi: ERC20_ABI, functionName: "balanceOf", args: [RECIPIENT] });
+    const { hash, reverted } = await fork.send({ from: ctx.testWallet, to: ctx.token, data });
+    // A reverted transfer moved nothing — reporting that as a "100% fee"
+    // would be a fabricated number, so say what actually happened instead.
+    if (reverted) return { sent: sent.toString(), received: "0", transferReverted: true, feeBps: 0, xferTxHash: hash };
+    const after = await fork.read<bigint>({ address: ctx.token, abi: ERC20_ABI, functionName: "balanceOf", args: [RECIPIENT] });
+    const received = after > before ? after - before : 0n;
 
-    const feeBps = sent > 0n ? Number(((sent - received) * 10000n) / sent) : 0;
+    // Reflection tokens can credit MORE than was sent; that is not a fee, so
+    // floor at 0 rather than reporting a negative one.
+    const feeBps = received >= sent ? 0 : Number(((sent - received) * 10000n) / sent);
     return { sent: sent.toString(), received: received.toString(), feeBps, xferTxHash: hash };
   },
   interpret: interpretHiddenFee,

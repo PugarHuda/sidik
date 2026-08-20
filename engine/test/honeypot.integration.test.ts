@@ -2,17 +2,18 @@ import { describe, it, expect } from "vitest";
 import { withFork } from "../src/fork.js";
 import { honeypotProbe } from "../src/probes/honeypot.js";
 import type { PreScan, ProbeCtx, Hex } from "@sidik/shared";
+import { BASE_FORK_BLOCK } from "../src/examples.js";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
-const BLOCK = BigInt(process.env.BASE_FORK_BLOCK ?? "0");
-const TEST_WALLET = "0x000000000000000000000000000000000000dEaD" as const;
+const BLOCK = BASE_FORK_BLOCK;
+// anvil dev account #0 — fork.send() has anvil sign for the sender, which it
+// only does for its own funded accounts (same wallet the orchestrator uses).
+const TEST_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" as const;
 
-// ponytail: token addresses TODO — pick a confirmed-liquid Base Uniswap V2
-// pair (known-safe) and a known honeypot once BASE_ARCHIVE_RPC + a fork
-// block are available. `examples.ts` doesn't exist yet (out of Task 5
-// scope); wire it in when the controller supplies real addresses.
-const SAFE_TOKEN = "0x000000000000000000000000000000000000dEaD" as Hex;
-const HONEYPOT_TOKEN = "0x000000000000000000000000000000000000bEEF" as Hex;
+// Both confirmed against a real fork at BASE_FORK_BLOCK on 2026-08-20 (see
+// examples.ts for how the honeypot was found and what it does).
+const SAFE_TOKEN = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Hex;      // USDC (Base)
+const HONEYPOT_TOKEN = "0x48F617e5b1B214a90800348D7944bBc0E9290Fbb" as Hex;  // Anastasia
 
 function ctxFor(token: Hex): ProbeCtx {
   const scan: PreScan = {
@@ -21,8 +22,7 @@ function ctxFor(token: Hex): ProbeCtx {
   return { token, scan, testWallet: TEST_WALLET, block: BLOCK };
 }
 
-// ponytail: gated on BASE_ARCHIVE_RPC — no archive RPC is available yet, so this
-// suite skips entirely until one is provided (see task-4-report.md / task-5-report.md).
+// Gated on BASE_ARCHIVE_RPC: skips when no archive RPC is configured.
 (RUN ? describe : describe.skip)("honeypotProbe (integration)", () => {
   it("PASSes on a known-safe Base token", async () => {
     const ctx = ctxFor(SAFE_TOKEN);

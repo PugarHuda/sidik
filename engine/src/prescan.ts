@@ -1,6 +1,7 @@
 import { createPublicClient, http, parseAbi, parseAbiItem } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
+import { logsClient } from "./rpc.js";
 
 // ponytail: duplicated from dex.ts (not exported there) rather than exporting
 // it just for this module — same convention approvalDrain.ts already uses for
@@ -24,10 +25,9 @@ const FACTORY_ABI = parseAbi([
 const OWNER_ABI = parseAbi(["function owner() view returns (address)"]);
 const TRANSFER_EVENT = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 value)");
 
-// ponytail: same conservative window as approvalDrain's APPROVAL_LOOKBACK_BLOCKS
-// — stays under provider eth_getLogs range caps (Alchemy/Infura/QuickNode etc.
-// cap unfiltered ranges far below 200k blocks). Only catches recent transfers;
-// widen with a chunked/paginated scan once the real provider's limit is known.
+// ponytail: same window as approvalDrain's APPROVAL_LOOKBACK_BLOCKS. ~1.7h of
+// Base blocks — a recent-activity sample, not a true top-holders index. Served
+// by the dedicated logs RPC (see rpc.ts), which handles this range fine.
 const TOP_HOLDERS_LOOKBACK_BLOCKS = 3_000n;
 const TOP_HOLDERS_SAMPLE_N = 10;
 
@@ -72,9 +72,11 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
 // true top-holders index — refine in the RPC batch.
 async function sampleTopHolders(fork: ForkClient, pub: any, token: Hex): Promise<PreScan["topHolders"]> {
   try {
+    // Window ends at the fork's pinned head so the sample matches the state
+    // balanceOf is read against; the logs themselves come off-fork (see rpc.ts).
     const head = await pub.getBlockNumber();
     const fromBlock = head > TOP_HOLDERS_LOOKBACK_BLOCKS ? head - TOP_HOLDERS_LOOKBACK_BLOCKS : 0n;
-    const logs = await pub.getLogs({ address: token, event: TRANSFER_EVENT, fromBlock, toBlock: head });
+    const logs = await logsClient().getLogs({ address: token, event: TRANSFER_EVENT, fromBlock, toBlock: head });
 
     const candidates = new Set<Hex>();
     for (const log of logs) {

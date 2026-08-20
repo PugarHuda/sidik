@@ -1,6 +1,7 @@
 import { createPublicClient, http, encodeFunctionData, formatEther, parseAbi, parseAbiItem } from "viem";
 import { base } from "viem/chains";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
+import { logsClient } from "../rpc.js";
 
 const ERC20_ABI = parseAbi([
   "function balanceOf(address) view returns (uint256)",
@@ -106,13 +107,11 @@ export const approvalDrainProbe: Probe = {
     const victim = ctx.token;
     const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
 
-    // ponytail: conservative single-call window to stay under provider
-    // eth_getLogs range caps (Alchemy/Infura/QuickNode etc. cap unfiltered
-    // ranges far below 200k, often a few thousand blocks); only catches
-    // RECENT approvals — widen with a chunked/paginated scan once the real
-    // provider's limit is known in the RPC batch.
+    // ponytail: single-call window over the dedicated logs RPC (see rpc.ts) —
+    // ~1.7h of Base blocks, so only RECENT approvals are found. Widen with a
+    // chunked scan if a demo needs deeper history; the endpoint allows it.
     const fromBlock = ctx.block > APPROVAL_LOOKBACK_BLOCKS ? ctx.block - APPROVAL_LOOKBACK_BLOCKS : 0n;
-    const logs = await pub.getLogs({ event: APPROVAL_EVENT, args: { owner: victim }, fromBlock, toBlock: ctx.block });
+    const logs = await logsClient().getLogs({ event: APPROVAL_EVENT, args: { owner: victim }, fromBlock, toBlock: ctx.block });
 
     // Dedupe by (token, spender) — latest Approval log overwrites the prior
     // allowance on-chain, so last-in wins.

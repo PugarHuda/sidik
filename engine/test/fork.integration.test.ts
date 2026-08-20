@@ -2,9 +2,10 @@ import { describe, it, expect } from "vitest";
 import { createPublicClient, http, parseEther } from "viem";
 import { base } from "viem/chains";
 import { withFork } from "../src/fork.js";
+import { BASE_FORK_BLOCK } from "../src/examples.js";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
-const BLOCK = BigInt(process.env.BASE_FORK_BLOCK ?? "0");
+const BLOCK = BASE_FORK_BLOCK;
 
 // ponytail: gated on BASE_ARCHIVE_RPC — no archive RPC is available yet, so this
 // suite skips entirely until one is provided (see task-4-report.md).

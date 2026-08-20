@@ -8,4 +8,6 @@ out
 web
 .env
 .env.local
+**/.env
+**/.env.local
 *.log

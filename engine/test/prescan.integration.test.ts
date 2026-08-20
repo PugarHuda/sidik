@@ -2,9 +2,10 @@ import { describe, it, expect } from "vitest";
 import { withFork } from "../src/fork.js";
 import { prescan } from "../src/prescan.js";
 import type { Hex } from "@sidik/shared";
+import { BASE_FORK_BLOCK } from "../src/examples.js";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
-const BLOCK = BigInt(process.env.BASE_FORK_BLOCK ?? "0");
+const BLOCK = BASE_FORK_BLOCK;
 
 // Base USDC — a real, well-known ERC-20 to sanity-check the core reads against.
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Hex;
