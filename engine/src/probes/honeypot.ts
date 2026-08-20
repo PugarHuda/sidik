@@ -1,5 +1,5 @@
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
-import { buyExactEth, sellAll } from "../dex.js";
+import { buyBudget, buyExactEth, sellAll } from "../dex.js";
 
 export function interpretHoneypot(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const bought = String(raw.boughtAmount ?? "0");
@@ -36,7 +36,7 @@ export const honeypotProbe: Probe = {
     await fork.setBalanceEth(ctx.testWallet, "10");
   },
   async execute(fork, ctx): Promise<RawResult> {
-    const buy = await buyExactEth(fork, ctx, 1n * 10n ** 18n);
+    const buy = await buyExactEth(fork, ctx, await buyBudget(fork, ctx));
     if (!buy.ok || buy.amount === "0") {
       return { boughtAmount: "0", soldOk: false, buyTxHash: buy.hash, sellTxHash: "0x" as Hex };
     }

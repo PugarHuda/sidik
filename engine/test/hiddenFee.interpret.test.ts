@@ -31,3 +31,33 @@ describe("interpretHiddenFee — evidence honesty", () => {
     expect(v.numbers.feePct).toBe("0%");
   });
 });
+
+describe("interpretHiddenFee — tax charged through the pool", () => {
+  // Regression: taxing tokens on Base charge on the pool route and leave
+  // wallet-to-wallet transfers alone, so a transfer-only test PASSed them.
+  it("FAILs on a buy tax even when plain transfers are untaxed", () => {
+    const v = interpretHiddenFee(
+      { sent: "1000", received: "1000", buyTaxBps: 299, feeBps: 0,
+        buyTxHash: "0xb", xferTxHash: "0xh" } as any, ctx);
+    expect(v.status).toBe("FAIL");
+    expect(v.title).toMatch(/buy tax of 2.99%/i);
+    expect(v.numbers.buyTaxPct).toBe("2.99%");
+    expect(v.txHashes).toContain("0xb");
+  });
+
+  it("reports both when a token taxes the buy and the transfer", () => {
+    const v = interpretHiddenFee(
+      { sent: "1000", received: "900", buyTaxBps: 299, feeBps: 1000,
+        buyTxHash: "0xb", xferTxHash: "0xh" } as any, ctx);
+    expect(v.status).toBe("FAIL");
+    expect(v.title).toContain("2.99%");
+    expect(v.title).toContain("10%");
+  });
+
+  it("does not read swap dust as a tax", () => {
+    const v = interpretHiddenFee(
+      { sent: "1000", received: "1000", buyTaxBps: 3, feeBps: 0,
+        buyTxHash: "0xb", xferTxHash: "0xh" } as any, ctx);
+    expect(v.status).toBe("PASS");
+  });
+});

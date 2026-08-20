@@ -11,6 +11,7 @@ const ROUTER: Hex = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24";
 const WETH: Hex = "0x4200000000000000000000000000000000000006";
 
 const ROUTER_ABI = parseAbi([
+  "function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[] amounts)",
   "function swapExactETHForTokensSupportingFeeOnTransferTokens(uint256 amountOutMin, address[] path, address to, uint256 deadline) payable",
   "function swapExactTokensForETHSupportingFeeOnTransferTokens(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline)",
 ]);
@@ -22,13 +23,43 @@ const ERC20_ABI = parseAbi([
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
 
-export type DexResult = { ok: boolean; amount: string; hash: Hex; revertReason?: string };
+// How much ETH a probe spends to get a position to test with. A fixed size
+// does not work: scam tokens — the ones worth probing — sit in pools smaller
+// than a single ETH, and a trade that large either moves the price absurdly
+// or trips the max-transaction limit taxing tokens like to impose. Either way
+// the buy reverts and the probe reports "no liquidity to test" about a token
+// that trades fine, which is a wrong answer, not a cautious one.
+const MAX_BUY_ETH = 1n * 10n ** 18n;
+const MIN_BUY_ETH = 10n ** 15n;         // 0.001 ETH — below this, dust rounding dominates
+const POOL_FRACTION = 50n;              // spend ~2% of the pool
+
+export async function buyBudget(fork: ForkClient, ctx: ProbeCtx): Promise<bigint> {
+  const pool = ctx.scan.poolAddress;
+  if (!pool) return MAX_BUY_ETH;
+  try {
+    const reserve = await fork.read<bigint>({
+      address: WETH, abi: ERC20_ABI, functionName: "balanceOf", args: [pool],
+    });
+    const share = reserve / POOL_FRACTION;
+    if (share >= MAX_BUY_ETH) return MAX_BUY_ETH;
+    return share > MIN_BUY_ETH ? share : MIN_BUY_ETH;
+  } catch {
+    return MAX_BUY_ETH;
+  }
+}
+
+// `predicted` is what the constant-product curve alone says the swap should
+// deliver — the LP fee and price impact are already inside that number, so
+// any gap between it and `amount` is the token skimming, nothing else. "0"
+// means no quote was available, not "no shortfall".
+export type DexResult = { ok: boolean; amount: string; predicted: string; hash: Hex; revertReason?: string };
 
 async function balanceOf(fork: ForkClient, token: Hex, owner: Hex): Promise<bigint> {
   return fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [owner] });
 }
 
 export async function buyExactEth(fork: ForkClient, ctx: ProbeCtx, ethIn: bigint): Promise<DexResult> {
+  const predicted = await quote(fork, ethIn, [WETH, ctx.token]);
   const before = await balanceOf(fork, ctx.token, ctx.testWallet);
   const data = encodeFunctionData({
     abi: ROUTER_ABI,
@@ -36,18 +67,31 @@ export async function buyExactEth(fork: ForkClient, ctx: ProbeCtx, ethIn: bigint
     args: [0n, [WETH, ctx.token], ctx.testWallet, DEADLINE],
   });
   const { hash, reverted, revertReason } = await fork.send({ from: ctx.testWallet, to: ROUTER, data, value: ethIn });
-  if (reverted) return { ok: false, amount: "0", hash, revertReason };
+  if (reverted) return { ok: false, amount: "0", predicted: predicted.toString(), hash, revertReason };
 
   // Measure the delta, not amountsOut — fee-on-transfer tokens skim on the way in.
   const after = await balanceOf(fork, ctx.token, ctx.testWallet);
   const amount = after - before;
-  if (amount <= 0n) return { ok: false, amount: "0", hash };
-  return { ok: true, amount: amount.toString(), hash };
+  if (amount <= 0n) return { ok: false, amount: "0", predicted: predicted.toString(), hash };
+  return { ok: true, amount: amount.toString(), predicted: predicted.toString(), hash };
+}
+
+async function quote(fork: ForkClient, amountIn: bigint, path: Hex[]): Promise<bigint> {
+  try {
+    const amounts = await fork.read<bigint[]>({
+      address: ROUTER, abi: ROUTER_ABI, functionName: "getAmountsOut", args: [amountIn, path],
+    });
+    return amounts[amounts.length - 1] ?? 0n;
+  } catch {
+    // No route/pool to quote against. 0 disables the comparison rather than
+    // pretending the swap under-delivered by 100%.
+    return 0n;
+  }
 }
 
 export async function sellAll(fork: ForkClient, ctx: ProbeCtx): Promise<DexResult> {
   const amount = await balanceOf(fork, ctx.token, ctx.testWallet);
-  if (amount === 0n) return { ok: false, amount: "0", hash: "0x" as Hex, revertReason: "no tokens to sell" };
+  if (amount === 0n) return { ok: false, amount: "0", predicted: "0", hash: "0x" as Hex, revertReason: "no tokens to sell" };
 
   const approveData = encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [ROUTER, amount] });
   const approveTx = await fork.send({ from: ctx.testWallet, to: ctx.token, data: approveData });
@@ -56,7 +100,7 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx): Promise<DexResul
     // that reason is exactly the evidence we want, so derive it the same way as a swap revert.
     const reason = approveTx.revertReason
       ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: ctx.token, data: approveData });
-    return { ok: false, amount: amount.toString(), hash: approveTx.hash, revertReason: reason ?? "approve reverted" };
+    return { ok: false, amount: amount.toString(), predicted: "0", hash: approveTx.hash, revertReason: reason ?? "approve reverted" };
   }
 
   const sellData = encodeFunctionData({
@@ -65,11 +109,11 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx): Promise<DexResul
     args: [amount, 0n, [ctx.token, WETH], ctx.testWallet, DEADLINE],
   });
   const sellTx = await fork.send({ from: ctx.testWallet, to: ROUTER, data: sellData });
-  if (!sellTx.reverted) return { ok: true, amount: amount.toString(), hash: sellTx.hash };
+  if (!sellTx.reverted) return { ok: true, amount: amount.toString(), predicted: "0", hash: sellTx.hash };
 
   const revertReason = sellTx.revertReason
     ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: ROUTER, data: sellData });
-  return { ok: false, amount: amount.toString(), hash: sellTx.hash, revertReason };
+  return { ok: false, amount: amount.toString(), predicted: "0", hash: sellTx.hash, revertReason };
 }
 
 // ponytail: fork.send() leaves revertReason undefined on a broadcast-then-

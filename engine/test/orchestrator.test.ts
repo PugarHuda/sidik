@@ -24,7 +24,13 @@ function makeStubFork(): ForkClient {
     impersonate: async () => {},
     stopImpersonate: async () => {},
     setBalanceEth: async () => {},
-    read: async () => balances[Math.min(i++, balances.length - 1)] as unknown as any,
+    // Answer by function, not by call order: the router quote and the
+    // balanceOf sequence are independent, and blindly counting calls made
+    // this stub silently re-map every balance the moment a probe added a read.
+    read: async (args: any) => {
+      if (args?.functionName === "getAmountsOut") return [0n, 1000n] as unknown as any;
+      return balances[Math.min(i++, balances.length - 1)] as unknown as any;
+    },
     send: async () => ({ hash: "0xhash" as Hex, reverted: false }),
     callTrace: async () => ({}),
   };

@@ -67,15 +67,17 @@ function mockScript(token: Hex): [number, RunEvent][] {
   const scan: PreScan = {
     token,
     isErc20: true,
-    symbol: kind === "safe" ? "USDC" : kind === "honeypot" ? "Anastasia" : "FEE",
-    decimals: kind === "safe" ? 6 : kind === "honeypot" ? 8 : 18,
+    symbol: kind === "safe" ? "USDC" : kind === "honeypot" ? "Anastasia" : "1F916",
+    decimals: kind === "safe" ? 6 : kind === "honeypot" ? 8 : 9,
     hasPool: true,
     poolAddress: kind === "honeypot"
       ? "0xDB4B1756e5B26E523228bf7566A58a8D5F7527dC"
-      : "0x111111111111111111111111111111111111aaaa",
+      : kind === "highfee"
+        ? "0xbE516Fe5EE9715F058D84A7D59D4306b4c0f21cD"
+        : "0x111111111111111111111111111111111111aaaa",
     owner: kind === "safe" ? undefined
       : kind === "honeypot" ? "0x0000000000000000000000000000000000000000"
-      : "0x222222222222222222222222222222222222bbbb",
+      : "0xCE9A474Cfc924C86eBEcef9b55d27ECcfF744B23",
     topHolders: kind === "honeypot" ? []
       : [{ address: "0x333333333333333333333333333333333333cccc", balance: "12500000" }],
   };
@@ -130,24 +132,40 @@ function mockScript(token: Hex): [number, RunEvent][] {
   }
 
   if (kind === "highfee") {
+    // Mirrors what the engine proved about this address on a fork at
+    // BASE_FORK_BLOCK: it taxes the pool route and leaves transfer() alone.
     const verdict: Verdict = {
       probe: "hiddenFee",
       status: "FAIL",
-      title: "Sell fee far exceeds documentation",
+      title: "Hidden buy tax of 2.99%",
       rows: [
-        { label: "Sell fee", claimed: "2% (per docs)", proven: "38% actually deducted", ok: false },
-        { label: "Can sell at all", claimed: "Yes", proven: "Yes — but proceeds are gutted", ok: true },
+        { label: "Buy through the pool", claimed: "You receive the full quoted amount",
+          proven: "Received 2.99% less than the pool's own quote", ok: false },
+        { label: "Transfer 100% of tokens", claimed: "Recipient gets 100%",
+          proven: "Recipient got 100%", ok: true },
       ],
-      numbers: { "Expected proceeds": "0.980 ETH", "Actual proceeds": "0.620 ETH" },
-      txHashes: ["0xcc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc3"],
-      reason: "sell() succeeded but transferred far less than the documented 2% fee implies",
+      numbers: { sent: "3437271819297", received: "3437271819297", feePct: "0%", buyTaxPct: "2.99%" },
+      txHashes: [
+        "0xe4bf4fa6a04fa79cde22c4a2d20a61cd98111b0b864710f95e0705ee9cb211c3",
+        "0xd0cca8af6c87041d2db5440e3e2340d134eb92a67a2357fa033c6c29f6b5cf25",
+      ],
+    };
+    const honeypotVerdict: Verdict = {
+      probe: "honeypot",
+      status: "PASS",
+      title: "Not a honeypot — buy and sell both succeed",
+      rows: [{ label: "Sell after buying", claimed: "Freely tradable", proven: "Sell succeeded", ok: true }],
+      numbers: { boughtAmount: "3437271819297" },
+      txHashes: ["0xc8c249c4453dcdc970deb43b4e33088c9c8b2d084849ed8575656a3ceca21043"],
     };
     return [
       [200, { type: "prescan", scan }],
-      [250, { type: "plan", ids: ["hiddenFee"] }],
-      [300, { type: "probe:start", id: "hiddenFee" }],
-      [750, { type: "verdict", verdict }],
-      [300, { type: "narration", text: "You can sell this token — but the contract keeps 38% of the proceeds, nearly 20x the 2% fee it documents. Nothing about that is disclosed up front." }],
+      [250, { type: "plan", ids: ["honeypot", "hiddenFee"] }],
+      [300, { type: "probe:start", id: "honeypot" }],
+      [650, { type: "verdict", verdict: honeypotVerdict }],
+      [250, { type: "probe:start", id: "hiddenFee" }],
+      [750, { type: "verdict", verdict: verdict }],
+      [300, { type: "narration", text: "You can buy and sell this token freely, so it is not a honeypot. But the pool hands over 2.99% less than its own quote says it should — the contract keeps that on the way through. Ordinary wallet-to-wallet transfers are untouched, which is exactly why a scanner that only tests transfer() calls this token clean." }],
       [150, { type: "done" }],
     ];
   }
