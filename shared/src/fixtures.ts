@@ -9764,5 +9764,6261 @@ export const FIXTURES: Record<string, FrozenRun> = {
       }
     ],
     "narration": "TWEAK could not be tested due to lack of liquidity. The buy probe failed, yielding 0 TWEAK from the purchase attempt. The lpRug probe found no holder position to measure, with an LP owner holding 100% of liquidity, 0% burned, and both before and after holder values at 0 WETH. The hiddenFee probe also failed, as no tokens were acquired (0 TWEAK sent and received), leaving fee and tax percentages undetermined. No verdicts could be proven for tradability, liquidity safety, or transfer behavior."
+  },
+  "0xbcff5af58099311135f183f1230f5f16bfacf464": {
+    "scan": {
+      "token": "0xbCff5AF58099311135F183f1230F5F16BfaCF464",
+      "isErc20": true,
+      "symbol": "SIREN",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x631A65517e18FB5a7F0514e72B2BA7c19c9d1F16",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": [
+        {
+          "address": "0x631A65517e18FB5a7F0514e72B2BA7c19c9d1F16",
+          "balance": "38558986217854965412067155"
+        },
+        {
+          "address": "0x0AfF5Ef5C95c1e367EaB103865173567eA536916",
+          "balance": "19883393411144978186446786"
+        },
+        {
+          "address": "0xF6E643a8074BcD002e4BFa6BA721cb3E5A105B5E",
+          "balance": "15079512468873506627710751"
+        },
+        {
+          "address": "0x7C664eBF3DF8F5F858c6a6d66D529eDC6b83a9C6",
+          "balance": "12556508376830206532276378"
+        },
+        {
+          "address": "0x98da4B4D23362fD0841e12795C5A5d02B7131e67",
+          "balance": "2651705577941194434544436"
+        },
+        {
+          "address": "0xe41c988Df1468c70040b2f1E400fc6349b9A9e01",
+          "balance": "1727274002406856400817448"
+        },
+        {
+          "address": "0x819846eDaCa47b3a54e4962FAef7b8f00cf08D4d",
+          "balance": "904338486321492566278154"
+        },
+        {
+          "address": "0x4bEcc38ADc5bf1FD1aE77f892816Fe8AfF71b66a",
+          "balance": "832252863982206027649448"
+        },
+        {
+          "address": "0xA76eEc35c30bb9c3d68d16E9fEeC24e76F7eb735",
+          "balance": "772686905550810635990780"
+        },
+        {
+          "address": "0xc954ab6104BD7F129658d697C490A08dE3E4c0ef",
+          "balance": "473030748995324252840305"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "753,834.72 SIREN"
+        },
+        "txHashes": [
+          "0x2d164258dc0cd868ce1b9ff5290a01b0eba5c20e32170b44c33250a987e0f6e7",
+          "0x5d2ff555570f5811c27a841c546a5e572bbc401847ceed8f3f9c4b903fa3a6b1"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is locked/burned — no single-owner rug path",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Largest LP holder found controls only 5% of supply",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "5%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "12.95 WETH",
+          "holderValueAfter": "12.31 WETH",
+          "lpOwner": "0x2280736D561c3322b734a6B9a8e1E367d8AB543E"
+        },
+        "txHashes": [
+          "0xac47e55c76c379870e449119c7f19313d54ebad5250510706e0e680a04752494"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 4.95% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 4.95% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "376,917.36 SIREN",
+          "received": "376,917.36 SIREN",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "4.95%"
+        },
+        "txHashes": [
+          "0x2d164258dc0cd868ce1b9ff5290a01b0eba5c20e32170b44c33250a987e0f6e7",
+          "0x7330fc4383273712884604767848d0629856c3743337f9e2c3da6b249f52ac8b",
+          "0xa2de7ea7c2cd54afe73fa2ce3bb1b2f5f60ed9843f3f5921544cd7e2f3390850"
+        ]
+      }
+    ],
+    "narration": "**Token Safety Summary**\n\nHoneypot check: PASS. Buying and selling both succeeded, with 753,834.72 SIREN bought and successfully resold.\n\nLP rug check: PASS. The largest LP holder controls only 5% of supply (0% burned), too little to unilaterally drain the pool. Holder value moved from 12.95 WETH to 12.31 WETH.\n\nHidden fee check: FAIL. Buys and transfers passed at 100% (0% buy tax), but selling incurred a 4.95% sell tax, with proceeds coming in 4.95% short of the pool's own quote despite sending and receiving 376,917.36 SIREN in the transfer test."
+  },
+  "0x804b4b3b3089f72fbb2c2f64d3a077a8990c1483": {
+    "scan": {
+      "token": "0x804b4B3B3089f72fbB2c2f64D3a077a8990c1483",
+      "isErc20": true,
+      "symbol": "OZ",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x722B2BD9f961ccaFEb784B301C55aA3a4cccAC6d",
+      "owner": "0xFe748d06dadD81Ea611222594E568Ab6d5C35Abb",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "18,165,063,857.58 OZ"
+        },
+        "txHashes": [
+          "0xb049597c31f5213cb74c6cc26f37984f437dff57d3f5d0214bc00e9c05d91b4b",
+          "0xe55abc7bbbfc98400edfc43f6e8942cc3e7d09285c4c90a10cb7d79a4f8ce20e"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xFe748d06dadD81Ea611222594E568Ab6d5C35Abb"
+        },
+        "txHashes": [
+          "0x4ffbf512cccd48a36c82c196c9a04690d84758434db298b73e476cb872fca6c0"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "9,082,531,928.79 OZ",
+          "received": "9,082,531,928.79 OZ",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xb049597c31f5213cb74c6cc26f37984f437dff57d3f5d0214bc00e9c05d91b4b",
+          "0x9c694eac6eb1b7ab9902920ef4ee3ce19e56b0b4b3bcc4a5a27b81f11516b2e9",
+          "0xdc78e83430cdeccc69250634dc187ea9914a4f23ea66ae1ab07bae3b43b0e8d8"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS. Buy and sell both succeeded, with 18,165,063,857.58 OZ bought and successfully sold.\n\nLP rug check: NA. LP owner holds 100% of liquidity, 0% is burned, and holder value before and after was 0 WETH in both cases, so no holder position could be priced against a potential pull. LP owner: 0xFe748d06dadD81Ea611222594E568Ab6d5C35Abb.\n\nHidden fee check: PASS. Buy, sell, and full-balance transfer all delivered exact quoted amounts (9,082,531,928.79 OZ sent and received), with buy tax, sell tax, and fee all at 0%."
+  },
+  "0x03839292df7608d03c7ec8f09bb256883dfa691d": {
+    "scan": {
+      "token": "0x03839292DF7608d03C7EC8f09BB256883dfa691D",
+      "isErc20": true,
+      "symbol": "SPACEX",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x825a5968b34c200eE9FE360CB5a480b47a0ec65e",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "64,378,892.64 SPACEX"
+        },
+        "txHashes": [
+          "0x0ea5ecceb1410abf6ed3c29d1d45cba25b207ef4ce283d0ddf083a07db63adf4",
+          "0x4aab11889315931d8af44172c22d44ebe3f8addea1f63989c916be003c1e5f1f"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (95.99%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 95.99% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "95.99%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "32,189,446.32 SPACEX",
+          "received": "32,189,446.32 SPACEX",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x0ea5ecceb1410abf6ed3c29d1d45cba25b207ef4ce283d0ddf083a07db63adf4",
+          "0x28d7ede6954b69d89fa5ff64cd20611c4a3f0c18e073613748d7648b00757ac5",
+          "0x7412e9d28709d0f2bd9ea93a38139fe42024bdf9c4c2d6002d980cdf015e4643"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, with 64,378,892.64 SPACEX bought and sold freely.\n\nLP rug check: NA. 95.99% of LP is burned, leaving 0% owned by an identifiable owner (LP owner address is the null address), so a residual withdrawal risk on the unburned portion cannot be ruled out, though no holder could be identified.\n\nHidden fee check: PASS. Buy, sell, and transfer of 32,189,446.32 SPACEX all delivered 100% of the expected amount, with buyTaxPct 0%, sellTaxPct 0%, and feePct 0%."
+  },
+  "0xa8a8cdaab4ade13e02d77b48acc13302d3af9646": {
+    "scan": {
+      "token": "0xa8a8CdaAb4Ade13e02d77b48AcC13302d3aF9646",
+      "isErc20": true,
+      "symbol": "nxyz",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x5Fae5d74C4Dc5896474Bd869b01D61105c4E4eba",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "113.44 nxyz"
+        },
+        "txHashes": [
+          "0x896035f2a8182f0b3c698e9bd3ff4b87ae943c944ef35b7b8fb061cd65415bde",
+          "0x01fa11f645fe75d101eabc330d42bdc6d69e064ede33c21e84897a2d4e016983"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "56.72 nxyz",
+          "received": "56.72 nxyz",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x896035f2a8182f0b3c698e9bd3ff4b87ae943c944ef35b7b8fb061cd65415bde",
+          "0x485630f2d3d4cde78cf36a02b1135e45497abd3aa5ed6d7d9aa311b6cbda539a",
+          "0xe0987ae4f64711b1cdf27d814af0aab1ca8da3841d85b99056f02b791ad2a227"
+        ]
+      }
+    ],
+    "narration": "Honeypot check passed: buying and selling both succeeded, with 113.44 nxyz bought and successfully sold. LP rug check was inconclusive: 0% of LP is burned and the LP owner could not be identified (owner address shown as 0x0000000000000000000000000000000000000000), so drainage risk remains unproven either way. Hidden fee check passed: buy, sell, and transfer all delivered full amounts with 0% fee, 0% buy tax, and 0% sell tax; 56.72 nxyz was sent and 56.72 nxyz was received."
+  },
+  "0x07ade66a57b1d512ecf6138477eedd4283b1e24a": {
+    "scan": {
+      "token": "0x07Ade66a57B1d512eCF6138477eEDd4283b1E24A",
+      "isErc20": true,
+      "symbol": "TROVE",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x7eB0d66652F8e6E94b9Ddf989642312C6333C7b8",
+      "owner": "0x04BDdE5C2AD3a5c9848758C05a315450D01dA4F4",
+      "topHolders": [
+        {
+          "address": "0x7eB0d66652F8e6E94b9Ddf989642312C6333C7b8",
+          "balance": "51558549720929907646730"
+        },
+        {
+          "address": "0x07Ade66a57B1d512eCF6138477eEDd4283b1E24A",
+          "balance": "13744198468004547430"
+        },
+        {
+          "address": "0xBd046C0eccFde14fAc10d62eD019c029Dce6bB66",
+          "balance": "1339459609002789455"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "957.57 TROVE"
+        },
+        "txHashes": [
+          "0x3ec6f50c8ba5782acc9dc9a3fdec15e3ff7899b012e735d9ca6a5db93ea4e646",
+          "0x8b956c72cc143ab0bfc58d5583f8373c3dd9ea64ba07aab591ce4fe3b6f729ea"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "1.24 WETH",
+          "holderValueAfter": "1.24 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 4.99% on buy",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 4.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "478.78 TROVE",
+          "received": "478.78 TROVE",
+          "feePct": "0%",
+          "buyTaxPct": "4.99%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x3ec6f50c8ba5782acc9dc9a3fdec15e3ff7899b012e735d9ca6a5db93ea4e646",
+          "0x25fbb5b968830e03d685d1c2d245cd241e395a90411ad5794c5f65f926da2c70",
+          "0xcb57ec786f82838add50e98db76a8811b48f4010f2c7f4917cab357882997707"
+        ]
+      }
+    ],
+    "narration": "Honeypot check passed: buying and selling both succeeded, with 957.57 TROVE bought and sold freely. LP rug check was inconclusive: 0% of LP is burned and the LP owner could not be identified, so drainage risk cannot be ruled out. Hidden fee check failed: buying incurred a 4.99% tax (buyTaxPct 4.99%), while selling (sellTaxPct 0%) and full-balance transfers (478.78 TROVE sent and received) showed no losses. Overall, the token is tradable but carries a 4.99% buy tax and unresolved LP lock status."
+  },
+  "0xe486e555d44f62d629d3a4180b9b8738dc31ccfc": {
+    "scan": {
+      "token": "0xe486e555d44f62d629d3a4180B9B8738Dc31ccfc",
+      "isErc20": true,
+      "symbol": "$GZI",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xd62Afc436fc04ab89797B6CBCCde2b1118E51E4d",
+      "owner": "0xd40093dd88b3E30b3D40D4fAC92b1716Df7A27fa",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,783,683.52 $GZI"
+        },
+        "txHashes": [
+          "0x79e82462d6e4fb312f6db0fb70eed7f97c1f113c4b3d0ded3dd001681d0dc28a",
+          "0x4bbe80c1c721a62e745732461d06380b1c76a3a37af78cef1e1a874ef030710d"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0.64%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0.64% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0.64%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 4.99% on buy, 4.95% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 4.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 4.95% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "891,841.76 $GZI",
+          "received": "891,841.76 $GZI",
+          "feePct": "0%",
+          "buyTaxPct": "4.99%",
+          "sellTaxPct": "4.95%"
+        },
+        "txHashes": [
+          "0x79e82462d6e4fb312f6db0fb70eed7f97c1f113c4b3d0ded3dd001681d0dc28a",
+          "0x91600a4e55fec376bd361ba335da6a355df164e91176e58c81a18031ee45bcd4",
+          "0xb9c0cf50cef59565dcc32bc82682ef6135ed6657a43861695e2648be1d132b46"
+        ]
+      }
+    ],
+    "narration": "$GZI token safety check: Buying and selling both succeeded — bought 1,783,683.52 $GZI and sold it without issue, so it's not a honeypot. However, hidden fees were found: 4.99% on buy and 4.95% on sell, meaning trades receive less than the pool's quoted amount. A direct transfer of 891,841.76 $GZI arrived at 100% with no fee. Liquidity pool status is inconclusive: only 0.64% of LP is burned, and the remaining LP holder could not be identified, so drain risk could not be confirmed or ruled out."
+  },
+  "0x1537f0fd200a1ada4e0f9332dbfe36d678a1669c": {
+    "scan": {
+      "token": "0x1537F0FD200a1ada4E0f9332DbFe36d678a1669C",
+      "isErc20": true,
+      "symbol": "GCBDC",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x491778BEf4A9680d93215187ca22BC0FBe496Ded",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "7,699,967.64 GCBDC"
+        },
+        "txHashes": [
+          "0x135505a86f4188ea116c8f2a876845a03d1ea095eb24b91a7cf99c68311a1bea",
+          "0xf6763d68a8c6f37c4997909c635c55d3da0330a78c681382a0d49d740398b322"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "3,849,983.82 GCBDC",
+          "received": "3,849,983.82 GCBDC",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x135505a86f4188ea116c8f2a876845a03d1ea095eb24b91a7cf99c68311a1bea",
+          "0xe2cadc5456b15b066a46a806cb71af18d9c17c57f3a6dfbfe9460a64877e3cac",
+          "0x9d05e32e15a8a14254538859e72ba201ad14a719e37556a7c9cc720ab540d1cd"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "GCBDC passed all three checks. Buying and selling both succeeded, confirming it is not a honeypot (bought 7,699,967.64 GCBDC). No hidden fees were found: buy tax 0%, sell tax 0%, and a full transfer of 3,849,983.82 GCBDC arrived with 100% received. LP safety was also confirmed, with 100% of LP burned and 0% held by the owner, so the pool cannot be drained."
+  },
+  "0xd76d45358b79564817aa87f02f3b85338b96f06a": {
+    "scan": {
+      "token": "0xD76d45358B79564817aa87F02F3b85338B96f06a",
+      "isErc20": true,
+      "symbol": "uPOL",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xdFfD64d1187967ddD3D38aa17AE569898Fe5952b",
+      "owner": "0x74eD5ED72Df3BFF374e4C87B8ff4bdEbCA954Abe",
+      "topHolders": [
+        {
+          "address": "0xdFfD64d1187967ddD3D38aa17AE569898Fe5952b",
+          "balance": "51122405438039362356263"
+        },
+        {
+          "address": "0xe8b46b116D3BdFA787CE9CF3f5aCC78dc7cA380E",
+          "balance": "23928483671966017493246"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "999.45 uPOL"
+        },
+        "txHashes": [
+          "0x2d47c24dc211f95e59568032cf47ac297fb6d37637a6ca39f70b1e9cd29953ea",
+          "0xb91e2d5be8840b95b29535099f9237ccfb7e8076a51ae33bed6e7256930539cb"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "1.08 WETH",
+          "holderValueAfter": "1.08 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "499.72 uPOL",
+          "received": "499.72 uPOL",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x2d47c24dc211f95e59568032cf47ac297fb6d37637a6ca39f70b1e9cd29953ea",
+          "0xc5751b4c7e77329c9212deba85e48c78513324d195995b7cfb6b51def1432519",
+          "0x7af8fb537f9b622d74d086dc5a5d50241d5f977ed753dbbd87a116b97bd2ce92"
+        ]
+      }
+    ],
+    "narration": "Token-safety check results: The token passed the honeypot test, with a successful buy of 999.45 uPOL and a successful sell afterward. No hidden fees were found on buying, selling, or transferring — sent and received amounts both matched at 499.72 uPOL, with buy tax, sell tax, and fee all at 0%. The LP rug check was inconclusive: only 0% of LP is burned, meaning liquidity is not locked, but no LP holder could be identified to confirm drain risk."
+  },
+  "0x3ce1ce82d0c8ee15c364fcb65d9bf3315629293a": {
+    "scan": {
+      "token": "0x3Ce1ce82d0c8Ee15C364FCb65d9Bf3315629293a",
+      "isErc20": true,
+      "symbol": "MONKE",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0xd6d082b441CBA2C536CA8B780AD4496600193A6d",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "8,216,091.54 MONKE"
+        },
+        "txHashes": [
+          "0x4241363b7839026816fadfb319aa11db2ba7da23836ea895d8a755eb6bbec682",
+          "0x8b340065b15f51338d57fd709c9c8695834c577a1643e30fdf51d5b517a7dc8e"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "4,108,045.77 MONKE",
+          "received": "4,108,045.77 MONKE",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x4241363b7839026816fadfb319aa11db2ba7da23836ea895d8a755eb6bbec682",
+          "0x2824233d90d1f0cca5735dd59ba3802f63328c58590698b1acfe6bbced878756",
+          "0xd9bb754c22037ab178ee0c6676aa3c0d9d81e0c006678c3eca3f5e164f8ead84"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "MONKE passed all three checks. Honeypot test: buying and selling both succeeded, with 8,216,091.54 MONKE bought and sold without issue. Hidden fee test: buy tax 0%, sell tax 0%, and a transfer of 4,108,045.77 MONKE arrived in full (100%) with no fee deducted. LP rug test: 100% of LP supply is burned, 0% remains with the owner, and the LP owner address is the null address, meaning liquidity cannot be withdrawn by anyone."
+  },
+  "0x60e9f9e8ccc7507651b5c97dc79ade40daac9af4": {
+    "scan": {
+      "token": "0x60e9f9e8cCc7507651b5C97Dc79AdE40daAc9AF4",
+      "isErc20": true,
+      "symbol": "AURUM",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x0C33992a756Bc614a0135777704EbCaE0d0f6911",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,851,076.43 AURUM"
+        },
+        "txHashes": [
+          "0x801a7dfd6087c8e8215a0ccd9d8df39999570f513c8ca57bf8540d30899f15f9",
+          "0x98ffa0fedb2e5cf9e60b7e97bdaeba5c7d75673bfe3283acb2302c657e65ecf4"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "925,538.21 AURUM",
+          "received": "925,538.21 AURUM",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x801a7dfd6087c8e8215a0ccd9d8df39999570f513c8ca57bf8540d30899f15f9",
+          "0x72fff3e63829a9d961a656818edb63f594e48cd49488f445720506a40d403916",
+          "0x1cace93e1c84657c645d70b5bef588f5954096bc401a9cd9d6a8d6498a918e09"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "AURUM passed the honeypot check: a buy of 1,851,076.43 AURUM was followed by a successful sell. The hidden-fee probe also passed — buying, selling, and transferring all moved the full amount with 0% fee, 0% buy tax, and 0% sell tax, confirmed by a transfer of 925,538.21 AURUM received in full. The LP rug probe was inconclusive: 0% of LP is burned, and the LP owner address returned as 0x0000000000000000000000000000000000000000, so no holder could be identified, and holder value before and after was 0 WETH."
+  },
+  "0xda09d5b95fc6d5fa2ca4d52334d7c3ee54a0b039": {
+    "scan": {
+      "token": "0xdA09D5b95Fc6d5FA2ca4D52334d7C3eE54a0b039",
+      "isErc20": true,
+      "symbol": "COOK",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xBe53632c2dC5D4Bda531C51c2b4EdA984aa25018",
+      "topHolders": [
+        {
+          "address": "0xBe53632c2dC5D4Bda531C51c2b4EdA984aa25018",
+          "balance": "92069641685133288953020891"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,799,977.11 COOK"
+        },
+        "txHashes": [
+          "0x15b8e0261663b365965ac3792e949a5b681fa8a0a00eedab50aa70381f5156b5",
+          "0x530d2f599cfb34c9f981262fdfdb97debe7cd8cb4b3369462b157b68160e1018"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0.8092 WETH",
+          "holderValueAfter": "0.8092 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "899,988.55 COOK",
+          "received": "899,988.55 COOK",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x15b8e0261663b365965ac3792e949a5b681fa8a0a00eedab50aa70381f5156b5",
+          "0x1e09e5e56161fc38fa2400f250b4d02d57388e2cd6f27d5495c4d587940e3cd4",
+          "0xc2944a0a2f0ecc173bfaa40d020ece1eba04e643e2e301190b68ce7ba70d5aa2"
+        ]
+      }
+    ],
+    "narration": "Token-safety checks passed across all three probes. Buying and selling both succeeded (bought 1,799,977.11 COOK), confirming the token is not a honeypot. LP liquidity is fully burned: 100% of LP supply sits at the zero address (0x0000000000000000000000000000000000000000), with owner LP at 0%, and holder value unchanged at 0.8092 WETH before and after. No hidden fees were found: buy tax 0%, sell tax 0%, overall fee 0%, with 899,988.55 COOK sent and 899,988.55 COOK received on transfer, confirming recipients get 100%."
+  },
+  "0x920b4fb09a164f85ff6c482bb35a34e36675d41d": {
+    "scan": {
+      "token": "0x920b4Fb09a164F85ff6C482bB35a34e36675D41d",
+      "isErc20": true,
+      "symbol": "CLEON",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x32ff247C2b9040c8942E674E1dCA463f7A4FbA00",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "183,526 CLEON"
+        },
+        "txHashes": [
+          "0x24371ce9f0afe4a2c749411dba992ed4197ccff0abd15f958e4b5f99f0162e33",
+          "0xd126cf40f65a9fd1373703dddd0e2d095a977f5ace27a86f38b44fe2ca5d0e54"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy, 1.98% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 1.98% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "91,763 CLEON",
+          "received": "91,763 CLEON",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "1.98%"
+        },
+        "txHashes": [
+          "0x24371ce9f0afe4a2c749411dba992ed4197ccff0abd15f958e4b5f99f0162e33",
+          "0x4c31f610870189f9171325bf1b45db950713a42a0040626e59307cc0e19e8f7d",
+          "0x7964173243358662bb3a9d284c4581e53be6326e3c7a68deea284b8a96bbf42b"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "CLEON passed the honeypot check: buying and selling both succeeded, with 183,526 CLEON bought and sold freely. However, hidden fees were found — buys lose 1.99% and sells lose 1.98% versus the pool's quoted amount, though a full-balance transfer of 91,763 CLEON delivered 100% to the recipient. The LP rug check was inconclusive: 0% of LP is burned and no LP holder could be identified, so the ability to drain liquidity could not be confirmed either way."
+  },
+  "0x0398ed3bfabe8334fd3f47a7115e7a4214ba5aa0": {
+    "scan": {
+      "token": "0x0398eD3BfAbE8334fD3f47a7115e7A4214BA5AA0",
+      "isErc20": true,
+      "symbol": "TRGT",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x669308BF8DF0630cAe3d6f20788803657bfb9011",
+      "owner": "0x712FcF2540FC19f03EeceD4128D1a6686701B480",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "17,031,989.23 TRGT"
+        },
+        "txHashes": [
+          "0x58b7c74ae72400b7069bf87f671829afb3d22ee3a334d738ec18a48eab65d33c",
+          "0xb9fda8ad9f9caa8713cb8987a92fc28e779edf8d39a5b69f571f4cab896fa732"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "8,515,994.61 TRGT",
+          "received": "8,515,994.61 TRGT",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x58b7c74ae72400b7069bf87f671829afb3d22ee3a334d738ec18a48eab65d33c",
+          "0xa256852e2d43e987b855d947b211cfd95cd703c29d9e4ca0b01f4ee68de9cd2a",
+          "0x37ddfab7f550ecc11229b3fb45699c3c5d8a571054608216aadb3e1a036b52da"
+        ]
+      }
+    ],
+    "narration": "Token TRGT passed the honeypot check: buying and selling both succeeded, with 17,031,989.23 TRGT bought and sold without issue. No hidden fees were found on buying, selling, or transferring — 8,515,994.61 TRGT sent matched 8,515,994.61 TRGT received, with buy tax, sell tax, and general fee all at 0%. However, the LP rug check returned inconclusive: only 0% of LP is burned, meaning the pool could still be drained, and no LP holder could be identified for further verification."
+  },
+  "0x5bbdf40ee12d50a5c8885899d9cfa9eda01a3913": {
+    "scan": {
+      "token": "0x5bbdF40EE12d50A5C8885899d9CfA9eDA01A3913",
+      "isErc20": true,
+      "symbol": "FLICK",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x3e55D74f80C9be632f3f94A4239C185174BD4173",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,612,070.13 FLICK"
+        },
+        "txHashes": [
+          "0xe13cc845f3e2f35fc48a58461359fa104d50b0ec208c2de1c795281162a548d9",
+          "0x894b9f382b65a01bb3b3e267d1471a091901667e3f814ff4b9da24a7bb87269c"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "806,035.06 FLICK",
+          "received": "806,035.06 FLICK",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xe13cc845f3e2f35fc48a58461359fa104d50b0ec208c2de1c795281162a548d9",
+          "0x363362b29cdaee88fbba8cccc678564726e83ce4fc2971c3ea782c7f34a52cbb",
+          "0x925545f27d76d3e8d7425935342cebd97007746fbbf48834c89b229c8d8e982d"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "FLICK passed the honeypot check: buying and selling both succeeded, with 1,612,070.13 FLICK bought and successfully sold. However, a hidden fee was found on buys — a 1.99% buy tax means you receive 1.99% less than the pool's quote, while sells showed 0% tax and a full-balance transfer of 806,035.06 FLICK delivered 100% to the recipient. The LP rug check was inconclusive: 0% of LP is burned and no LP holder could be identified, so drain risk cannot be ruled out."
+  },
+  "0x8c7569468d8b08d3fb6cf8f52b53af3c2b9a94b3": {
+    "scan": {
+      "token": "0x8C7569468d8B08d3fB6CF8F52B53aF3c2b9A94b3",
+      "isErc20": true,
+      "symbol": "KEKIUS",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xc8108a69b215E71333eDd529B530fAEdDBf46C81",
+      "owner": "0x2BE63f6A0CFf00d3DdA1b0472a73cCfce0ce605F",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "171,107.86 KEKIUS"
+        },
+        "txHashes": [
+          "0x1cf116edec05e1ffc6c65de8d2f28ba9b097777459434222c181c88e655970bd",
+          "0xf6fd1e98c623e91f6ad7c0bd158021a8530d1c3d34b72c6cd037a5de9ed971b2"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "85,553.93 KEKIUS",
+          "received": "85,553.93 KEKIUS",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x1cf116edec05e1ffc6c65de8d2f28ba9b097777459434222c181c88e655970bd",
+          "0x6ee57157cfb5e0745b5f002894e30c98d7de5e294e0cf1c2fc502d83411861ce",
+          "0x00f5d70e04508feb4423c0ec5fd071825ca1f97eeea38144b56da708b56ac5d0"
+        ]
+      }
+    ],
+    "narration": "**Token Safety Summary**\n\nHoneypot check: PASS. Buying and selling both succeeded, with 171,107.86 KEKIUS bought and successfully resold.\n\nLP rug check: NA. LP is 0% burned, and no LP holder could be identified, meaning the pool's liquidity status could not be fully verified.\n\nHidden fee check: PASS. Buy, sell, and transfer operations all showed 0% fees (buyTaxPct 0%, sellTaxPct 0%), with 85,553.93 KEKIUS sent and 85,553.93 KEKIUS received in full, confirming no hidden deductions."
+  },
+  "0x4f4f61e170bd41c99f6cd8746cd4c4b3f31effb3": {
+    "scan": {
+      "token": "0x4F4f61E170Bd41c99f6Cd8746CD4c4b3F31effB3",
+      "isErc20": true,
+      "symbol": "WARC",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xbD3f9fd493Bf4C82a7C76f2BA1C51EEDFf02b867",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,798,193.61 WARC"
+        },
+        "txHashes": [
+          "0x2228d2aeceb688e4cc9b5ebd91e8071389443af7a76558993f00b2705f923a67",
+          "0xb7da0bc01c3bad772bd8e29426bbdc484b63fa0b838bd752aec9106693b39481"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy, 1.98% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 1.98% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "899,096.8 WARC",
+          "received": "899,096.8 WARC",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "1.98%"
+        },
+        "txHashes": [
+          "0x2228d2aeceb688e4cc9b5ebd91e8071389443af7a76558993f00b2705f923a67",
+          "0x968abf73e86b18371d3c678d5b8270e30f1028d6875e1110af3407a3e17ecefc",
+          "0xbb10f0947cee44a535db8e384c7341eaa191ce4733a6fbfa53839be10e5ce03d"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "WARC passed the honeypot check: buying and selling both succeeded, with a bought amount of 1,798,193.61 WARC. However, hidden fees were confirmed — buys lose 1.99% and sells lose 1.98% versus the pool's quoted amounts, while a full-balance transfer of 899,096.8 WARC arrived at 100% with 0% fee. The LP rug check was inconclusive: 0% of LP is burned and 0% is owner-held, but no LP holder could be identified, so drain risk cannot be ruled out."
+  },
+  "0x064b9a2d81ef75a519e02dc9383ec73340130342": {
+    "scan": {
+      "token": "0x064B9a2D81ef75A519e02dC9383ec73340130342",
+      "isErc20": true,
+      "symbol": "ANON",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x091D82D8d69dCC92dFa2E5CCc9F8B75Ec0ce01C1",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,671,340.48 ANON"
+        },
+        "txHashes": [
+          "0x6e56062889e32962f0fe6fd345ae726fab99217076bd12c5733af8bdbadecff2",
+          "0x607f99ba91547dd1bf5a67f045e55cdff1944ece6eb9add2b0db423a62319139"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 2.99% on buy, 2.97% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 2.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 2.97% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "835,670.24 ANON",
+          "received": "835,670.24 ANON",
+          "feePct": "0%",
+          "buyTaxPct": "2.99%",
+          "sellTaxPct": "2.97%"
+        },
+        "txHashes": [
+          "0x6e56062889e32962f0fe6fd345ae726fab99217076bd12c5733af8bdbadecff2",
+          "0xb273f5163c674df8f53027ffdf81541d3a0db7210ae06aace26cfca307d910d7",
+          "0x8b6f4dabfca13fbc239162862a47a57118a05322c18370e6c25f6cb79e611983"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Token ANON passed the honeypot check: buying and selling both succeeded (bought 1,671,340.48 ANON), and a full-balance transfer delivered 100% to the recipient.\n\nHowever, hidden fees were detected: buying incurred a 2.99% shortfall and selling a 2.97% shortfall versus the pool's own quote, despite a stated 0% fee.\n\nLP burn status could not confirm safety: only 0% of LP is burned, and no LP holder could be identified, so the ability to drain liquidity remains unverified."
+  },
+  "0xd00a934dffd11ddcbb8827caa366191e33cadef1": {
+    "scan": {
+      "token": "0xd00a934dfFd11dDCbb8827CAA366191e33CADeF1",
+      "isErc20": true,
+      "symbol": "MEMETEAM",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x26A55cFAAEf3b56175bE67DADc7eA3ba266C9E84",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "13,416,216.34 MEMETEAM"
+        },
+        "txHashes": [
+          "0x07ac75a33674ced67345880f5d22cb06ef7b26a85d6395f4f1edb023a403fec1",
+          "0x5b22b2358da807012027272216c4d4c4bd4c0d432866cc79e18d10f34a587e2d"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 2.99% on buy",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 2.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "6,708,108.17 MEMETEAM",
+          "received": "6,708,108.17 MEMETEAM",
+          "feePct": "0%",
+          "buyTaxPct": "2.99%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x07ac75a33674ced67345880f5d22cb06ef7b26a85d6395f4f1edb023a403fec1",
+          "0xcae5311aec3d5d80ca7f85a7eaf7343df49794f6da2a74bb2a6f25b43f13f21a",
+          "0xf9415f96f72041ff51ae716647e55e479411faee5450ec5a94dd17dcc206dd45"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "MEMETEAM passed the honeypot check: both buying (13,416,216.34 MEMETEAM) and selling succeeded, confirming it is freely tradable. It failed the hidden fee check, showing a 2.99% buy tax (received 2.99% less than the pool's quote), while selling and full-balance transfers matched their quotes exactly with 0% fee, 0% sell tax, and 6,708,108.17 MEMETEAM sent and received unchanged. It passed the LP rug check: 100% of LP supply is burned, 0% remains with the owner, and the LP owner address is the null address, leaving liquidity permanently locked."
+  },
+  "0xe596e66b5292ead753f2f9474a708c5d8f033c70": {
+    "scan": {
+      "token": "0xe596e66b5292eAd753F2F9474a708c5D8F033C70",
+      "isErc20": true,
+      "symbol": "GSYNC",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x8F25C01299ffcBEeD535DF9a94cb522dE33174f8",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "18,630,428.15 GSYNC"
+        },
+        "txHashes": [
+          "0x31955d7245c037455fead633ca78c44832947764c1e29470272efd1d5815ca44",
+          "0xe5d9a0c084fab3bdb77cdabf1678bd742e5cf0f15ff5d5c5de6e6d30da87d212"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy, 1.98% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 1.98% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "9,315,214.07 GSYNC",
+          "received": "9,315,214.07 GSYNC",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "1.98%"
+        },
+        "txHashes": [
+          "0x31955d7245c037455fead633ca78c44832947764c1e29470272efd1d5815ca44",
+          "0x8ee49a8667d713a2f937d5bbeef007191f7d2c137e943bf4c0fde7fa78454bb2",
+          "0x286583971d7eba9efd61ae6ba72a9366a11290ff1de1cf872691d0d2404ff61d"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "GSYNC token checks: buying and selling both worked, confirming it is not a honeypot (bought 18,630,428.15 GSYNC and sold successfully). However, hidden fees were found: buys lose 1.99% and sells lose 1.98% versus the pool's quoted amounts, though a full-balance transfer moved 9,315,214.07 GSYNC with 0% fee, delivering 100% to the recipient. LP lock status is inconclusive: 0% of LP is burned and no LP holder could be identified, so the ability to drain liquidity could not be confirmed either way."
+  },
+  "0xad39ef965f9131cedfa94e04571f375ede2047c2": {
+    "scan": {
+      "token": "0xad39EF965F9131ceDfa94e04571F375Ede2047C2",
+      "isErc20": true,
+      "symbol": "",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x6C946F8Fb476dA8857fD6C474b02dAB5a858812C",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,779,480.97"
+        },
+        "txHashes": [
+          "0xfcadfb3fac1cda070ff195c488a428e461259405b9d377cfff022e7ba2932713",
+          "0xe30402bc4b0eaeb4c6f8f69b14a95cc902e8ed9b71ede972f25cf5be134702f9"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "889,740.48",
+          "received": "889,740.48",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xfcadfb3fac1cda070ff195c488a428e461259405b9d377cfff022e7ba2932713",
+          "0xf86e23fcf6b27281803451d6f96db7d53435282c0331bd395a63b2f62020f587",
+          "0x3eb698546508bbfd03d9e354c50e476c83970ade6f34411a51318790fbc3b4e0"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Token passed all three checks. Honeypot test: buying and selling both succeeded, with 1,779,480.97 tokens bought and then sold without issue. Hidden fee test: buy tax, sell tax, and transfer fee were all 0%; a transfer of 889,740.48 tokens arrived in full at 889,740.48. LP rug test: 100% of LP supply is burned, 0% remains with the owner, and the LP owner address is the null address, meaning liquidity cannot be withdrawn by anyone."
+  },
+  "0xdbff3681bf4720f840c1e5778c8cd64d1e9ce65c": {
+    "scan": {
+      "token": "0xdbfF3681bf4720f840c1e5778c8CD64D1e9cE65C",
+      "isErc20": true,
+      "symbol": "BRAWL",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x5be287f7D7EA1c4231Bc834D8167818dc09E1b07",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,760,717.42 BRAWL"
+        },
+        "txHashes": [
+          "0x2d141961b92418a30efb463d63b71888b4113ac4eeba4d8ebdfea2f173b4997d",
+          "0x6f7a8a3e3e6c00fb55d030b62df4c1088ad8d8972c539c97b8ee96a5b87bd54f"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 2.99% on buy, 2.97% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 2.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 2.97% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "880,358.71 BRAWL",
+          "received": "880,358.71 BRAWL",
+          "feePct": "0%",
+          "buyTaxPct": "2.99%",
+          "sellTaxPct": "2.97%"
+        },
+        "txHashes": [
+          "0x2d141961b92418a30efb463d63b71888b4113ac4eeba4d8ebdfea2f173b4997d",
+          "0xc2bd937fcb6eda96b33646343a0b25cf5d5feb1c7117527a80d86bfa00cc4401",
+          "0xc218d802cbb8a21f4bb9756059b2bb824e5430b68da1ab8520d7a315100e4f89"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "BRAWL passed the honeypot check: buying and selling both succeeded, with 1,760,717.42 BRAWL bought and successfully sold. However, hidden fees were confirmed: a 2.99% tax on buys and 2.97% on sells, meaning traders receive less than the pool's quoted amount. A plain transfer of 880,358.71 BRAWL showed no fee (0%), so the tax applies only to swaps. Additionally, LP liquidity is not burned (0% burned, 0% owned), meaning it could potentially be withdrawn, though no specific LP holder could be identified."
+  },
+  "0x1d91c9ebeb85d896c2689d8b2052541e3b367d54": {
+    "scan": {
+      "token": "0x1D91C9ebEB85D896c2689d8B2052541e3B367d54",
+      "isErc20": true,
+      "symbol": "BOJAK",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x163966D810b0986C1e841F99e3621fCf0b1716Ca",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "7,941,798,381,648.68 BOJAK"
+        },
+        "txHashes": [
+          "0xbba3f3a9f2cc1eb0567c8478fd877bfa0ba1efb4119d47f0048ddc91bb27113e",
+          "0xa6c75e8cb43d6e687010ff44da9b3e9caf03bfd1b2166aaf9e03aa96244fea51"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "3,970,899,190,824.34 BOJAK",
+          "received": "3,970,899,190,824.34 BOJAK",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xbba3f3a9f2cc1eb0567c8478fd877bfa0ba1efb4119d47f0048ddc91bb27113e",
+          "0x0f8f30329f55420fef809db8ea187c5d1dba4f46348d88226806ced6855614e0",
+          "0x9c9064b275a7194ced9db15bc44d904a42f0825e1cfd49aafecd9059a35713f4"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "BOJAK passed the honeypot check: buying and selling both succeeded, with 7,941,798,381,648.68 BOJAK bought and later sold. The hidden-fee check also passed — buy tax 0%, sell tax 0%, and a transfer of 3,970,899,190,824.34 BOJAK arrived in full (0% fee). The LP rug check returned NA: 0% of LP is burned and the LP owner could not be identified (owner address 0x0000000000000000000000000000000000000000), so liquidity could still be withdrawn by an unidentified holder, though no value was found before or after (0 WETH each)."
+  },
+  "0xa7e1e8ab7b7c93f9e3ceb10724843a4b74f5308c": {
+    "scan": {
+      "token": "0xa7E1E8Ab7B7c93F9e3CeB10724843a4b74f5308C",
+      "isErc20": true,
+      "symbol": "FIRE",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x4Fe3941B13AC5942E4FEa0D0a1B10E31A92E7c9A",
+      "owner": "0xAcc79E7b9F8dBB22e197c76d92Ff8c0472Ac81B4",
+      "topHolders": [
+        {
+          "address": "0x000000000000000000000000000000000000dEaD",
+          "balance": "231313458540435814993726299"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "8,350,429.52 FIRE"
+        },
+        "txHashes": [
+          "0xdb99cdf74795b65f683b22c642f8993d540d5c263721856a84202c3f65d42771",
+          "0x164282875b160a6df763624a5f15fa9170da553f074f2cc96605209388b1cb62"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0.3392 WETH",
+          "holderValueAfter": "0.3392 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 10% on buy, 9.92% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 10% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 9.92% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "4,175,215.07 FIRE",
+          "received": "4,175,215.07 FIRE",
+          "feePct": "0%",
+          "buyTaxPct": "10%",
+          "sellTaxPct": "9.92%"
+        },
+        "txHashes": [
+          "0xdb99cdf74795b65f683b22c642f8993d540d5c263721856a84202c3f65d42771",
+          "0x70cab9d2372912027f64904e1ddd5ed16384fa32a5c42bdb806f597be7ce2f9a",
+          "0x9c6060f7399562a53843b404ff65d5a94d2b314b55d93f070373b81ec43c2df8"
+        ]
+      }
+    ],
+    "narration": "Honeypot check passed: buying and selling both succeeded, with 8,350,429.52 FIRE bought and later sold. LP rug check was inconclusive: 0% of LP is burned and the LP owner could not be identified, so drain risk can't be ruled out. Hidden fee check failed: buying incurs a 10% tax and selling incurs a 9.92% tax versus the pool's own quotes, though a full-balance transfer of 4,175,215.07 FIRE delivered 100% to the recipient with 0% fee."
+  },
+  "0x384f590f4158fe1eb2e5295413fe81afb820c6e4": {
+    "scan": {
+      "token": "0x384f590f4158fe1eb2E5295413FE81AfB820c6e4",
+      "isErc20": true,
+      "symbol": "BASED",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x32d741d7B96eA63744a55A034F8A7695E31854BC",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "16,422,312.29 BASED"
+        },
+        "txHashes": [
+          "0xc0548f9146fc0de21e1f901c3c8a584b154927deac8e5422c39c3df8b8dab580",
+          "0x9c81f50a77dc22d2e3d93bc08d0e9c2e47d75fd405c0250cc00080075289c199"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "8,211,156.14 BASED",
+          "received": "8,211,156.14 BASED",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xc0548f9146fc0de21e1f901c3c8a584b154927deac8e5422c39c3df8b8dab580",
+          "0xfe1160891e74187131c61dc982fc6b4ac2dcc7327710954ad5e68152135271f7",
+          "0xfc4b17e5240695d76238b051873c2b7c4eb879ad7f2f04b21df3afbfcf1f488d"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Token passed three automated checks. Honeypot test: both buy and sell succeeded, with 16,422,312.29 BASED bought and later sold without issue. Hidden fee test: buying, selling, and transferring all preserved full amounts, sending and receiving 8,211,156.14 BASED with 0% fee, 0% buy tax, and 0% sell tax. LP rug test: 100% of LP supply is burned (sent to the null address), with 0% held by the owner, meaning liquidity cannot be withdrawn or drained by anyone."
+  },
+  "0xdade0c5c840d2b9fdc9c78998b3b05b63e230684": {
+    "scan": {
+      "token": "0xDade0C5C840d2b9FDc9C78998B3b05b63E230684",
+      "isErc20": true,
+      "symbol": "SCTR",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x38766E5E9736CCB5b8283C1BB9bd66a66F75bf62",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,760,812.9 SCTR"
+        },
+        "txHashes": [
+          "0x0df10c842e4f4d75111d0577d5eeead124923ecf5d882cd4fe7503c6ab71b033",
+          "0xd70b21fee251923a2571db2d457056393dcfa768da785aba78f0a5aa9bf2551b"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 0.99% on buy, 0.99% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 0.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 0.99% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "880,406.45 SCTR",
+          "received": "880,406.45 SCTR",
+          "feePct": "0%",
+          "buyTaxPct": "0.99%",
+          "sellTaxPct": "0.99%"
+        },
+        "txHashes": [
+          "0x0df10c842e4f4d75111d0577d5eeead124923ecf5d882cd4fe7503c6ab71b033",
+          "0xb105dd327ddc809523f6c76d9005fee82dcc5cd8827a635e610a6aa280629203",
+          "0x53e1e83d8dba81676adce8ed959a1ce38097c2415383675eadd1256661241bf4"
+        ]
+      }
+    ],
+    "narration": "Token honeypot check passed: buying and selling both succeeded, with 1,760,812.9 SCTR bought and later sold successfully. LP rug check found 0% of LP burned and no LP holder could be identified, meaning the pool's liquidity is not confirmed locked. Hidden fee check failed, revealing a 0.99% tax on buys and 0.99% on sells, so trades receive less than the pool's quoted amount. A full-balance transfer test showed recipients get 100% of the amount sent, with 880,406.45 SCTR sent and received."
+  },
+  "0x30c72d799bbab90b6c51dd5556b5b49bb1434acc": {
+    "scan": {
+      "token": "0x30C72D799bbAB90B6C51dd5556B5B49bb1434acC",
+      "isErc20": true,
+      "symbol": "MVG",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x5c2fc55f7D54A90a7a37d2815f952aB7Fc2c750A",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,577,183.13 MVG"
+        },
+        "txHashes": [
+          "0x56cd8f36f256d50df584ceba16e28d7e8df2f8d73348c938c0157b9af82d10a4",
+          "0x9a6f3fab01f534a6af5a358dc58a198b79d62c120ca5c4b33f4f56a7820e0656"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 0.99% on buy, 0.99% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 0.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 0.99% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "788,591.56 MVG",
+          "received": "788,591.56 MVG",
+          "feePct": "0%",
+          "buyTaxPct": "0.99%",
+          "sellTaxPct": "0.99%"
+        },
+        "txHashes": [
+          "0x56cd8f36f256d50df584ceba16e28d7e8df2f8d73348c938c0157b9af82d10a4",
+          "0x716971a4c137624dd806681d373b3348ef808e59f88fff0f4619139d49f90237",
+          "0xe87a3bd5b9976b633a002c8de884699aab9b78752389284c58c5a9444c33f9a0"
+        ]
+      }
+    ],
+    "narration": "**Token Safety Summary**\n\nHoneypot check: PASS. A buy of 1,577,183.13 MVG was followed by a successful sell, confirming the token is tradable in both directions.\n\nLP rug check: NA. 0% of LP is burned and the LP owner could not be identified (recorded as the zero address), so liquidity is not confirmed locked.\n\nHidden fee check: FAIL. Both buying and selling through the pool incurred a 0.99% shortfall versus the pool's own quote (buyTaxPct 0.99%, sellTaxPct 0.99%). A direct wallet-to-wallet transfer of 788,591.56 MVG delivered 100% of the amount sent, with 0% fee on plain transfers."
+  },
+  "0x6a7602bb307a661705b0f53dd493e6a5067e4778": {
+    "scan": {
+      "token": "0x6A7602bB307a661705b0f53DD493E6A5067E4778",
+      "isErc20": true,
+      "symbol": "SHADE",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x37dF215c79EF81D7Aaf73D12B32F473f707cE0F0",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,669,312.56 SHADE"
+        },
+        "txHashes": [
+          "0x263886bc3c876b3b1d7940bb777a9d45608e6fce15e514cdfc1035c0acf0aa99",
+          "0xf41be510212afa0b5887b583e298b9ac0493ff5a693205f9edbf010da4edf15b"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy, 1.98% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 1.98% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "834,656.28 SHADE",
+          "received": "834,656.28 SHADE",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "1.98%"
+        },
+        "txHashes": [
+          "0x263886bc3c876b3b1d7940bb777a9d45608e6fce15e514cdfc1035c0acf0aa99",
+          "0x8e7549d4f95fe1fc7106199c84737e639d3b261f6e6c93aa83ee41d6c9bd139a",
+          "0x276fb3e8dadd2fd3019d485ec48d0d584c8c3c5e2069f43219529c97a354c64d"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "SHADE token checks: buying and selling both succeeded (1,669,312.56 SHADE bought and resold), so it is not a honeypot. However, hidden fees were found: buys lose 1.99% and sells lose 1.98% versus the pool's quoted amounts, while a plain transfer of 834,656.28 SHADE delivered 100% with 0% fee. LP burn status shows 0% burned, and no LP holder could be identified, so the ability to drain liquidity could not be confirmed either way."
+  },
+  "0x16a63d1c12b86ce4abc203c7193b233c07d70da5": {
+    "scan": {
+      "token": "0x16a63d1c12B86CE4aBc203c7193B233C07D70dA5",
+      "isErc20": true,
+      "symbol": "ORBIT",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0xBD2E4A6182ce9afa25D3D93400e1DDae7884E059",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "7,836,249,427.09 ORBIT"
+        },
+        "txHashes": [
+          "0xf5bbed10684c07ec1ad231f1776433024a0c457093fef61d88cb2aea673479a4",
+          "0x087ae1250d95ee5029b4ee3e52283ff222e9bb982cc72672ccb56221232b9561"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "3,918,124,713.54 ORBIT",
+          "received": "3,918,124,713.54 ORBIT",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xf5bbed10684c07ec1ad231f1776433024a0c457093fef61d88cb2aea673479a4",
+          "0xde30508f364891be2870510b4346a89e964f859bd3c697e853d5bb2f8992572a",
+          "0xa3c7b6b624591dd44b6a12cb19a96dfc94456d070c3bc61810d31921244b84f1"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "ORBIT passed all three checks. Buying and selling both succeeded, confirming it is not a honeypot: a buy of 7,836,249,427.09 ORBIT was followed by a successful sell. No hidden fees were found on buying, selling, or transferring — sending 3,918,124,713.54 ORBIT resulted in the recipient receiving the same 3,918,124,713.54 ORBIT, with buyTaxPct, sellTaxPct, and feePct all at 0%. LP safety was also confirmed: 100% of LP supply is burned, ownerLpPct is 0%, and the LP owner address is the null address, meaning liquidity cannot be withdrawn by anyone."
+  },
+  "0x427b9a7eecd562ae6da4c489fe4f51188f0ea2ad": {
+    "scan": {
+      "token": "0x427B9a7eeCD562Ae6DA4C489FE4f51188f0ea2Ad",
+      "isErc20": true,
+      "symbol": "STARBASE",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0xb640Fc6Dad29d5FCFD6087e249c86a5301Eb95d4",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,857,695.3 STARBASE"
+        },
+        "txHashes": [
+          "0x78dd360e965d7695108fd67b39de6f4a007d3df3b1a57f1a47d45c92449c0587",
+          "0xc56bc2dbb47ba6103a85be39f12b07bca754635b05cc6fcd7265c2eeedf87323"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "928,847.65 STARBASE",
+          "received": "928,847.65 STARBASE",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x78dd360e965d7695108fd67b39de6f4a007d3df3b1a57f1a47d45c92449c0587",
+          "0x9c69c2c8ae6f894fbdaeaa894fae32baae46533d56929ac87c930bd22a275383",
+          "0x9038b36afe07259c02ac94e41414df79cfbc0342731c6fd976159b93e1d27ac8"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "STARBASE passed all three checks. Honeypot test: buying and selling both succeeded, with 1,857,695.3 STARBASE bought and then sold without issue. Hidden fee test: buy, sell, and transfer all matched their quoted amounts exactly — 928,847.65 STARBASE sent and received, with 0% fee, buy tax, and sell tax. LP rug test: 100% of LP supply is burned (sent to the zero address), with 0% owned by any owner, meaning liquidity cannot be withdrawn or drained by anyone."
+  },
+  "0x614535a85febb2e155b2cc1b3249801b781ee2a7": {
+    "scan": {
+      "token": "0x614535A85feBB2E155b2CC1B3249801b781Ee2A7",
+      "isErc20": true,
+      "symbol": "SGNL",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x3209B303bf70Df3B76C71E0CDF61F2EA87248909",
+      "owner": "0x14819CE0C8abD997594D783171A43585fbc30980",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,901,825.01 SGNL"
+        },
+        "txHashes": [
+          "0xde352b9e16fcb37da57926829e144c327b61f9da1b1ac8771e2ddb05bf5fea95",
+          "0xaa2d424c3fd8002da90d1261aa92735670c4be556daa537433fd1a84d6c23296"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy, 1.98% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 1.98% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "950,912.5 SGNL",
+          "received": "950,912.5 SGNL",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "1.98%"
+        },
+        "txHashes": [
+          "0xde352b9e16fcb37da57926829e144c327b61f9da1b1ac8771e2ddb05bf5fea95",
+          "0x929e10cea7b4963f7278c43b2bfd5f009c0ba4165116c99507fe97db04b51b67",
+          "0xbf252ccf9f3111160c91c32d79706fb280e3f7ea175595d41b55a3e97f114490"
+        ]
+      }
+    ],
+    "narration": "Token-safety check results: The honeypot probe passed, confirming both buy and sell transactions succeeded, with 1,901,825.01 SGNL bought and successfully sold. The LP rug check was inconclusive — 0% of LP is burned and the LP owner address resolved to the null address (0x0000000000000000000000000000000000000000), so no holder could be identified. The hidden fee probe failed, revealing a 1.99% tax on buys and a 1.98% tax on sells, meaning users receive less than the pool's quoted amount. However, a full-balance transfer of 950,912.5 SGNL delivered 100% to the recipient with 0% fee."
+  },
+  "0x74bb664783299f78f24a4d54c30993cf56e4678e": {
+    "scan": {
+      "token": "0x74bb664783299f78F24A4d54c30993CF56e4678e",
+      "isErc20": true,
+      "symbol": "RSYST",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xA56911cF0BE3688f943c3816F8F149596e62f443",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": [
+        {
+          "address": "0xA56911cF0BE3688f943c3816F8F149596e62f443",
+          "balance": "179627092338375209099266"
+        },
+        {
+          "address": "0x74bb664783299f78F24A4d54c30993CF56e4678e",
+          "balance": "971146995363551866239"
+        },
+        {
+          "address": "0xcD6b980029E6E6e0733ac8eC3E02be9410D09799",
+          "balance": "253384225455941291018"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "3,511.74 RSYST"
+        },
+        "txHashes": [
+          "0xd683c7f47d23ee0318f1ce75c537b9c01662442d89c86618bc181f20f920966f",
+          "0x25af4ed530468875e79ebc20f49aa9b0fe2fb08232b78abdc3c7646c50910347"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0.337 WETH",
+          "holderValueAfter": "0.337 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 4.95% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 4.95% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "1,755.87 RSYST",
+          "received": "1,755.87 RSYST",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "4.95%"
+        },
+        "txHashes": [
+          "0xd683c7f47d23ee0318f1ce75c537b9c01662442d89c86618bc181f20f920966f",
+          "0x896e3b65ab9975f6e6fe3899f421d809fc93bc75f58ef23b3ab864daca0d59c4",
+          "0x7730e717816a0d2db616096170961e7870981f877c5eea8d41f0c83535aea10c"
+        ]
+      }
+    ],
+    "narration": "Token-safety check results: buying and selling both succeeded (3,511.74 RSYST bought and sold), so it is not a honeypot. LP burn status shows 0% burned and 0% owner LP, with no identifiable LP holder — liquidity could still be withdrawn, and this could not be verified as safe. A hidden fee was found on selling: transfers of 1,755.87 RSYST completed at 100%, buy tax was 0%, but sell tax was 4.95%, meaning sell proceeds came in short of the pool's quoted amount."
+  },
+  "0x611abb48b0f81cd668aa88d9604848512f2a13a7": {
+    "scan": {
+      "token": "0x611ABb48b0F81cD668aA88d9604848512F2a13a7",
+      "isErc20": true,
+      "symbol": "COSTANZA",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x36425373B639fc850b35f8Cdc1e878970f3fFdeF",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "16,892,816.97 COSTANZA"
+        },
+        "txHashes": [
+          "0xbc6f3d30084d8851f5354f1c919638999ed13180a9304d790943c59a63c3bfab",
+          "0xb8a9179507c7f41b3b53199be4dd31710ac884f7128b9d92f03836c646a5f8c8"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy, 1.98% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 1.98% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "8,446,408.48 COSTANZA",
+          "received": "8,446,408.48 COSTANZA",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "1.98%"
+        },
+        "txHashes": [
+          "0xbc6f3d30084d8851f5354f1c919638999ed13180a9304d790943c59a63c3bfab",
+          "0xcacbfa222e9756077364719b7f47c70978f87c9c60bb2cc9de53e9bfce108f92",
+          "0x9a4bfcf74d7dc38713ea4864f308f900a78b2b14e90f065982d6d2a95c31021d"
+        ]
+      }
+    ],
+    "narration": "**Token Safety Summary**\n\nBuying and selling both succeed — this is not a honeypot, with 16,892,816.97 COSTANZA successfully bought and sold. Liquidity is secure: 100% of LP tokens are burned (sent to the zero address), leaving 0% owned by any party, so the pool cannot be drained.\n\nHowever, hidden fees were detected. Buying incurs a 1.99% tax and selling incurs a 1.98% tax, meaning users receive less than the pool's quoted amounts in both directions. A full-balance transfer of 8,446,408.48 COSTANZA did complete with 100% received, showing no fee on plain transfers."
+  },
+  "0x6b2e91ff0491703ba3d129f8a1ec4e279d247fbb": {
+    "scan": {
+      "token": "0x6b2e91FF0491703bA3D129F8a1Ec4E279D247FbB",
+      "isErc20": true,
+      "symbol": "LORD",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x2Bb843d9b4817aEdfAB163bfecc79e06C1AAbBC5",
+      "owner": "0xbd579F2495CF5417575801A08410a1515f3aEc44",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "19,092,381,551.09 LORD"
+        },
+        "txHashes": [
+          "0xfea406713b6fa188d65ecab9c38ddeb4f732566805a58fca62fca714299a0269",
+          "0xc0a9b405af708b8a98ebe590e18a2c9d5640639888106072f884362b77b78f61"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xbd579F2495CF5417575801A08410a1515f3aEc44"
+        },
+        "txHashes": [
+          "0xc5ee2e1b36165e7601d29ae9bebb4ae583e41fd380ce1e59d001231316b1423c"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "9,546,190,775.54 LORD",
+          "received": "9,546,190,775.54 LORD",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xfea406713b6fa188d65ecab9c38ddeb4f732566805a58fca62fca714299a0269",
+          "0xc1a4a36e8c1bd54fd1c14dc81084beda07511ad8d9920270c9b6a55bd3a4937b",
+          "0x059c0f1efd53586de91a900393b5fe40cf0a20c154136f476761c47a87ac065a"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, with 19,092,381,551.09 LORD bought and sold without issue.\n\nLP rug check: NA. The LP owner holds 100% of LP with 0% burned, and holder value before and after was 0 WETH, so no holder position could be priced against a pull.\n\nHidden fee check: PASS. Buy tax, sell tax, and transfer fee were all 0%. A transfer of 9,546,190,775.54 LORD was sent and received in full, confirming no hidden fees on buying, selling, or transferring."
+  },
+  "0x00041b8f47180e947e670e7267c8cafd20325a09": {
+    "scan": {
+      "token": "0x00041B8F47180e947e670e7267C8CAFD20325A09",
+      "isErc20": true,
+      "symbol": "NUERA",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x3c0971dF14607e7854E53DD7aB7C11EEad179dc1",
+      "owner": "0x0d321479Fd47f48D186658983C56F19166bDffCf",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "2,605,921.68 NUERA"
+        },
+        "txHashes": [
+          "0x4554e29b946c71acb6d6ba4f9ab31994cd2aabe578ce65111452a0d77eccd401",
+          "0xcfefce2e92f7b6d7d8a7ffe2d129992a6c16b252576fdc035c8e11c1e4cf642f"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0d321479Fd47f48D186658983C56F19166bDffCf"
+        },
+        "txHashes": [
+          "0x73570ef187d2a4104e52a5d6870619e9615d8201eac8001caa3b4001bfdad657"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy, 1.98% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 1.98% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "1,302,960.84 NUERA",
+          "received": "1,302,960.84 NUERA",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "1.98%"
+        },
+        "txHashes": [
+          "0x4554e29b946c71acb6d6ba4f9ab31994cd2aabe578ce65111452a0d77eccd401",
+          "0xa94573404b874ad22bcf53dde6883030eacfa85d037bc3b3bf383ad8590d49af",
+          "0xaf5b1df28b889bb116e111838e2318b4aa8a5f080cd1f385b666ac450af9bd6f"
+        ]
+      }
+    ],
+    "narration": "Token buy and sell both executed successfully, confirming NUERA is not a honeypot; a purchase of 2,605,921.68 NUERA was later sold without issue. The LP rug probe returned no result, as the LP owner holds 100% of liquidity (0% burned) and no holder position existed to measure against a potential pull. Hidden fees were confirmed: buying incurs a 1.99% tax and selling incurs a 1.98% tax, meaning users receive less than quoted in both directions. A full-balance transfer of 1,302,960.84 NUERA showed no additional fee, arriving at 100% received."
+  },
+  "0x49e038c8239de9309c982a8b95ff95e1ba6331fd": {
+    "scan": {
+      "token": "0x49e038C8239De9309C982A8b95FF95e1Ba6331fD",
+      "isErc20": true,
+      "symbol": "ASTEROID",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xC53A1b70eA8aaaF6fdbe9Eb0659b95AA36136Edd",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "7,605,927,777.7 ASTEROID"
+        },
+        "txHashes": [
+          "0x385ae0ff142292dfb71d1947fe653abdbf0eff4b5bca3f7e492f956cf3da9e78",
+          "0x04504fe753d92c4059981ca48446e3abd14b38915d69995a9ed7bd1312cdbfff"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "3,802,963,888.85 ASTEROID",
+          "received": "3,802,963,888.85 ASTEROID",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x385ae0ff142292dfb71d1947fe653abdbf0eff4b5bca3f7e492f956cf3da9e78",
+          "0x157481f0654c1eb1d9e9072e6ee8b649f58a83acb1c49327667819e59cc91041",
+          "0x1cdf509a8875193450593e6fc968adf47d2b3f1e38a1c4bb894b02a4a13d1d4b"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "ASTEROID passed both the honeypot and hidden-fee checks: buying and selling succeeded (bought amount 7,605,927,777.7 ASTEROID), and transfers, buys, and sells all moved 100% of value with 0% fee, 0% buy tax, and 0% sell tax (3,802,963,888.85 ASTEROID sent and received in full). The LP rug check was inconclusive: 0% of LP is burned and the LP owner address (0x0000000000000000000000000000000000000000) could not be identified, so liquidity safety is unconfirmed."
+  },
+  "0x0d8014c5e86a16ac9b723af06f4af336c7feaf2e": {
+    "scan": {
+      "token": "0x0D8014C5E86A16aC9B723aF06f4AF336c7fEAF2e",
+      "isErc20": true,
+      "symbol": "PLORD",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x6f8B0465A18A4fA2e6fDfFdF43687D85e4944212",
+      "owner": "0xbd579F2495CF5417575801A08410a1515f3aEc44",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "97,190,266,926.76 PLORD"
+        },
+        "txHashes": [
+          "0x737bc2b7540f998148e1d3b9983dfcf86a4b930dfc762e3d0624da51fe590673",
+          "0x012123373ae5e0514e91c0fc893ff368beb2186ff5108d8289f8e847074f7491"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xbd579F2495CF5417575801A08410a1515f3aEc44"
+        },
+        "txHashes": [
+          "0x9813a9620797fbd0b06dc6e33fef1293077ea0468eb7c2bc869206f0dbeec092"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "48,595,133,463.38 PLORD",
+          "received": "48,595,133,463.38 PLORD",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x737bc2b7540f998148e1d3b9983dfcf86a4b930dfc762e3d0624da51fe590673",
+          "0xeb57eae5afe430147223aec34ec48dc90f0ee8a3e6bb75eaeaebf5258cb9af35",
+          "0xdbed4d5a3cddc4e5441eeeadde31577f12b6816f0906eba49e35bd77a42fe953"
+        ]
+      }
+    ],
+    "narration": "PLORD passed the honeypot check: buying and selling both succeeded, with 97,190,266,926.76 PLORD bought and tradable. Hidden fee testing also passed — buys, sells, and transfers all delivered full amounts (48,595,133,463.38 PLORD sent and received), with 0% fee, buy tax, and sell tax. The LP rug probe returned no result: the LP owner holds 100% of liquidity with 0% burned, and no holder position could be valued before or after (0 WETH), so the drain risk against a real holder stake couldn't be measured."
+  },
+  "0xb9f1cb7205b7ab874247615e91d5c075bf33af90": {
+    "scan": {
+      "token": "0xb9F1Cb7205B7ab874247615e91d5c075Bf33af90",
+      "isErc20": true,
+      "symbol": "PLORD",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x3196d924A2F4926C2aDF860aDF0465bcb98D55F0",
+      "owner": "0xbd579F2495CF5417575801A08410a1515f3aEc44",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "97,281,728,392.32 PLORD"
+        },
+        "txHashes": [
+          "0x25ca7ab6af1371bbc752dbd9f54971d31b8df4dd55bb7a80c706e637909010db",
+          "0x2f9529111520fa2439aec6edfb306b8a5b31fc5417fb00743fac378dbed46309"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xbd579F2495CF5417575801A08410a1515f3aEc44"
+        },
+        "txHashes": [
+          "0x240c35421d32782c2f8bc1246840a4d7ad7c4088d91baffd159887c58b90fae3"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "48,640,864,196.16 PLORD",
+          "received": "48,640,864,196.16 PLORD",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x25ca7ab6af1371bbc752dbd9f54971d31b8df4dd55bb7a80c706e637909010db",
+          "0xbc3add0cc375e86efd5601b9b8415d23f957b98b8adf1b1ed536746d2bbd950d",
+          "0xa87f5edfb918fd649a5fa655cd14f1aefa81a84c4078a9ccdcb49020b8c1bcd3"
+        ]
+      }
+    ],
+    "narration": "PLORD passed the honeypot check: buying and selling both succeeded, with 97,281,728,392.32 PLORD bought and tradable. The hidden fee probe also passed — buy, sell, and transfer all delivered full amounts with 0% fee, 0% buy tax, and 0% sell tax, confirmed on 48,640,864,196.16 PLORD sent and received in full. The lpRug probe returned no result: the LP owner holds 100% of liquidity with 0% burned, and no holder position could be priced before or after (0 WETH each), so the pool-drain risk remains unverified."
+  },
+  "0x053194640135daf9cc05a415578a28d7229ba901": {
+    "scan": {
+      "token": "0x053194640135dAf9Cc05a415578A28d7229ba901",
+      "isErc20": true,
+      "symbol": "TKT",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xDa00939c59E7706F340898CA910A9215F1dC241E",
+      "owner": "0xA97496d01769f91bCe9c44462DFeB03Fc2E9CB63",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "130,029.24 TKT"
+        },
+        "txHashes": [
+          "0xc7e384584112546688b5a91eb1c6d9f206060d185f1d505cc6fefe930a18c277",
+          "0xe34b1515cf5cf4538bf046a94829e1bf7f7bd15e17e3965d14076bf570d2e92d"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned; the largest holder found controls just 0%, too little to test a rug",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xA97496d01769f91bCe9c44462DFeB03Fc2E9CB63"
+        },
+        "txHashes": [
+          "0x3d19ace053b5e56cd084d70966c9c5d043501a2bb3c96f032cbac4e680ffcc44"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 4.99% on transfer",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 4.99% less",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "sent": "65,014.62 TKT",
+          "received": "61,768.25 TKT",
+          "feePct": "4.99%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xc7e384584112546688b5a91eb1c6d9f206060d185f1d505cc6fefe930a18c277",
+          "0xe6c1787b4798187ae5c2c012b2906041488c01a1112918a66d545d58f6552710",
+          "0x97c50e5437e9734fcadde88afcbcc966264e3a3e4558b1bfe5beb6e41467a08f"
+        ]
+      }
+    ],
+    "narration": "**Token Safety Summary**\n\nHoneypot check: PASS. A buy of 130,029.24 TKT was followed by a successful sell, confirming the token is tradable.\n\nLP rug check: NA. Only 0% of LP is burned, and the largest holder controls 0%, too little to meaningfully test a rug scenario.\n\nHidden fee check: FAIL. Buy and sell transactions through the pool matched their quoted amounts (0% buy tax, 0% sell tax), but a direct transfer of 65,014.62 TKT resulted in the recipient receiving only 61,768.25 TKT, a 4.99% shortfall — indicating a hidden transfer fee outside normal trading."
+  },
+  "0x7a7587ecb6b7aeb6020868cf1b071130a3f1def1": {
+    "scan": {
+      "token": "0x7a7587ecB6b7aEB6020868cF1b071130A3F1DEf1",
+      "isErc20": true,
+      "symbol": "WOJAK",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x62CBcf412Cd46e6917f224dCEc8aC326baac5512",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "7,702,726.21 WOJAK"
+        },
+        "txHashes": [
+          "0x23371f01857466fc64848fa19e7074c0d7bd26a990b45dd86ff22e47b51fe809",
+          "0x644c6eb677e9b4a4346788892a0cb6f9806c8b96dcd4de017a1c20ac59b5ec7d"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 99.83% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "99.83% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "99.83%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 4.99% on buy",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 4.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "3,851,363.1 WOJAK",
+          "received": "3,851,363.1 WOJAK",
+          "feePct": "0%",
+          "buyTaxPct": "4.99%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x23371f01857466fc64848fa19e7074c0d7bd26a990b45dd86ff22e47b51fe809",
+          "0x610b9af3b3d5be4c7262f360923b751f8fedfc68fa58a358fdfa370b398d22aa",
+          "0xa5a2e9bc203550029924912f0190c94fbc38e8442a58fcbbe53c468ffe2b4f12"
+        ]
+      }
+    ],
+    "narration": "Token-safety check results: The honeypot probe passed, with a buy of 7,702,726.21 WOJAK followed by a successful sell, confirming the token is tradable. The LP rug probe passed, showing 99.83% of LP supply sent to the burn address (0x0000000000000000000000000000000000000000), with 0% held by the owner. The hidden fee probe failed: buying incurred a 4.99% tax, though selling had a 0% tax and full transfers of 3,851,363.1 WOJAK delivered 100% to recipients."
+  },
+  "0xfd3d0e6d8d2115391445cb5a42cc7845e799def1": {
+    "scan": {
+      "token": "0xfd3D0e6d8d2115391445cB5A42cc7845e799DEF1",
+      "isErc20": true,
+      "symbol": "FINE",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xB10822A91810F2dbb73AA6BE067a91ff2AE5c835",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "14,835,531.67 FINE"
+        },
+        "txHashes": [
+          "0x56023c61c2856f3c4eb3aeae4bad991016058c7f50f34f1f15a27667b4f46137",
+          "0x1474aa8385026f24b48d4ef8df0feefe0c114436453cc4613004ee0f03e20396"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 2.99% on buy",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 2.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "7,417,765.83 FINE",
+          "received": "7,417,765.83 FINE",
+          "feePct": "0%",
+          "buyTaxPct": "2.99%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x56023c61c2856f3c4eb3aeae4bad991016058c7f50f34f1f15a27667b4f46137",
+          "0x8f93863a20fe9a1c0d5d8994bf06bd031c921a975b3c4eeec882a8d337b9e6d5",
+          "0x0e7c0691e3681af391f8f356d5ecfbfeac6908dca75d63e41dbdb14c98b6faaa"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 99.88% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "99.88% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "99.88%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Token FINE passed the honeypot check: buying and selling both succeeded, with 14,835,531.67 FINE bought and sold successfully. However, it failed the hidden fee test — buying incurs a 2.99% tax, while selling (0% tax) and full-balance transfers (100% received, 7,417,765.83 FINE sent and received) worked as quoted. LP safety passed: 99.88% of LP tokens are burned (owner holds 0%), meaning liquidity cannot be withdrawn by anyone."
+  },
+  "0x8413579e273378474365e3caeb9358b75026a87d": {
+    "scan": {
+      "token": "0x8413579e273378474365e3caeb9358b75026A87D",
+      "isErc20": true,
+      "symbol": "HPR",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0xD69e3D6af6c1B57A8CA8C60F6528F799390c293D",
+      "owner": "0xC2dB7C237BC6A464587722Dcb365dC46De7787A4",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "4,848,867,626.89 HPR"
+        },
+        "txHashes": [
+          "0x20b71e49548ba8c3d60ae3e799cdc54da65528c909340bad4fd17e8799423c77",
+          "0xbbd9dea535cb0cab4ccf26ff6a9bcc653825a354842812483f05a2ca3ced8a96"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xC2dB7C237BC6A464587722Dcb365dC46De7787A4"
+        },
+        "txHashes": [
+          "0xd60603d52f309fbf093a1e6956c0d09cc874962ccc2c83a4d0b91be198fcea4b"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "2,424,433,813.44 HPR",
+          "received": "2,424,433,813.44 HPR",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x20b71e49548ba8c3d60ae3e799cdc54da65528c909340bad4fd17e8799423c77",
+          "0x7f95e947765d1196799f9a87caa5ea9a8b4e11af39323aefcb7dd132a0532220",
+          "0x423bc96c06368a0796736fdb017bf66284d39c4aec198bfd71e0210564d0e5dd"
+        ]
+      }
+    ],
+    "narration": "Token-safety check results: Honeypot probe PASSED — buying and selling both succeeded, with 4,848,867,626.89 HPR bought and sold without issue. HiddenFee probe PASSED — buy, sell, and transfer all delivered full amounts with 0% fee, 0% buy tax, and 0% sell tax on 2,424,433,813.44 HPR. LpRug probe returned NA — the LP owner holds 100% of liquidity, 0% is burned, and no holder position could be priced before or after a pull (0 WETH in both cases), so the drain risk against a holder stake could not be measured."
+  },
+  "0x2291442ac8d8368f31415ef6f60d3046fd3b2809": {
+    "scan": {
+      "token": "0x2291442Ac8D8368f31415EF6f60d3046Fd3B2809",
+      "isErc20": true,
+      "symbol": "BALL",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x18AA0FDfBaDD29FA67d240E81EFA7104e26D6ffa",
+      "owner": "0x65d51334E0442DB3990355E01eC43678Ef0306e8",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "NA",
+        "title": "Could not buy — no liquidity to test",
+        "rows": [
+          {
+            "label": "Buy the token",
+            "claimed": "Tradable",
+            "proven": "Buy did not yield tokens",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0 BALL"
+        },
+        "txHashes": [
+          "0xc5925a2326f813e682515124d323707a4ee6f1e7dbe28b803e9052e4efde39e0"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "NA",
+        "title": "Could not acquire tokens — no liquidity to test",
+        "rows": [
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "No tokens acquired to test",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "sent": "0 BALL",
+          "received": "0 BALL",
+          "feePct": "n/a",
+          "buyTaxPct": "n/a",
+          "sellTaxPct": "n/a"
+        },
+        "txHashes": [
+          "0xc5925a2326f813e682515124d323707a4ee6f1e7dbe28b803e9052e4efde39e0"
+        ]
+      }
+    ],
+    "narration": "**Token safety check summary:**\n\nThe honeypot probe could not be completed — the buy attempt yielded 0 BALL tokens, and there was no liquidity to test tradability. The hidden fee probe was also inconclusive for the same reason: with 0 BALL sent and 0 BALL received, fee percentages could not be determined.\n\nThe LP rug probe passed: 100% of LP supply is held at the null burn address (0x0000000000000000000000000000000000000000), with 0% owned by any owner, meaning liquidity cannot be withdrawn by anyone.\n\nOverall, liquidity-dependent risks remain unverified due to lack of tradable liquidity."
+  },
+  "0x579da34be72f48328eb5efd1b311e5d3cd1b7129": {
+    "scan": {
+      "token": "0x579da34BE72f48328eB5efD1B311e5D3cD1B7129",
+      "isErc20": true,
+      "symbol": "PINO",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x23C2F251E30d4F38CfBCa792bC4bAAD7a3B69F62",
+      "owner": "0xEf91Ca04B76D383Cf0e72A25cB3EEc941D9842E9",
+      "topHolders": [
+        {
+          "address": "0x23C2F251E30d4F38CfBCa792bC4bAAD7a3B69F62",
+          "balance": "388768876653654679696477520"
+        },
+        {
+          "address": "0xEf91Ca04B76D383Cf0e72A25cB3EEc941D9842E9",
+          "balance": "6270686842613133611572670"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "7,600,497.48 PINO"
+        },
+        "txHashes": [
+          "0x68de77bd633376116da3525aa5cb4a1d0e3d982679a737cf34419ba6959abb77",
+          "0xaf664f14a62ec04954021501711b935cb02ca1b61a964171d7e2cb254b5d149e"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "FAIL",
+        "title": "LP rug possible — owner can pull all liquidity",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Owner holds 99% of LP and removing it collapsed a holder's position from 0.08623 WETH to 0.0006478 WETH",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "99%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0.08623 WETH",
+          "holderValueAfter": "0.0006478 WETH",
+          "lpOwner": "0xEf91Ca04B76D383Cf0e72A25cB3EEc941D9842E9"
+        },
+        "txHashes": [
+          "0x6fb5a4971708b8d8ca5ac5979e104431f2746baf3552da2ae5b9fbf68d158205"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "3,800,248.74 PINO",
+          "received": "3,800,248.74 PINO",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x68de77bd633376116da3525aa5cb4a1d0e3d982679a737cf34419ba6959abb77",
+          "0xe5a8a79ee120138a43cc9ef09ebed48499d0126ff3c3fad176b8fb5d774594bd",
+          "0x8ca7d196d218b41ea67122022c8e3b2ae660fc093c57460673c84da1632ecd16"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, with 7,600,497.48 PINO bought and then sold without issue.\n\nHidden fee check: PASS. No fees found on buy, sell, or transfer — 3,800,248.74 PINO sent resulted in 3,800,248.74 PINO received, with buy tax, sell tax, and transfer fee all at 0%.\n\nLP rug check: FAIL. The LP owner (0xEf91Ca04B76D383Cf0e72A25cB3EEc941D9842E9) holds 99% of LP tokens, with 0% burned. Removing liquidity collapsed a holder's position from 0.08623 WETH to 0.0006478 WETH, proving liquidity is not locked or safe."
+  },
+  "0x6914d994d82bf0cc9d64cf32978d81868ac5f1a9": {
+    "scan": {
+      "token": "0x6914D994d82Bf0cC9d64cF32978d81868Ac5f1a9",
+      "isErc20": true,
+      "symbol": "ROGAN",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x1b0FB286Fd0f0b48E9af0a5B7BDd2fAbDA60A55a",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "16,015,896.16 ROGAN"
+        },
+        "txHashes": [
+          "0xf4cbf93e305b40fe7b0df73ffc93e47bf9e32886fb1a50a9360af6db026e8e1a",
+          "0x928017c281e7ee9cf6aa8ea1fb6e13ee3181e24039d5755f59fc9510cb9e37c3"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "8,007,948.08 ROGAN",
+          "received": "8,007,948.08 ROGAN",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xf4cbf93e305b40fe7b0df73ffc93e47bf9e32886fb1a50a9360af6db026e8e1a",
+          "0xdfc0fa17b51cc32fce950a87a5612ad79489825ab0905b613045bd4cd04a7931",
+          "0xfbf1053cc4ec22f211af479664503474dbe8d253788cec9570fc66a051660e6f"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (66.51%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 66.51% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "66.51%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "✓ Not a honeypot — buy and sell both succeed\n✓ No hidden fee on buying, selling or transferring\n— LP is not burned (66.51%) and its holder could not be identified"
+  },
+  "0xdd763679ee46c3e0b28ce2f288c5f67ad0d75f67": {
+    "scan": {
+      "token": "0xdd763679EE46C3e0B28ce2f288C5f67ad0d75f67",
+      "isErc20": true,
+      "symbol": "JACK",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x4f54a47Eb7565cb36067e66D3cE3E105e8Cd1F96",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "NA",
+        "title": "Could not buy — no liquidity to test",
+        "rows": [
+          {
+            "label": "Buy the token",
+            "claimed": "Tradable",
+            "proven": "Buy did not yield tokens",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0 JACK"
+        },
+        "txHashes": [
+          "0x433d4031dadda9e94159216480ddda7abf6c39cd72abcd54b3626207aaa116ac"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "NA",
+        "title": "Could not acquire tokens — no liquidity to test",
+        "rows": [
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "No tokens acquired to test",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "sent": "0 JACK",
+          "received": "0 JACK",
+          "feePct": "n/a",
+          "buyTaxPct": "n/a",
+          "sellTaxPct": "n/a"
+        },
+        "txHashes": [
+          "0x433d4031dadda9e94159216480ddda7abf6c39cd72abcd54b3626207aaa116ac"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 99.99% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "99.99% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "99.99%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Testing found no liquidity available for JACK, so the honeypot and hidden-fee probes could not be completed: the buy attempt yielded 0 JACK, and with 0 JACK acquired, the full-balance transfer check could not be proven either (both marked NA/not ok). The LP rug probe did pass: 99.99% of LP supply is held at the burn address (0x0000000000000000000000000000000000000000), with 0% owned by the owner, meaning no one can withdraw that liquidity. Overall: LP burn is confirmed safe, but token tradability and fee behavior remain unverified due to lack of liquidity."
+  },
+  "0xed9a671ad54c7cc44cd0c37df567773c41da2527": {
+    "scan": {
+      "token": "0xed9A671aD54C7cc44Cd0c37df567773c41dA2527",
+      "isErc20": true,
+      "symbol": "WUD",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x2e21126968707B42048C74BE6936856dDDBE279b",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "50,141.12 WUD"
+        },
+        "txHashes": [
+          "0x168b702b5623629cee378a4cb38cc7c4d9679bfaa4e2a2c4ae98e0c9924b2088",
+          "0xe52e0be48ef37b9d8e08ad446cbb934fe7d8172823fbd7c1e76e1acf9a97fcd4"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "25,070.56 WUD",
+          "received": "25,070.56 WUD",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x168b702b5623629cee378a4cb38cc7c4d9679bfaa4e2a2c4ae98e0c9924b2088",
+          "0xc5d47ffe4b6d19a66d17ac6be7fc1c233ef6090c6b922b11f30230f89c5dad0e",
+          "0x5b1c1c98c9ed05eba355eea6034d95fe1a37655c709d13cb8826fc510ec786a8"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "WUD passed all three checks. Buying and selling both succeeded, confirming it is not a honeypot (bought 50,141.12 WUD). No hidden fees were found: buy, sell, and transfer all delivered the full amount (25,070.56 WUD sent and received, 0% fee, 0% buy tax, 0% sell tax). Liquidity is secure, with 100% of LP tokens burned and 0% held by the owner, meaning the pool cannot be drained."
+  },
+  "0xcb4b7772487d61db76261b92603d13a47e6c022f": {
+    "scan": {
+      "token": "0xcb4b7772487D61Db76261B92603D13A47E6C022f",
+      "isErc20": true,
+      "symbol": "EVOLV",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x3b3165c8266c0326504e70c9c084569Df248A901",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,746.64 EVOLV"
+        },
+        "txHashes": [
+          "0x460f399140cf44652f800eb2fff57f3f209ee9e80dda098223326e2ada51d20e",
+          "0x0d601ad58e6df7c39daf192162aa66140602327bdb9255d185995fdd0c1b6a48"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 2.99% on buy",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 2.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "873.32 EVOLV",
+          "received": "873.32 EVOLV",
+          "feePct": "0%",
+          "buyTaxPct": "2.99%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x460f399140cf44652f800eb2fff57f3f209ee9e80dda098223326e2ada51d20e",
+          "0x1293c8f54b1e43b6df04ebbf2bd4d65b109a4b54665f7317b96c2128ed3f1d12",
+          "0xc1a2fa3516b64d29f05601f3721c229f0f0b2a1b9e700b277dfda24da8377226"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "EVOLV token checks: buying and selling both completed successfully, confirming the token is tradable (bought 1,746.64 EVOLV). However, a hidden fee was detected on buys — a 2.99% buy tax means users receive less than the pool's quoted amount, while sells (0% tax) and full-balance transfers (873.32 EVOLV sent and received) matched expectations exactly. Additionally, the LP rug check could not confirm safety: 0% of LP tokens are burned, and no LP holder could be identified, leaving open the possibility that liquidity could be withdrawn by an unknown party."
+  },
+  "0xf0e29fdd31f628b329309a274874ec23ee777f60": {
+    "scan": {
+      "token": "0xf0e29fDD31f628B329309A274874EC23Ee777F60",
+      "isErc20": true,
+      "symbol": "YGN",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x0d9f6A182E7061a4516480eF51D793C5D2388a0f",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": [
+        {
+          "address": "0x0aD79F37C3B7C36ec5c745eFF5A9f810C4De73e7",
+          "balance": "143990245722567787614391327"
+        },
+        {
+          "address": "0x0d9f6A182E7061a4516480eF51D793C5D2388a0f",
+          "balance": "10647199264235989118361774"
+        },
+        {
+          "address": "0x46910aE3E8440401f985b08dFc29b09736772841",
+          "balance": "631422373219103545897"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "208,154.55 YGN"
+        },
+        "txHashes": [
+          "0x208d531f50954fd0f512bbfbffdf56e2ea6153bff04d05f8405158ed0f4f8d77",
+          "0x43e0e2fac19211c0da0102fc23f5291a311fd51275b19e07eb13febfeb8703bc"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "104,077.27 YGN",
+          "received": "104,077.27 YGN",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x208d531f50954fd0f512bbfbffdf56e2ea6153bff04d05f8405158ed0f4f8d77",
+          "0x31b7f075c515f469dd40c3bfe9bc03cec2476ed332cd2e76691925e40b3c0608",
+          "0x1f35aefc05a2349606f50a413af9d0b0c6ecc5add484fb5e9909cd306a96d084"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0.1305 WETH",
+          "holderValueAfter": "0.1305 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "YGN passed both the honeypot and hidden-fee checks. Buying and selling both succeeded (bought amount 208,154.55 YGN), confirming the token is freely tradable. No hidden fees were found on buying, selling, or transferring: a sent amount of 104,077.27 YGN was received in full (104,077.27 YGN), with buy tax, sell tax, and fee all at 0%. The LP rug check was inconclusive: 0% of LP is burned and the LP owner could not be identified (owner address shown as the null address), so the ability to drain liquidity could not be ruled out."
+  },
+  "0xba07c3ec4f2cb4a13437ff092be2e45caf473a23": {
+    "scan": {
+      "token": "0xbA07C3EC4f2cB4a13437fF092BE2E45Caf473a23",
+      "isErc20": true,
+      "symbol": "KRAUCH",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x9953B3c16FF7D2E30102c72FE78e663dFBFf9046",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "153,092.73 KRAUCH"
+        },
+        "txHashes": [
+          "0x7c6f719398e9e32036f1d955880b7f83de62ca6db7f54ee79b3cbbcaa57a6d13",
+          "0xcdb6c5d0dd31659bafeeedb0851a9b504f5a9e4408da3eb01690137f58e187b5"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "76,546.36 KRAUCH",
+          "received": "76,546.36 KRAUCH",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x7c6f719398e9e32036f1d955880b7f83de62ca6db7f54ee79b3cbbcaa57a6d13",
+          "0xf3c56b65d6cec4db25537db514ede33d46c1dbcb2276be86e3ebd0640dd51a5d",
+          "0x9594f0dd6b76cf775995b06d26c567672cd533c756fef62013a0bd08ea7117d4"
+        ]
+      }
+    ],
+    "narration": "Honeypot check passed: buying and selling both succeeded, with 153,092.73 KRAUCH bought and sold freely. Hidden fee check passed: buy, sell, and transfer all delivered full amounts with 0% fee, 0% buy tax, and 0% sell tax on 76,546.36 KRAUCH sent and received. LP rug check was inconclusive: 0% of LP is burned and the LP owner shows as the zero address, so no holder could be identified, meaning liquidity is not confirmed locked or safe."
+  },
+  "0x593ed05f9ac38febc9f765079522954f8f7e00b7": {
+    "scan": {
+      "token": "0x593Ed05F9ac38feBc9F765079522954F8f7e00b7",
+      "isErc20": true,
+      "symbol": "WORLDCUP",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x2780d9988E212EbF0bb7728cD81EDfF7Bf8108f7",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "14,987,174.55 WORLDCUP"
+        },
+        "txHashes": [
+          "0x887a1839c1134a47701fb3fb3dd6e322cb6c74b77c8a00edcac6ee5becc4ca51",
+          "0x4712c741791b4009960f9810a424fb11acbbe7a91fc5519bd5e27d88fcc260a6"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 99.63% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "99.63% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "99.63%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 4.99% on buy",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 4.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "7,493,587.27 WORLDCUP",
+          "received": "7,493,587.27 WORLDCUP",
+          "feePct": "0%",
+          "buyTaxPct": "4.99%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x887a1839c1134a47701fb3fb3dd6e322cb6c74b77c8a00edcac6ee5becc4ca51",
+          "0xa0883a867f7a033b441d3707bca0241ae0305319a7f9bd36e3a0977497aad5f7",
+          "0x8e25ab71dbe1e047e0c8bd6419729d0f221f912ebb35d1b36027382e4a21ba4a"
+        ]
+      }
+    ],
+    "narration": "Token-safety check results: Buying and selling both succeeded, confirming the token is not a honeypot (14,987,174.55 WORLDCUP purchased and resold). Liquidity is secure, with 99.63% of LP tokens sent to a burn address, leaving 0% under owner control. However, a hidden fee was detected: buying incurs a 4.99% tax, meaning buyers receive less than the quoted amount. Selling showed 0% tax, with proceeds matching quotes exactly. Full-balance transfers worked correctly, delivering 100% to recipients. Overall: safe from rug-pull and honeypot risks, but buyers should account for the 4.99% buy-side fee."
+  },
+  "0x2e9b909843af009f8f5f86b880cb3090c8f90c35": {
+    "scan": {
+      "token": "0x2e9b909843aF009F8F5f86B880CB3090C8f90C35",
+      "isErc20": true,
+      "symbol": "IFN",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xa4b85f72e37A3257E44CE260277b3304B83D48bC",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "43,309.19 IFN"
+        },
+        "txHashes": [
+          "0x3b328ee7d0401320f3d0bcd98004451bdf77b318c5b51a190ba77e23a35359a2",
+          "0xde507ec495aed9d36c42a989b9231b28bd9fdbe5d70e1b6a00e87ef046d7a353"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "21,654.59 IFN",
+          "received": "21,654.59 IFN",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x3b328ee7d0401320f3d0bcd98004451bdf77b318c5b51a190ba77e23a35359a2",
+          "0xd258247e93ade5c3cc6f3b33e3d8a4a10434ae73a64885f46852e1c03262b33c",
+          "0xc33219eb12e91b727b9f3f66774e995d3e9d93ba67de9408885ce84596168690"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (2.19%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 2.19% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "2.19%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Token IFN passed the honeypot check: buying and selling both succeeded, with 43,309.19 IFN bought and successfully sold. The hidden fee probe also passed — 21,654.59 IFN sent resulted in 21,654.59 IFN received, with buy tax, sell tax, and fee all at 0%, and a full-balance transfer delivered 100% to the recipient. The LP rug check was inconclusive: only 2.19% of LP is burned, meaning the remainder could still be withdrawn, but no LP holder could be identified to assess further risk."
+  },
+  "0x6adb890dcb92db837f7ffe2c05272cba01d5b2c3": {
+    "scan": {
+      "token": "0x6Adb890Dcb92Db837F7Ffe2C05272cba01d5b2c3",
+      "isErc20": true,
+      "symbol": "LORD",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x2c96c5B5f039efAF62d5b0DA349e1121bA99865f",
+      "owner": "0xbd579F2495CF5417575801A08410a1515f3aEc44",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "19,236,090,868 LORD"
+        },
+        "txHashes": [
+          "0x2a74375d40d813b6304235d0374bf0cb47238df9cb476aa1665599a69c58e95c",
+          "0xdd31a4316027b84b3f770a8449e1e73cf5572055ac13d6dd435a0f41e001566a"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xbd579F2495CF5417575801A08410a1515f3aEc44"
+        },
+        "txHashes": [
+          "0x76241a948eafbbb18b2415ad5935e70b48dccc9fce1784658ec4c5b5349f62c3"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "9,618,045,434 LORD",
+          "received": "9,618,045,434 LORD",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x2a74375d40d813b6304235d0374bf0cb47238df9cb476aa1665599a69c58e95c",
+          "0x766f0d46a5a432a5eb2ac9f967eb4746008e5b4b75a7416b25a99f4fe7e24126",
+          "0x00934dcfd5d4baafe3a1a186dda2bae09bb169dc0bf03f9c5519f78a5b153cc5"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, with 19,236,090,868 LORD bought and successfully sold.\n\nLP rug check: NA. The LP owner holds 100% of liquidity (0% burned), and no holder position could be priced before or after a pull (0 WETH before, 0 WETH after), so the drain risk could not be measured.\n\nHidden fee check: PASS. Buy, sell, and transfer all delivered full amounts with 0% fee, 0% buy tax, and 0% sell tax. A transfer of 9,618,045,434 LORD sent resulted in 9,618,045,434 LORD received."
+  },
+  "0xd2b91fbc9923bdd08a3c5f6609f93f3112904bb1": {
+    "scan": {
+      "token": "0xD2B91FbC9923BDD08a3c5f6609f93f3112904bb1",
+      "isErc20": true,
+      "symbol": "FOF",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xaeBcC3294c0b1c4bF6Ce65c71a75e2ccd94E2203",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "11,852,586.15 FOF"
+        },
+        "txHashes": [
+          "0x3fe20303fd7ff62f8d4fd9193f6a04b8467937e9d091b29e66bd9353bf6644b7",
+          "0xf9b3949474ef27e71c640fc2fae1304126a09ed6120b22955d63bf5f77253271"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "5,926,293.07 FOF",
+          "received": "5,926,293.07 FOF",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x3fe20303fd7ff62f8d4fd9193f6a04b8467937e9d091b29e66bd9353bf6644b7",
+          "0x67b7728a6016dc2b059ccba843578e97d9d5ca3e6da251271f1bd14fa417c21b",
+          "0xdf2bb35832b1df21aad3a2843744cfd5310df011f99593182fe0fba5a66b2e5f"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Token FOF passed both the honeypot and hidden fee checks. A test buy of 11,852,586.15 FOF was sold successfully, confirming it is tradable. Transfers and trades showed no hidden fees: 5,926,293.07 FOF sent equaled 5,926,293.07 FOF received, with buy tax, sell tax, and fee all at 0%. The LP rug check was inconclusive: 0% of LP is burned and no LP holder could be identified, so liquidity withdrawal risk could not be assessed."
+  },
+  "0x5b81ec5d786515a00686dd901c97835db2865383": {
+    "scan": {
+      "token": "0x5B81eC5d786515a00686DD901C97835DB2865383",
+      "isErc20": true,
+      "symbol": "FIRE",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x755f27F00E58c87860fA1C7ecE585f1b6647ff84",
+      "owner": "0xAcc79E7b9F8dBB22e197c76d92Ff8c0472Ac81B4",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "NA",
+        "title": "Could not buy — no liquidity to test",
+        "rows": [
+          {
+            "label": "Buy the token",
+            "claimed": "Tradable",
+            "proven": "Buy did not yield tokens",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0 FIRE"
+        },
+        "txHashes": [
+          "0x084429ca858c4ee4cc984862b5019175e4c5ae0715e4e608a155fa70ef78b5c1"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "NA",
+        "title": "Could not acquire tokens — no liquidity to test",
+        "rows": [
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "No tokens acquired to test",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "sent": "0 FIRE",
+          "received": "0 FIRE",
+          "feePct": "n/a",
+          "buyTaxPct": "n/a",
+          "sellTaxPct": "n/a"
+        },
+        "txHashes": [
+          "0x084429ca858c4ee4cc984862b5019175e4c5ae0715e4e608a155fa70ef78b5c1"
+        ]
+      }
+    ],
+    "narration": "Testing could not be completed due to a lack of liquidity. The buy attempt yielded 0 FIRE tokens, so tradability could not be confirmed. LP burn stands at 0%, meaning liquidity is not locked, though no LP holder could be identified (LP owner shown as the null address). The hidden fee check also failed, as no tokens were acquired to test a transfer, leaving fee, buy tax, and sell tax percentages unknown (n/a). No conclusive safety verdict could be reached."
+  },
+  "0x51440f872a0eada2e1d41a92562e0561761bad0d": {
+    "scan": {
+      "token": "0x51440f872a0eAdA2E1D41a92562e0561761bAd0d",
+      "isErc20": true,
+      "symbol": "ARMS",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x861cCdc57E2Fc0eE384153C7aD76e26f595049eC",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "13,777,523.01 ARMS"
+        },
+        "txHashes": [
+          "0x5988459f67e5162e851e9a151c697c852a53c65c19401f4848758e398ac1d3ef",
+          "0xd509ccb8597aa024c0ba78427f668d560e30ffa34d0bdd8e8937a6f32bdaecac"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "6,888,761.5 ARMS",
+          "received": "6,888,761.5 ARMS",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x5988459f67e5162e851e9a151c697c852a53c65c19401f4848758e398ac1d3ef",
+          "0x04c418b385f9360a10ef16ca8599dd6d220eea3f43186fbb5f13d9734b78d8f8",
+          "0x82bd467a8a1eca91027d71c9ecf8c847de5f8aa99fdc81ac7a95bc6e6911cb4b"
+        ]
+      }
+    ],
+    "narration": "All three checks passed. Honeypot test: bought 13,777,523.01 ARMS and successfully sold. LP rug test: 100% of LP supply is burned (owner holds 0%), so liquidity cannot be withdrawn. Hidden fee test: buy tax 0%, sell tax 0%, transfer of 6,888,761.5 ARMS delivered 6,888,761.5 ARMS in full, with 0% fee across buy, sell and transfer."
+  },
+  "0xe48d5b001aed70768e4acdc90e7ef904ed3d7d8c": {
+    "scan": {
+      "token": "0xE48D5b001AED70768E4ACDC90E7EF904ED3D7D8c",
+      "isErc20": true,
+      "symbol": "DUNALDINO",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x8d8381e59c32FCcC9c3b803C939b2dc77f532Dc5",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "19,159,166.22 DUNALDINO"
+        },
+        "txHashes": [
+          "0xe0e45d14d44788f040d741ec569ff169dcfc04816afcb007980b165fb5b517f4",
+          "0x1d69a35dabaccc891353552ad5b2e82fc0dfeed20e57972587990c6bcf9ce72a"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 1.99% on buy, 1.98% on sell",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 1.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 1.98% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "9,579,583.11 DUNALDINO",
+          "received": "9,579,583.11 DUNALDINO",
+          "feePct": "0%",
+          "buyTaxPct": "1.99%",
+          "sellTaxPct": "1.98%"
+        },
+        "txHashes": [
+          "0xe0e45d14d44788f040d741ec569ff169dcfc04816afcb007980b165fb5b517f4",
+          "0x451f8a8027e2bc9f5cb91b2c9de56b207857f7320d0acd796177affeaeb2c89a",
+          "0x1aa979c340803f05429fbe5d73cbd5abe3b268d8c9c9f0740d83fea21432ce7e"
+        ]
+      }
+    ],
+    "narration": "Token can be bought and sold: buy and sell both succeeded, with 19,159,166.22 DUNALDINO bought. LP is not burned (0% burned, 0% owner LP), and the LP holder could not be identified, so drain risk is unclear. Hidden fees were found: 1.99% on buy and 1.98% on sell, meaning received amounts fall short of the pool's quoted amounts. A full-balance transfer test showed the recipient got 100% of the sent 9,579,583.11 DUNALDINO."
+  },
+  "0x0533eaf8cbf2620607f1019e8c72799cf998b79d": {
+    "scan": {
+      "token": "0x0533eaF8cBf2620607f1019E8C72799cF998B79d",
+      "isErc20": true,
+      "symbol": "YALL",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xD51886B0CE49a858Ba9923eF4Db1388bb0E02958",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "59,911.66 YALL"
+        },
+        "txHashes": [
+          "0x19bd7205d31a872c27d8be84847852abf33d7bf80c4f66336d7ea1a6f1374127",
+          "0x2d05391b1e89b2c9e171a46621f5238c35e4df32eede9390503d486fb7254c12"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "29,955.83 YALL",
+          "received": "29,955.83 YALL",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x19bd7205d31a872c27d8be84847852abf33d7bf80c4f66336d7ea1a6f1374127",
+          "0xe5a5ee07e7f391eafc8ecd687fd89e3779d1808646df9748262f03308d5bdb75",
+          "0x6e30891453badeb8d7d672e56b67d6e6d6dc71664d79760d129d13bbc0258c69"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Token-safety check results: Buying and selling both succeeded, confirming this is not a honeypot (bought 59,911.66 YALL, sold successfully). No hidden fees were found on buying, selling, or transferring — amounts sent and received matched exactly (29,955.83 YALL sent and received), with 0% fee, 0% buy tax, and 0% sell tax. The LP rug check was inconclusive: 0% of LP is burned, meaning liquidity could still be withdrawn, but no LP holder could be identified to assess actual risk."
+  },
+  "0x53a3206b1f9af8db337ce49079a3c09b636eb1a7": {
+    "scan": {
+      "token": "0x53A3206b1f9af8DB337ce49079A3C09b636eB1a7",
+      "isErc20": true,
+      "symbol": "BAILMENT",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xFD41086277AfF41B5907a0db05c7e9034c6D6b61",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "NA",
+        "title": "Could not buy — no liquidity to test",
+        "rows": [
+          {
+            "label": "Buy the token",
+            "claimed": "Tradable",
+            "proven": "Buy did not yield tokens",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0 BAILMENT"
+        },
+        "txHashes": [
+          "0x7bc317194cf8b7ed24f11cf1cc143cb47e7220cf7783b7cf0f8f672c9da89c75"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "NA",
+        "title": "Could not acquire tokens — no liquidity to test",
+        "rows": [
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "No tokens acquired to test",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "sent": "0 BAILMENT",
+          "received": "0 BAILMENT",
+          "feePct": "n/a",
+          "buyTaxPct": "n/a",
+          "sellTaxPct": "n/a"
+        },
+        "txHashes": [
+          "0x7bc317194cf8b7ed24f11cf1cc143cb47e7220cf7783b7cf0f8f672c9da89c75"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Testing could not complete for the honeypot and hidden-fee probes because no liquidity was available: the buy attempt yielded 0 BAILMENT tokens, so the transfer test also had nothing to check (0 BAILMENT sent, 0 BAILMENT received). Fee percentages are unavailable (n/a) as a result.\n\nThe LP rug probe passed: 100% of LP supply is burned (burnedLpPct 100%), with the owner holding 0% (ownerLpPct 0%), sent to the null address. This means liquidity cannot be withdrawn by anyone. Overall: liquidity lock is verified safe, but tradability and fee behavior remain unproven due to the lack of liquidity to test against."
+  },
+  "0xaad3838cfdfff04b4770e807c9c086d908390790": {
+    "scan": {
+      "token": "0xAaD3838CfdffF04b4770e807C9C086D908390790",
+      "isErc20": true,
+      "symbol": "ALPHA",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x2Bc56C6B016c852aAFa360E9579c2DAAaCA72A43",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "4,482.48 ALPHA"
+        },
+        "txHashes": [
+          "0x07a07cbaecd06f571ae1528e7cd082c60b699b820095f2dd75c5a580e9162514",
+          "0x23a5204aa3788a028f2063582d84590779114e7462127f457340bb818d4aa18b"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "2,241.24 ALPHA",
+          "received": "2,241.24 ALPHA",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x07a07cbaecd06f571ae1528e7cd082c60b699b820095f2dd75c5a580e9162514",
+          "0xcd90f70d942286f0f82ad80fc375de246060bacafac679093a1b8ab29807f2f9",
+          "0xb07a77f94c5867ac2706836b2d8c6cf9acbdd9f7ec983ad3e3858e624f106e1b"
+        ]
+      }
+    ],
+    "narration": "All three checks passed. Honeypot test: buying and selling both succeeded, with 4,482.48 ALPHA bought and sold without issue. LP rug test: 100% of LP supply is burned (owner holds 0%), so liquidity cannot be withdrawn by anyone. Hidden fee test: a transfer of 2,241.24 ALPHA arrived in full, with buy tax, sell tax, and fee all at 0%. No hidden costs were found on buying, selling, or transferring this token."
+  },
+  "0xdefe2f07938264a455d49ee9cf886855d3d19e0d": {
+    "scan": {
+      "token": "0xDEfE2F07938264A455D49Ee9cf886855d3D19E0D",
+      "isErc20": true,
+      "symbol": "GATOR",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x79ea39346F9eAe09c9f1512c7aAc1a5002086431",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "23,067,938.84 GATOR"
+        },
+        "txHashes": [
+          "0x4d6b1f11c195b816d906be96bec5c8614f9e940c26a32bfae36c59b25ef62a7f",
+          "0x414ac5263df14b0dc52c23baaf57bd9b4a1fe2a3605cd11277e6a6836c3431eb"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "11,533,969.42 GATOR",
+          "received": "11,533,969.42 GATOR",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x4d6b1f11c195b816d906be96bec5c8614f9e940c26a32bfae36c59b25ef62a7f",
+          "0x7b0d4b3464093febbe8e48a1e29d4c17f9c3793477d2ed802d3525c9e6ecccd6",
+          "0xd65e243ec127ee1e271514c2cbd85a63717be842e967d8a658c519fdfec9de08"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "GATOR passed all three checks. Buying and selling both succeeded, confirming it's not a honeypot (23,067,938.84 GATOR bought and resold). No hidden fees were found on buying, selling, or transferring: buy tax 0%, sell tax 0%, fee 0%, and a full transfer of 11,533,969.42 GATOR arrived with the recipient getting 100%. LP liquidity is burned, with 100% of LP supply held at the burn address (0x0000000000000000000000000000000000000000) and 0% owned by the owner, meaning it cannot be withdrawn or rugged."
+  },
+  "0x0596e61734f679fd9f8894346e512ff74a3af89e": {
+    "scan": {
+      "token": "0x0596e61734f679Fd9f8894346e512FF74a3aF89e",
+      "isErc20": true,
+      "symbol": "V3",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x64edC3bcFbB7952857500B4b6af1f4b39Ad2C4Bb",
+      "owner": "0x5a61D6A9638A30535Ad7b4c392bb0c992CE68735",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "NA",
+        "title": "Could not buy — no liquidity to test",
+        "rows": [
+          {
+            "label": "Buy the token",
+            "claimed": "Tradable",
+            "proven": "Buy did not yield tokens",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0 V3"
+        },
+        "txHashes": [
+          "0xfcc984c93472cb7b14797130f9483ac79213d40603efdf6193122de9fe0eb258"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x5a61D6A9638A30535Ad7b4c392bb0c992CE68735"
+        },
+        "txHashes": [
+          "0x85d6fa5fe04b2ccd242e9338e8e672585e4c3fa92f851475772255c059a51757"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "NA",
+        "title": "Could not acquire tokens — no liquidity to test",
+        "rows": [
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "No tokens acquired to test",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "sent": "0 V3",
+          "received": "0 V3",
+          "feePct": "n/a",
+          "buyTaxPct": "n/a",
+          "sellTaxPct": "n/a"
+        },
+        "txHashes": [
+          "0xfcc984c93472cb7b14797130f9483ac79213d40603efdf6193122de9fe0eb258"
+        ]
+      }
+    ],
+    "narration": "Testing could not be completed due to insufficient liquidity. The buy attempt resulted in 0 V3 tokens received, so no tokens were available to test transfers or fees (feePct, buyTaxPct, and sellTaxPct are all n/a). The LP rug check also could not proceed, as no holder position could be priced before any pull — holder value before and after both show 0 WETH. Separately, the LP owner (0x5a61D6A9638A30535Ad7b4c392bb0c992CE68735) holds 100% of LP, with 0% burned. No definitive safety verdict could be established from these probes."
+  },
+  "0x898eee7c128495e3b5007958b650fc5e5b308d49": {
+    "scan": {
+      "token": "0x898eeE7c128495E3B5007958b650fc5e5B308d49",
+      "isErc20": true,
+      "symbol": "HARU",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x8185Fdb20c349c21cb230a59e93AAF149421113f",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "469,546.99 HARU"
+        },
+        "txHashes": [
+          "0xf7a464d5904f3aff3c1e2e325d13aa2243427ffc782558aceb6767ef98865246",
+          "0x734b222366068368e91782fe17252da187f1abbb946b8de26f3b24f5db8e1af4"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "234,773.49 HARU",
+          "received": "234,773.49 HARU",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xf7a464d5904f3aff3c1e2e325d13aa2243427ffc782558aceb6767ef98865246",
+          "0x5e3ea91dd67f12815da953e9aafad0af5d5e0b6af790893889bd8ab40dad114b",
+          "0x0ce313290a358075c13d320034bb58925e01d2f7866e864e3c2030d924eda212"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "HARU passed both the honeypot and hidden-fee checks. Buying and selling both succeeded, with 469,546.99 HARU bought and freely resold. No hidden fees were found: buy tax, sell tax, and transfer fee were all 0%, with sent and received amounts matching exactly at 234,773.49 HARU. The LP rug check was inconclusive: 0% of LP is burned, meaning liquidity could still be withdrawn, but no LP holder could be identified to confirm risk."
+  },
+  "0x11769f53eadbaf4359d642d16fe65180e9a1ffec": {
+    "scan": {
+      "token": "0x11769f53EaDbaF4359d642D16fe65180E9A1fFec",
+      "isErc20": true,
+      "symbol": "test",
+      "decimals": 9,
+      "hasPool": true,
+      "poolAddress": "0x2a7B73f8a128aF565b8dDD4711Fadb746FB10c89",
+      "owner": "0xE58a84B717b4DE2dF910F57D82B6885CB594F941",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "3,846,023.66 test"
+        },
+        "txHashes": [
+          "0x9c22bbb122375f5ed6969049b1db0efbb940337025bbf33b78c8a84cbb9432c7",
+          "0xafaefcdc116bb2df3ccf56d36ddf9b11e4e0575859cf36d6cf602f6fba559a48"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No holder position to measure the pull against",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Could not price any holder's position before the pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xE58a84B717b4DE2dF910F57D82B6885CB594F941"
+        },
+        "txHashes": [
+          "0x1e0a048daffe68cc3b7b2ce877e1815debacab79618a01cc53c7f71667d6dc89"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "FAIL",
+        "title": "Hidden fees — 9.99% on buy, 9.80% on sell, 19.99% on transfer",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received 9.99% less than the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds were 9.80% short of the pool's own quote",
+            "ok": false
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 19.99% less",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "sent": "1,923,011.83 test",
+          "received": "1,538,409.46 test",
+          "feePct": "19.99%",
+          "buyTaxPct": "9.99%",
+          "sellTaxPct": "9.80%"
+        },
+        "txHashes": [
+          "0x9c22bbb122375f5ed6969049b1db0efbb940337025bbf33b78c8a84cbb9432c7",
+          "0x2c2f04d1f33caba69b5f186a55d018f1268c5739210b40a99eadf61f0ad48aa3",
+          "0x0f8f832a3fc327f8df1c10220c04a8527f7b8bafbd2f5182ef61db2e46a0a9f2"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, with 3,846,023.66 test bought and sold freely.\n\nLP rug check: NA. LP owner holds 100% of liquidity, 0% is burned, and holder value before and after was 0 WETH, so no position could be priced against a pull.\n\nHidden fee check: FAIL. Buys lose 9.99%, sells lose 9.80%, and transfers lose 19.99% — a transfer of 1,923,011.83 test delivered only 1,538,409.46 test to the recipient."
+  },
+  "0x89f48b0067f42f3a8b233a6dc9dcd4101aa0ea1c": {
+    "scan": {
+      "token": "0x89f48b0067F42F3a8b233a6dc9DcD4101AA0EA1C",
+      "isErc20": false,
+      "symbol": "",
+      "decimals": 18,
+      "hasPool": false,
+      "topHolders": []
+    },
+    "ids": [
+      "approvalDrain"
+    ],
+    "verdicts": [
+      {
+        "probe": "approvalDrain",
+        "status": "FAIL",
+        "title": "Approvals are drainable — funds actually moved",
+        "rows": [
+          {
+            "label": "Approved spenders can pull funds",
+            "claimed": "Approvals are safe",
+            "proven": "Drained 0.677 WETH via transferFrom",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "reachable": "0.677 WETH",
+          "drained": "0.677 WETH",
+          "approvalCount": "1",
+          "skipped": "0"
+        },
+        "txHashes": [
+          "0x422d26f191ff662bbdad894ddfd517337449724ad194e273b3bb952cf57bec00"
+        ]
+      }
+    ],
+    "narration": "Token-safety probe result: **approvalDrain — FAIL**.\n\nThe claim that \"approvals are safe\" was disproven. Testing found 1 approved spender able to pull funds via transferFrom, and the drain was actually executed: 0.677 WETH was reachable and 0.677 WETH was drained. No approvals were skipped (0). Transaction hash: 0x422d26f191ff662bbdad894ddfd517337449724ad194e273b3bb952cf57bec00.\n\nConclusion: existing token approvals are exploitable and funds were confirmed movable, not merely theoretical."
   }
 };
