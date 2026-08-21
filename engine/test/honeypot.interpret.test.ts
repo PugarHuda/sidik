@@ -57,3 +57,14 @@ describe("interpretHoneypot — proceeds, not just success", () => {
     expect(v.status).toBe("PASS");
   });
 });
+
+// Regression: formatting boughtAmount for display turned "0" into "0 SYMBOL",
+// so the no-liquidity branch stopped matching and five tokens that could not
+// be bought at all were reported as honeypots.
+it("is NA, not a honeypot accusation, when the buy acquired nothing", () => {
+  const v = interpretHoneypot(
+    { boughtAmount: "0", soldOk: false, buyTxHash: "0xb", sellTxHash: "0x" } as any,
+    { scan: { decimals: 18, symbol: "DEAI" } } as any);
+  expect(v.status).toBe("NA");
+  expect(v.numbers.boughtAmount).toBe("0 DEAI");
+});

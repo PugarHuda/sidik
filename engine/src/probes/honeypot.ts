@@ -11,7 +11,12 @@ export function interpretHoneypot(raw: RawResult, ctx: ProbeCtx): Verdict {
   // Optional chaining because interpret is unit-tested with a bare ctx.
   const dec = ctx?.scan?.decimals ?? 18;
   const sym = ctx?.scan?.symbol || undefined;
-  const bought = amount(String(raw.boughtAmount ?? "0"), dec, sym);
+  // Keep the raw value for the "did we buy anything at all" test. Formatting
+  // turns "0" into "0 SYMBOL", and comparing the formatted string missed
+  // the no-liquidity branch — five tokens we simply could not buy were
+  // accused of being honeypots instead.
+  const rawBought = String(raw.boughtAmount ?? "0");
+  const bought = amount(rawBought, dec, sym);
   const soldOk = Boolean(raw.soldOk);
   const sellPredicted = BigInt(String(raw.sellPredicted ?? "0"));
   const sellReceived = BigInt(String(raw.sellReceived ?? "0"));
@@ -20,7 +25,7 @@ export function interpretHoneypot(raw: RawResult, ctx: ProbeCtx): Verdict {
     && sellReceived * 100n < sellPredicted * MIN_SELL_PROCEEDS_PCT;
   const txHashes = [raw.buyTxHash as Hex, raw.sellTxHash as Hex].filter((h) => h && h !== "0x") as Hex[];
 
-  if (bought === "0") {
+  if (rawBought === "0") {
     return {
       probe: "honeypot", status: "NA", title: "Could not buy — no liquidity to test",
       rows: [{ label: "Buy the token", claimed: "Tradable", proven: "Buy did not yield tokens", ok: false }],
