@@ -2,6 +2,7 @@ import { createPublicClient, http, encodeFunctionData, formatEther, parseAbi, pa
 import { base } from "viem/chains";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { logsClient } from "../rpc.js";
+import { amount } from "../format.js";
 
 const ERC20_ABI = parseAbi([
   "function balanceOf(address) view returns (uint256)",
@@ -23,25 +24,24 @@ const ROUTER: Hex = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24";
 const ROUTER_ABI = parseAbi(["function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[] amounts)"]);
 const WETH: Hex = "0x4200000000000000000000000000000000000006";
 
-// ponytail: static WETH price, not a general pricing subsystem. Swap for an
-// on-chain oracle/stable-pool read if precision matters later.
-const WETH_USD = 3000;
+// Value is reported in WETH, not dollars. It used to multiply by a hardcoded
+// $3000/ETH, which is an invented number — the one thing this project claims
+// never to put on screen. The pool can quote WETH; nothing can quote USD
+// without an oracle, so WETH is what gets reported.
 
 // ponytail: fixed non-victim/non-spender EOA that just needs to receive the
 // drained tokens on the fork; built via .repeat so the digit count is
 // obviously right rather than a hand-counted hex literal.
 const ATTACKER = (`0x${"0".repeat(35)}a11ce`) as Hex;
 
-function formatUsd(raw: string): string {
-  const n = Number(raw);
-  const safe = Number.isFinite(n) ? n : 0;
-  return `$${safe.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+function weth(raw: string | bigint): string {
+  return amount(raw, 18, "WETH");
 }
 
 export function interpretApprovalDrain(raw: RawResult, _ctx: ProbeCtx): Verdict {
-  const approvals = (raw.approvals ?? []) as { spender: Hex; allowance: string; reachableUsd: string }[];
-  const drainedUsd = String(raw.drainedUsd ?? "0");
-  const reachableUsdTotal = approvals.reduce((sum, a) => sum + (Number(a.reachableUsd) || 0), 0);
+  const approvals = (raw.approvals ?? []) as { spender: Hex; allowance: string; reachableWeth: string }[];
+  const drainedWei = BigInt(String(raw.drainedWeth ?? "0"));
+  const reachableWei = approvals.reduce((sum, a) => sum + BigInt(a.reachableWeth || "0"), 0n);
   const txHashes = [raw.drainTxHash as Hex].filter((h) => h && h !== "0x") as Hex[];
   // The real safety signal is whether transferFrom actually moved tokens —
   // drainedUsd is display decoration and can be 0 for an unpriceable token
@@ -49,9 +49,10 @@ export function interpretApprovalDrain(raw: RawResult, _ctx: ProbeCtx): Verdict 
   // (non-"0x") drainTxHash is itself proof a drain landed on-chain.
   const drained = Boolean(raw.drained) || txHashes.length > 0;
   const numbers = {
-    reachableUsd: formatUsd(String(reachableUsdTotal)),
-    drainedUsd: Number(drainedUsd) > 0 ? formatUsd(drainedUsd) : (drained ? "unpriced" : formatUsd(drainedUsd)),
+    reachable: weth(reachableWei),
+    drained: drainedWei > 0n ? weth(drainedWei) : (drained ? "unpriced" : weth(0n)),
     approvalCount: String(approvals.length),
+    skipped: String(raw.skipped ?? 0),
   };
 
   if (approvals.length === 0) {
@@ -66,7 +67,7 @@ export function interpretApprovalDrain(raw: RawResult, _ctx: ProbeCtx): Verdict 
     return {
       probe: "approvalDrain", status: "FAIL", title: "Approvals are drainable — funds actually moved",
       rows: [{ label: "Approved spenders can pull funds", claimed: "Approvals are safe",
-        proven: `Drained ${numbers.drainedUsd} via transferFrom`, ok: false }],
+        proven: `Drained ${numbers.drained} via transferFrom`, ok: false }],
       numbers, txHashes,
     };
   }
@@ -82,16 +83,16 @@ export function interpretApprovalDrain(raw: RawResult, _ctx: ProbeCtx): Verdict 
 // ponytail: `any` here, not the full viem PublicClient<Base> generic — the
 // literal client instance's chain-formatter type is call-site-specific and
 // not worth threading through for a single readContract call.
-async function priceUsd(pub: any, token: Hex, amount: bigint): Promise<number> {
-  if (amount === 0n) return 0;
+async function priceWeth(pub: any, token: Hex, tokens: bigint): Promise<bigint> {
+  if (tokens === 0n) return 0n;
   try {
     const amounts = await pub.readContract({
-      address: ROUTER, abi: ROUTER_ABI, functionName: "getAmountsOut", args: [amount, [token, WETH]],
+      address: ROUTER, abi: ROUTER_ABI, functionName: "getAmountsOut", args: [tokens, [token, WETH]],
     }) as bigint[];
-    return Number(formatEther(amounts[1])) * WETH_USD;
+    return amounts[1] ?? 0n;
   } catch {
     // ponytail: no V2 route/pool for this token — treat as unpriced, not fatal.
-    return 0;
+    return 0n;
   }
 }
 
@@ -127,43 +128,52 @@ export const approvalDrainProbe: Probe = {
       latest.set(`${token}:${spender}`, { token, spender });
     }
 
-    const approvals: { spender: Hex; allowance: string; reachableUsd: string; token: Hex }[] = [];
-    let drainedUsdTotal = 0;
+    const approvals: { spender: Hex; allowance: string; reachableWeth: string; token: Hex }[] = [];
+    let drainedWethTotal = 0n;
     let drainTxHash: Hex = "0x" as Hex;
     let drained = false;
+    let skipped = 0;
 
     for (const { token, spender } of latest.values()) {
-      const allowance = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "allowance", args: [victim, spender] });
-      if (allowance === 0n) continue;
-      const balance = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [victim] });
-      const reachable = allowance < balance ? allowance : balance;
-      if (reachable === 0n) continue;
+      // A wallet holds whatever it holds, and one contract that reverts on
+      // allowance() must not cost the other approvals their verdict. Two of
+      // three real wallets tested lost the entire probe to a single bad
+      // token, which then reported as "the probe could not run".
+      try {
+        const allowance = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "allowance", args: [victim, spender] });
+        if (allowance === 0n) continue;
+        const balance = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [victim] });
+        const reachable = allowance < balance ? allowance : balance;
+        if (reachable === 0n) continue;
 
-      const reachableUsd = await priceUsd(pub, token, reachable);
+        const reachableWeth = await priceWeth(pub, token, reachable);
 
-      await fork.impersonate(spender);
-      // Same reason lpRug funds its impersonated owner: without gas the send
-      // fails on balance, not on whether the approval is drainable, and an
-      // infrastructure failure would read as a clean result.
-      await fork.setBalanceEth(spender, "1");
-      const before = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [ATTACKER] });
-      const data = encodeFunctionData({ abi: ERC20_ABI, functionName: "transferFrom", args: [victim, ATTACKER, reachable] });
-      const { hash, reverted } = await fork.send({ from: spender, to: token, data });
-      await fork.stopImpersonate(spender);
+        await fork.impersonate(spender);
+        // Same reason lpRug funds its impersonated owner: without gas the send
+        // fails on balance, not on whether the approval is drainable, and an
+        // infrastructure failure would read as a clean result.
+        await fork.setBalanceEth(spender, "1");
+        const before = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [ATTACKER] });
+        const data = encodeFunctionData({ abi: ERC20_ABI, functionName: "transferFrom", args: [victim, ATTACKER, reachable] });
+        const { hash, reverted } = await fork.send({ from: spender, to: token, data });
+        await fork.stopImpersonate(spender);
 
-      let drainedAmt = 0n;
-      if (!reverted) {
-        const after = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [ATTACKER] });
-        drainedAmt = after - before;
-        if (drainedAmt > 0n) { drainTxHash = hash; drained = true; }
+        let drainedAmt = 0n;
+        if (!reverted) {
+          const after = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [ATTACKER] });
+          drainedAmt = after - before;
+          if (drainedAmt > 0n) { drainTxHash = hash; drained = true; }
+        }
+        const drainedWeth = drainedAmt === reachable ? reachableWeth : await priceWeth(pub, token, drainedAmt);
+        drainedWethTotal += drainedWeth;
+
+        approvals.push({ spender, allowance: allowance.toString(), reachableWeth: reachableWeth.toString(), token });
+      } catch {
+        skipped++;
       }
-      const drainedUsd = drainedAmt === reachable ? reachableUsd : await priceUsd(pub, token, drainedAmt);
-      drainedUsdTotal += drainedUsd;
-
-      approvals.push({ spender, allowance: allowance.toString(), reachableUsd: reachableUsd.toString(), token });
     }
 
-    return { approvals, drainedUsd: drainedUsdTotal.toString(), drainTxHash, drained };
+    return { approvals, drainedWeth: drainedWethTotal.toString(), drainTxHash, drained, skipped };
   },
   interpret: interpretApprovalDrain,
 };

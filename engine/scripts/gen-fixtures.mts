@@ -174,7 +174,7 @@ async function discover(limit: number): Promise<{ address: Hex; label: string }[
 }
 
 /** One run, or undefined if it broke rather than reached a verdict. */
-async function record(token: Hex): Promise<FrozenRun | undefined> {
+async function record(token: Hex, mustBeToken = true): Promise<FrozenRun | undefined> {
   let scan: PreScan | undefined;
   let ids: string[] = [];
   const verdicts: Verdict[] = [];
@@ -195,10 +195,11 @@ async function record(token: Hex): Promise<FrozenRun | undefined> {
   // permanent failure no retry can clear. That includes a probe that threw:
   // an RPC 429 mid-fork surfaces as an NA verdict, not an error event, and
   // one slipped into the first generated set looking like a finding.
-  // A discovered address that turns out not to be a token has nothing to say
+  // A DISCOVERED address that turns out not to be a token has nothing to say
   // in a token catalogue — it only ever yields the wallet probe reporting no
-  // approvals, which is noise.
-  if (scan && !scan.isErc20) {
+  // approvals, which is noise. An explicitly listed target is listed on
+  // purpose: the wallet example is not a token and that is the point.
+  if (mustBeToken && scan && !scan.isErc20) {
     process.stderr.write("SKIPPED (not an ERC-20)\n");
     return undefined;
   }
@@ -216,8 +217,8 @@ const runs = loadExisting();
 const already = Object.keys(runs).length;
 if (already) process.stderr.write(`resuming: ${already} already recorded at block ${BASE_FORK_BLOCK}\n`);
 
-const targets: { address: Hex; label: string }[] = [
-  ...EXAMPLES.map((e) => ({ address: e.address, label: e.label })),
+const targets: { address: Hex; label: string; mustBeToken?: boolean }[] = [
+  ...EXAMPLES.map((e) => ({ address: e.address, label: e.label, mustBeToken: e.kind !== "wallet" })),
   ...SEED.map((address) => ({ address, label: "seed" })),
 ];
 if (CATALOG_SIZE > 0) {
@@ -238,7 +239,7 @@ let i = 0;
 for (const t of queue) {
   i++;
   process.stderr.write(`[${i}/${queue.length}] ${t.label} ${t.address} ... `);
-  const run = await record(t.address);
+  const run = await record(t.address, t.mustBeToken ?? true);
   if (!run) continue;
   runs[t.address.toLowerCase()] = run;
   write(runs); // after every token, so an interrupted run keeps its progress

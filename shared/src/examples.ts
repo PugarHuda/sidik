@@ -3,7 +3,7 @@ import type { Hex } from "./types";
 export interface ExampleToken {
   label: string;
   address: Hex;
-  kind: "safe" | "honeypot" | "highfee";
+  kind: "safe" | "honeypot" | "highfee" | "wallet";
 }
 
 // Lives in shared because engine and web must agree on it: web renders these
@@ -32,4 +32,11 @@ export const EXAMPLES: ExampleToken[] = [
   // burned, so it is also the one example where all three probes return a
   // definite verdict rather than an NA.
   { label: "BRB (3% buy tax)", address: "0x0e86eFe5Ba52336c2173AD69EE726e054619e0d8", kind: "highfee" },
+  // A real Base wallet carrying a live token approval. Paste a wallet rather
+  // than a token and Sidik probes the approval instead: it impersonates the
+  // approved spender on the fork and calls transferFrom. Verified 2026-08-21
+  // at block 50,200,000 — the drain lands, moving 0.677 WETH worth of tokens
+  // the owner still holds. Nothing happens to the real wallet; the whole
+  // thing lives and dies inside the fork.
+  { label: "Wallet with a live approval", address: "0x89f48b0067F42F3a8b233a6dc9DcD4101AA0EA1C", kind: "wallet" },
 ];

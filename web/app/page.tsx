@@ -10,6 +10,7 @@ const KIND_DOT: Record<string, string> = {
   safe: "bg-pass",
   honeypot: "bg-fail",
   highfee: "bg-na",
+  wallet: "bg-fail",
 };
 
 export default function Home() {
