@@ -30,3 +30,30 @@ describe("interpretHoneypot", () => {
     expect(v.status).toBe("NA");
   });
 });
+
+describe("interpretHoneypot — proceeds, not just success", () => {
+  // Regression: the probe asked only whether the sell reverted. A token that
+  // lets the sell through and keeps the proceeds passed both this probe and
+  // the fee probe, so nothing in the product caught it.
+  it("FAILs when the sell succeeds but pays back almost nothing", () => {
+    const v = interpretHoneypot(
+      { boughtAmount: "1000", soldOk: true, sellPredicted: "1000000000000000000",
+        sellReceived: "1000000000000000", buyTxHash: "0xb", sellTxHash: "0xs" } as any, ctx);
+    expect(v.status).toBe("FAIL");
+    expect(v.title).toMatch(/pays almost nothing/i);
+  });
+
+  it("still PASSes a sell that pays what the pool quoted", () => {
+    const v = interpretHoneypot(
+      { boughtAmount: "1000", soldOk: true, sellPredicted: "1000000000000000000",
+        sellReceived: "994000000000000000", buyTxHash: "0xb", sellTxHash: "0xs" } as any, ctx);
+    expect(v.status).toBe("PASS");
+  });
+
+  it("does not judge proceeds when the pool never quoted the trade", () => {
+    const v = interpretHoneypot(
+      { boughtAmount: "1000", soldOk: true, sellPredicted: "0", sellReceived: "0",
+        buyTxHash: "0xb", sellTxHash: "0xs" } as any, ctx);
+    expect(v.status).toBe("PASS");
+  });
+});

@@ -52,7 +52,16 @@ export async function buyBudget(fork: ForkClient, ctx: ProbeCtx): Promise<bigint
 // deliver — the LP fee and price impact are already inside that number, so
 // any gap between it and `amount` is the token skimming, nothing else. "0"
 // means no quote was available, not "no shortfall".
-export type DexResult = { ok: boolean; amount: string; predicted: string; hash: Hex; revertReason?: string };
+export type DexResult = {
+  ok: boolean;
+  /** Tokens acquired on a buy, or tokens handed over on a sell. */
+  amount: string;
+  predicted: string;
+  /** Sells only: WETH that actually left the pool. "0" on a buy. */
+  received: string;
+  hash: Hex;
+  revertReason?: string;
+};
 
 async function balanceOf(fork: ForkClient, token: Hex, owner: Hex): Promise<bigint> {
   return fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [owner] });
@@ -67,13 +76,13 @@ export async function buyExactEth(fork: ForkClient, ctx: ProbeCtx, ethIn: bigint
     args: [0n, [WETH, ctx.token], ctx.testWallet, DEADLINE],
   });
   const { hash, reverted, revertReason } = await fork.send({ from: ctx.testWallet, to: ROUTER, data, value: ethIn });
-  if (reverted) return { ok: false, amount: "0", predicted: predicted.toString(), hash, revertReason };
+  if (reverted) return { ok: false, amount: "0", predicted: predicted.toString(), received: "0", hash, revertReason };
 
   // Measure the delta, not amountsOut — fee-on-transfer tokens skim on the way in.
   const after = await balanceOf(fork, ctx.token, ctx.testWallet);
   const amount = after - before;
-  if (amount <= 0n) return { ok: false, amount: "0", predicted: predicted.toString(), hash };
-  return { ok: true, amount: amount.toString(), predicted: predicted.toString(), hash };
+  if (amount <= 0n) return { ok: false, amount: "0", predicted: predicted.toString(), received: "0", hash };
+  return { ok: true, amount: amount.toString(), predicted: predicted.toString(), received: "0", hash };
 }
 
 async function quote(fork: ForkClient, amountIn: bigint, path: Hex[]): Promise<bigint> {
@@ -89,9 +98,20 @@ async function quote(fork: ForkClient, amountIn: bigint, path: Hex[]): Promise<b
   }
 }
 
-export async function sellAll(fork: ForkClient, ctx: ProbeCtx): Promise<DexResult> {
-  const amount = await balanceOf(fork, ctx.token, ctx.testWallet);
-  if (amount === 0n) return { ok: false, amount: "0", predicted: "0", hash: "0x" as Hex, revertReason: "no tokens to sell" };
+/**
+ * Sells `amount` (default: the whole balance) and reports what came back.
+ *
+ * A sell that does not revert is not the same as a sell that pays you. The
+ * proceeds are measured as the WETH that actually left the pool, against
+ * getAmountsOut for the same trade — WETH on both sides of the comparison, so
+ * gas never enters the number, and the curve's own fee and price impact are
+ * already inside the prediction. Whatever is missing, the token kept.
+ */
+export async function sellAll(fork: ForkClient, ctx: ProbeCtx, sellAmount?: bigint): Promise<DexResult> {
+  const amount = sellAmount ?? await balanceOf(fork, ctx.token, ctx.testWallet);
+  const nothing = (extra: Partial<DexResult> = {}): DexResult =>
+    ({ ok: false, amount: amount.toString(), predicted: "0", received: "0", hash: "0x" as Hex, ...extra });
+  if (amount === 0n) return { ...nothing(), amount: "0", revertReason: "no tokens to sell" };
 
   const approveData = encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [ROUTER, amount] });
   const approveTx = await fork.send({ from: ctx.testWallet, to: ctx.token, data: approveData });
@@ -100,8 +120,15 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx): Promise<DexResul
     // that reason is exactly the evidence we want, so derive it the same way as a swap revert.
     const reason = approveTx.revertReason
       ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: ctx.token, data: approveData });
-    return { ok: false, amount: amount.toString(), predicted: "0", hash: approveTx.hash, revertReason: reason ?? "approve reverted" };
+    return nothing({ hash: approveTx.hash, revertReason: reason ?? "approve reverted" });
   }
+
+  const pool = ctx.scan.poolAddress;
+  // Without the pool address there is nothing to weigh the proceeds against,
+  // and a measurement of zero must never read as "you were paid nothing" —
+  // that turned USDC into a honeypot. No quote means callers do not judge.
+  const predicted = pool ? await quote(fork, amount, [ctx.token, WETH]) : 0n;
+  const poolWethBefore = pool ? await balanceOf(fork, WETH, pool) : 0n;
 
   const sellData = encodeFunctionData({
     abi: ROUTER_ABI,
@@ -109,11 +136,18 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx): Promise<DexResul
     args: [amount, 0n, [ctx.token, WETH], ctx.testWallet, DEADLINE],
   });
   const sellTx = await fork.send({ from: ctx.testWallet, to: ROUTER, data: sellData });
-  if (!sellTx.reverted) return { ok: true, amount: amount.toString(), predicted: "0", hash: sellTx.hash };
+  if (sellTx.reverted) {
+    const revertReason = sellTx.revertReason
+      ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: ROUTER, data: sellData });
+    return nothing({ hash: sellTx.hash, revertReason });
+  }
 
-  const revertReason = sellTx.revertReason
-    ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: ROUTER, data: sellData });
-  return { ok: false, amount: amount.toString(), predicted: "0", hash: sellTx.hash, revertReason };
+  const poolWethAfter = pool ? await balanceOf(fork, WETH, pool) : 0n;
+  const received = poolWethBefore > poolWethAfter ? poolWethBefore - poolWethAfter : 0n;
+  return {
+    ok: true, amount: amount.toString(), predicted: predicted.toString(),
+    received: received.toString(), hash: sellTx.hash,
+  };
 }
 
 // ponytail: fork.send() leaves revertReason undefined on a broadcast-then-

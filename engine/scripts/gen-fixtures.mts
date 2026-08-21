@@ -31,8 +31,11 @@ const DISCOVERY_BLOCKS = BigInt(process.env.SIDIK_DISCOVERY_BLOCKS ?? "3000000")
 // The logs RPC caps a single eth_getLogs at 10k blocks.
 const LOG_CHUNK = 10_000n;
 // Below this there is nothing to trade against, so a run would only ever
-// report "no liquidity to test".
-const MIN_WETH_RESERVE = 5n * 10n ** 16n; // 0.05 WETH
+// report "no liquidity to test". Deliberately low: honeypots sit in small
+// pools by nature — the one confirmed honeypot in the catalogue was found at
+// 0.005 WETH — and a threshold that keeps the catalogue tidy also filters out
+// exactly the tokens this tool exists to catch.
+const MIN_WETH_RESERVE = BigInt(process.env.SIDIK_MIN_WETH ?? "10000000000000000"); // 0.01 WETH
 
 const FACTORY: Hex = "0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6";
 const WETH: Hex = "0x4200000000000000000000000000000000000006";

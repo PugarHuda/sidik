@@ -11,7 +11,11 @@ const ERC20_ABI = parseAbi([
 
 const APPROVAL_EVENT = parseAbiItem("event Approval(address indexed owner, address indexed spender, uint256 value)");
 
-const APPROVAL_LOOKBACK_BLOCKS = 3_000n;
+// 9k blocks — the logs RPC caps a single eth_getLogs at 10k, so this takes
+// the window right up to what one request allows. At 3k the holder sample
+// came back empty for 56% of the catalogue, which is what starved lpRug's
+// candidate search and left it saying NA more often than not.
+const APPROVAL_LOOKBACK_BLOCKS = 9_000n;
 
 // ponytail: duplicated from dex.ts (not exported there) rather than exporting
 // it just for this probe — same Uniswap V2 router/WETH already used elsewhere.

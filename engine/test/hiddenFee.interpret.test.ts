@@ -40,7 +40,7 @@ describe("interpretHiddenFee — tax charged through the pool", () => {
       { sent: "1000", received: "1000", buyTaxBps: 299, feeBps: 0,
         buyTxHash: "0xb", xferTxHash: "0xh" } as any, ctx);
     expect(v.status).toBe("FAIL");
-    expect(v.title).toMatch(/buy tax of 2.99%/i);
+    expect(v.title).toMatch(/2\.99% on buy/i);
     expect(v.numbers.buyTaxPct).toBe("2.99%");
     expect(v.txHashes).toContain("0xb");
   });
@@ -59,5 +59,35 @@ describe("interpretHiddenFee — tax charged through the pool", () => {
       { sent: "1000", received: "1000", buyTaxBps: 3, feeBps: 0,
         buyTxHash: "0xb", xferTxHash: "0xh" } as any, ctx);
     expect(v.status).toBe("PASS");
+  });
+});
+
+describe("interpretHiddenFee — the sell side", () => {
+  // Regression: only the buy was measured, so a token taking its cut on the
+  // way out looked clean, and one taking both was reported at half its cost.
+  it("FAILs on a sell tax even when buying and transferring are free", () => {
+    const v = interpretHiddenFee(
+      { sent: "1000", received: "1000", buyTaxBps: 0, sellTaxBps: 900, sellMeasured: true,
+        feeBps: 0, buyTxHash: "0xb", sellTxHash: "0xs", xferTxHash: "0xh" } as any, ctx);
+    expect(v.status).toBe("FAIL");
+    expect(v.title).toMatch(/9% on sell/i);
+    expect(v.numbers.sellTaxPct).toBe("9%");
+    expect(v.txHashes).toContain("0xs");
+  });
+
+  it("names both sides when a token charges each way", () => {
+    const v = interpretHiddenFee(
+      { sent: "1000", received: "1000", buyTaxBps: 299, sellTaxBps: 294, sellMeasured: true,
+        feeBps: 0, buyTxHash: "0xb", sellTxHash: "0xs", xferTxHash: "0xh" } as any, ctx);
+    expect(v.title).toContain("2.99% on buy");
+    expect(v.title).toContain("2.94% on sell");
+  });
+
+  it("says the sell was not measured rather than reporting 0%", () => {
+    const v = interpretHiddenFee(
+      { sent: "1000", received: "1000", buyTaxBps: 0, sellTaxBps: 0, sellMeasured: false,
+        feeBps: 0, buyTxHash: "0xb", xferTxHash: "0xh" } as any, ctx);
+    expect(v.numbers.sellTaxPct).toBe("n/a");
+    expect(v.rows.some((r) => /could not complete a test sell/i.test(r.proven))).toBe(true);
   });
 });

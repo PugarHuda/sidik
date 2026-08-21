@@ -35,7 +35,11 @@ const TRANSFER_EVENT = parseAbiItem("event Transfer(address indexed from, addres
 // ponytail: same window as approvalDrain's APPROVAL_LOOKBACK_BLOCKS. ~1.7h of
 // Base blocks — a recent-activity sample, not a true top-holders index. Served
 // by the dedicated logs RPC (see rpc.ts), which handles this range fine.
-const TOP_HOLDERS_LOOKBACK_BLOCKS = 3_000n;
+// 9k blocks — the logs RPC caps a single eth_getLogs at 10k, so this takes
+// the window right up to what one request allows. At 3k the holder sample
+// came back empty for 56% of the catalogue, which is what starved lpRug's
+// candidate search and left it saying NA more often than not.
+const TOP_HOLDERS_LOOKBACK_BLOCKS = 9_000n;
 const TOP_HOLDERS_SAMPLE_N = 10;
 
 export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {

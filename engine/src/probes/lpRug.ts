@@ -1,6 +1,7 @@
 import { encodeFunctionData, parseAbi, parseAbiItem, formatEther } from "viem";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe, ForkClient } from "@sidik/shared";
 import { logsClient } from "../rpc.js";
+import { amount } from "../format.js";
 
 // ponytail: duplicated from dex.ts (not exported there) rather than exporting
 // it just for this probe — same Uniswap V2 router already used elsewhere.
@@ -46,13 +47,25 @@ const BURN_ADDRESSES: Hex[] = [
 ];
 
 const TRANSFER_EVENT = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 value)");
-const LP_TRANSFER_LOOKBACK_BLOCKS = 3_000n;
+// 9k blocks — the logs RPC caps a single eth_getLogs at 10k, so this takes
+// the window right up to what one request allows. At 3k the holder sample
+// came back empty for 56% of the catalogue, which is what starved lpRug's
+// candidate search and left it saying NA more often than not.
+const LP_TRANSFER_LOOKBACK_BLOCKS = 9_000n;
 
 export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const ownerLpPct = Number(raw.ownerLpPct ?? 0);
   const lpOwner = String(raw.lpOwner ?? "0x0") as Hex;
-  const before = String(raw.holderValueBefore ?? "0");
-  const after = String(raw.holderValueAfter ?? "0");
+  // priceHolder returns whole ether as a decimal string, so re-express it in
+  // wei before formatting; an 18-place tail on screen reads as noise.
+  const toWei = (v: unknown): bigint => {
+    const [w, f = ""] = String(v ?? "0").split(".");
+    try { return BigInt(w) * 10n ** 18n + BigInt((f + "0".repeat(18)).slice(0, 18)); } catch { return 0n; }
+  };
+  const beforeWei = toWei(raw.holderValueBefore);
+  const afterWei = toWei(raw.holderValueAfter);
+  const before = amount(beforeWei, 18, "WETH");
+  const after = amount(afterWei, 18, "WETH");
   const pct = `${Math.round(ownerLpPct)}%`;
   const burnedPct = Number(raw.burnedLpPct ?? 0);
   const burned = `${burnedPct.toFixed(2).replace(/[.]00$/, "")}%`;
@@ -60,8 +73,8 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const numbers = { ownerLpPct: pct, burnedLpPct: burned, holderValueBefore: before, holderValueAfter: after, lpOwner };
 
   // "Collapsed" = after is a small fraction of before (rug drained the pool).
-  const beforeN = Number(before) || 0;
-  const afterN = Number(after) || 0;
+  const beforeN = Number(beforeWei);
+  const afterN = Number(afterWei);
   const collapsed = beforeN > 0 && afterN <= beforeN * 0.5;
 
   // Burned LP is unreachable by definition, so this is a positive proof of
