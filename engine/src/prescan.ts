@@ -14,6 +14,13 @@ const WETH: Hex = "0x4200000000000000000000000000000000000006";
 
 const ZERO: Hex = (`0x${"0".repeat(40)}`) as Hex;
 
+// balanceOf is probed with the wallet the probes will actually trade from,
+// NOT the zero address. Plenty of real tokens revert on the zero address —
+// PEPETO and LAYOOO both do — and probing there declared them "not an ERC-20"
+// on the strength of a deliberate guard rather than anything about the token.
+// Asking about the address that matters also makes a failure here meaningful.
+const BALANCE_PROBE: Hex = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+
 const ERC20_ABI = parseAbi([
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
@@ -41,7 +48,7 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
   try {
     symbol = await fork.read<string>({ address: token, abi: ERC20_ABI, functionName: "symbol" });
     decimals = Number(await fork.read<number>({ address: token, abi: ERC20_ABI, functionName: "decimals" }));
-    await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [ZERO] });
+    await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [BALANCE_PROBE] });
   } catch {
     // Not an ERC-20 (or reads failed) — bail with sane defaults, no point
     // probing pool/owner/holders for a non-token.
