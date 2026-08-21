@@ -100,6 +100,15 @@ left in their V2 pair — so Sidik reports `N/A` for them rather than guessing.
 Covering those means adding an adapter alongside `engine/src/dex.ts`, which is
 isolated to that file plus pre-scan's pool detection.
 
+A second boundary is structural rather than fixable. A family of Base tokens
+living at `0xb2…` addresses — CLANKER among them — has exactly one byte of
+code on chain, `0xef`, which is not a valid EVM opcode. Both Alchemy and
+Base's own public RPC answer `symbol()` for them anyway, so the node is
+serving these calls outside ordinary EVM execution. anvil can only run what
+the code says, so a fork of such a token reverts on every read. Sidik cannot
+probe them by executing them, and executing them is the whole point — so it
+declines rather than guessing.
+
 ## Recorded runs
 
 `shared/src/fixtures.ts` holds real runs, frozen: the actual event stream each
