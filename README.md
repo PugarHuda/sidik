@@ -87,6 +87,49 @@ examples be pre-verified rather than "probably still works." Override with
 `BASE_FORK_BLOCK=<blockNumber>` if you need a different pin (e.g. a block
 close to a specific incident).
 
+## What Sidik can and cannot probe
+
+Every probe trades through **Uniswap V2** on Base. That is where the liquidity
+is for the tokens this tool exists to judge — new listings, memecoins, and the
+scams among them — and it is enough: USDC holds 274 WETH there, KEYCAT 151,
+MIGGLES 89.
+
+It is also a real boundary. Several well-known Base tokens have left V2 for
+Uniswap V3 or Aerodrome — BRETT, TOSHI and DEGEN each have well under 0.2 WETH
+left in their V2 pair — so Sidik reports `N/A` for them rather than guessing.
+Covering those means adding an adapter alongside `engine/src/dex.ts`, which is
+isolated to that file plus pre-scan's pool detection.
+
+## Recorded runs
+
+`shared/src/fixtures.ts` holds real runs, frozen: the actual event stream each
+token produced against a fork at `BASE_FORK_BLOCK`, tx hashes and all. They
+are not stand-ins for a run — they *are* runs.
+
+```bash
+# re-record the example tokens only
+pnpm --filter @sidik/engine fixtures
+
+# also discover and record the N most liquid Uniswap V2 tokens on Base
+SIDIK_CATALOG=120 pnpm --filter @sidik/engine fixtures
+```
+
+Two things they buy:
+
+- **The engine answers a known token without touching the network** — it seeds
+  them into the cache it already replays from. Measured at 64ms versus 13.5s
+  for a live run. That matters because every live run spawns one fork per
+  probe, and a free-tier archive RPC returns 429 once forks overlap.
+- **The demo works with no engine at all.** With `ENGINE_URL` unset, web
+  replays them; an address with no recorded run gets an explicit error rather
+  than an invented answer.
+
+The generator refuses to freeze a run that broke rather than reached a verdict
+— an RPC 429 mid-fork surfaces as an `N/A` verdict, not an error, and would
+otherwise be frozen looking like a finding about the token. It is safe to
+interrupt and re-run: it skips what is already recorded for the current fork
+block and writes after every token.
+
 ## Deployment
 
 Deploying is two independent pieces: the **engine** (a long-running

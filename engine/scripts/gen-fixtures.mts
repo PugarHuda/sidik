@@ -1,64 +1,92 @@
-// Regenerates src/fixtures.json by actually running each example token
-// against a real fork. Run it after changing EXAMPLES or BASE_FORK_BLOCK:
+// Records real runs against a real fork and freezes them into
+// shared/src/fixtures.ts. Engine seeds them into its cache; web replays them
+// when no engine is configured.
 //
-//   pnpm --filter @sidik/engine fixtures
+//   pnpm --filter @sidik/engine fixtures                 # the EXAMPLES only
+//   SIDIK_CATALOG=120 pnpm --filter @sidik/engine fixtures
 //
-// Requires BASE_ARCHIVE_RPC (and AI_GATEWAY_API_KEY if you want the LLM
-// narration baked in rather than the template fallback).
-import { writeFileSync } from "node:fs";
+// With SIDIK_CATALOG=N it also discovers the N most liquid Uniswap V2 tokens
+// on Base and records those, so the demo answers far more than three
+// addresses without an engine behind it.
+//
+// Requires BASE_ARCHIVE_RPC. VENICE_API_KEY is optional — without it the
+// frozen narration is the deterministic template rather than model prose.
+//
+// Safe to interrupt and re-run: it loads what is already recorded for this
+// fork block and skips those, writing after every token.
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { createPublicClient, http, parseAbi, parseAbiItem, formatEther } from "viem";
+import { base } from "viem/chains";
 import { EXAMPLES } from "@sidik/shared";
+import type { Hex, PreScan, Verdict } from "@sidik/shared";
 import { isProbeFailure, runSidik } from "../src/orchestrator.js";
 import { BASE_FORK_BLOCK } from "../src/examples.js";
-import type { PreScan, Verdict } from "@sidik/shared";
 
-const runs: Record<string, unknown> = {};
+const CATALOG_SIZE = Number(process.env.SIDIK_CATALOG ?? "0");
+// ~70 days of Base blocks. The factory holds over 3M pairs, so enumerating it
+// is out; PairCreated over a window is how the live ones get found. Pairs
+// older than this are covered by SEED below.
+const DISCOVERY_BLOCKS = BigInt(process.env.SIDIK_DISCOVERY_BLOCKS ?? "3000000");
+// The logs RPC caps a single eth_getLogs at 10k blocks.
+const LOG_CHUNK = 10_000n;
+// Below this there is nothing to trade against, so a run would only ever
+// report "no liquidity to test".
+const MIN_WETH_RESERVE = 5n * 10n ** 16n; // 0.05 WETH
 
-for (const ex of EXAMPLES) {
-  process.stderr.write(`${ex.label} (${ex.address}) ... `);
-  let scan: PreScan | undefined;
-  let ids: string[] = [];
-  const verdicts: Verdict[] = [];
-  let narration = "";
-  let failed: string | undefined;
+const FACTORY: Hex = "0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6";
+const WETH: Hex = "0x4200000000000000000000000000000000000006";
+const PAIR_CREATED = parseAbiItem(
+  "event PairCreated(address indexed token0, address indexed token1, address pair, uint256 allPairs)",
+);
+const PAIR_ABI = parseAbi(["function getReserves() view returns (uint112,uint112,uint32)"]);
+const ERC20_ABI = parseAbi(["function symbol() view returns (string)"]);
 
-  // Bypass the cache: it is seeded from the fixtures file this script is
-  // rewriting, so reading it would replay the previous run instead of
-  // producing a new one — including a previously frozen broken run, which
-  // could then never be regenerated.
-  for await (const ev of runSidik(ex.address, { getCached: () => undefined, setCached: () => {} })) {
-    if (ev.type === "prescan") scan = ev.scan;
-    else if (ev.type === "plan") ids = ev.ids;
-    else if (ev.type === "verdict") verdicts.push(ev.verdict);
-    else if (ev.type === "narration") narration = ev.text;
-    else if (ev.type === "error") failed = ev.message;
+// Tokens whose V2 pair predates the discovery window but still holds real
+// liquidity — verified by hand on 2026-08-20. Without these the catalog is
+// all recent listings and misses the established ones.
+const SEED: Hex[] = [
+  "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+  "0x9a26F5433671751C3276a065f57e5a02D2817973", // KEYCAT
+  "0xB1a03EdA10342529bBF8EB700a06C60441fEf25d", // MIGGLES
+];
+
+const logsRpc = createPublicClient({
+  chain: base,
+  transport: http(process.env.BASE_LOGS_RPC ?? "https://mainnet.base.org"),
+});
+const archive = createPublicClient({
+  chain: base,
+  transport: http(process.env.BASE_ARCHIVE_RPC!),
+  batch: { multicall: true },
+});
+
+const OUT = fileURLToPath(new URL("../../shared/src/fixtures.ts", import.meta.url));
+
+interface FrozenRun { scan: PreScan; ids: string[]; verdicts: Verdict[]; narration: string }
+
+/** What is already recorded for THIS fork block; anything else is stale. */
+function loadExisting(): Record<string, FrozenRun> {
+  try {
+    const src = readFileSync(OUT, "utf8");
+    const block = /FIXTURE_BLOCK = "(\d+)"/.exec(src)?.[1];
+    if (block !== BASE_FORK_BLOCK.toString()) return {};
+    const start = src.indexOf("FIXTURES: Record<string, FrozenRun> = ");
+    if (start === -1) return {};
+    const body = src.slice(src.indexOf("=", start) + 1).trim().replace(/;\s*$/, "");
+    return JSON.parse(body) as Record<string, FrozenRun>;
+  } catch {
+    return {};
   }
-
-  // A run that broke proves nothing, and freezing it would hand judges a
-  // permanent failure no retry can clear. That includes a probe that threw
-  // — an RPC 429 mid-fork surfaces as an NA verdict, not an error event, and
-  // one slipped into the first generated fixture set looking like a finding.
-  // Skip the token entirely; it then falls through to a live run like any
-  // other address.
-  const broken = verdicts.find(isProbeFailure);
-  if (failed || !scan || broken) {
-    process.stderr.write(`SKIPPED (${failed ?? broken?.title ?? "no prescan"})\n`);
-    continue;
-  }
-  runs[ex.address.toLowerCase()] = { scan, ids, verdicts, narration };
-  process.stderr.write(`${verdicts.map((v) => `${v.probe}=${v.status}`).join(" ")}\n`);
 }
 
-// Emitted into shared/ as TypeScript rather than engine-local JSON: web
-// replays these as its offline demo and engine seeds them into its cache, and
-// a hand-written stand-in for them drifted from reality twice.
-const out = fileURLToPath(new URL("../../shared/src/fixtures.ts", import.meta.url));
-const banner = `// GENERATED by engine/scripts/gen-fixtures.mts — do not edit by hand.
+function write(runs: Record<string, FrozenRun>): void {
+  const banner = `// GENERATED by engine/scripts/gen-fixtures.mts — do not edit by hand.
 // Real output of real runs against a fork of Base at the block below. Engine
-// seeds these into its cache so an example token needs no network; web
-// replays them when no engine is configured. Regenerate with:
+// seeds these into its cache so a known token needs no network; web replays
+// them when no engine is configured. Regenerate with:
 //
-//   pnpm --filter @sidik/engine fixtures
+//   SIDIK_CATALOG=120 pnpm --filter @sidik/engine fixtures
 //
 import type { PreScan, Verdict } from "./types";
 
@@ -74,5 +102,138 @@ export interface FrozenRun {
 export const FIXTURE_BLOCK = "${BASE_FORK_BLOCK}";
 
 export const FIXTURES: Record<string, FrozenRun> = `;
-writeFileSync(out, banner + JSON.stringify(runs, null, 2) + ";\n");
-process.stderr.write(`\nwrote ${Object.keys(runs).length} fixture(s) at block ${BASE_FORK_BLOCK} -> ${out}\n`);
+  writeFileSync(OUT, banner + JSON.stringify(runs, null, 2) + ";\n");
+}
+
+/** The most liquid Uniswap V2 tokens on Base, richest first. */
+async function discover(limit: number): Promise<{ address: Hex; label: string }[]> {
+  const pairs: { token: Hex; pair: Hex; wethIsToken0: boolean }[] = [];
+  const from = BASE_FORK_BLOCK - DISCOVERY_BLOCKS;
+  let done = 0n;
+  for (let b = from; b < BASE_FORK_BLOCK; b += LOG_CHUNK) {
+    const to = b + LOG_CHUNK - 1n > BASE_FORK_BLOCK ? BASE_FORK_BLOCK : b + LOG_CHUNK - 1n;
+    try {
+      const logs = await logsRpc.getLogs({ address: FACTORY, event: PAIR_CREATED, fromBlock: b, toBlock: to });
+      for (const log of logs) {
+        const a = log.args as { token0?: Hex; token1?: Hex; pair?: Hex };
+        if (!a.token0 || !a.token1 || !a.pair) continue;
+        const wethIsToken0 = a.token0.toLowerCase() === WETH.toLowerCase();
+        if (!wethIsToken0 && a.token1.toLowerCase() !== WETH.toLowerCase()) continue;
+        pairs.push({ token: (wethIsToken0 ? a.token1 : a.token0), pair: a.pair, wethIsToken0 });
+      }
+    } catch {
+      process.stderr.write(`  logs ${b}-${to} failed, skipping\n`);
+    }
+    done += LOG_CHUNK;
+    if (done % 300_000n === 0n) process.stderr.write(`  scanned ${done}/${DISCOVERY_BLOCKS} blocks, ${pairs.length} WETH pairs\n`);
+  }
+  process.stderr.write(`  ${pairs.length} WETH pairs created in window\n`);
+
+  // Multicall, not one call per pair: a per-call sweep of thousands of pairs
+  // rate-limits the RPC into uselessness.
+  const liquid: { address: Hex; label: string; weth: bigint }[] = [];
+  const BATCH = 400;
+  for (let i = 0; i < pairs.length; i += BATCH) {
+    const batch = pairs.slice(i, i + BATCH);
+    const reserves = await archive.multicall({
+      contracts: batch.map((p) => ({ address: p.pair, abi: PAIR_ABI, functionName: "getReserves" } as const)),
+      blockNumber: BASE_FORK_BLOCK,
+      allowFailure: true,
+    });
+    const keep: typeof batch = [];
+    const weths: bigint[] = [];
+    reserves.forEach((r, j) => {
+      if (r.status !== "success") return;
+      const [r0, r1] = r.result as unknown as [bigint, bigint, number];
+      const weth = batch[j].wethIsToken0 ? r0 : r1;
+      if (weth < MIN_WETH_RESERVE) return;
+      keep.push(batch[j]);
+      weths.push(weth);
+    });
+    if (keep.length) {
+      const symbols = await archive.multicall({
+        contracts: keep.map((p) => ({ address: p.token, abi: ERC20_ABI, functionName: "symbol" } as const)),
+        blockNumber: BASE_FORK_BLOCK,
+        allowFailure: true,
+      });
+      keep.forEach((p, j) => liquid.push({
+        address: p.token,
+        label: symbols[j].status === "success" ? String(symbols[j].result) : "?",
+        weth: weths[j],
+      }));
+    }
+    process.stderr.write(`  reserves ${Math.min(i + BATCH, pairs.length)}/${pairs.length} -> ${liquid.length} liquid\r`);
+  }
+  process.stderr.write("\n");
+  liquid.sort((a, b) => (b.weth > a.weth ? 1 : -1));
+  process.stderr.write(`  ${liquid.length} liquid; taking top ${limit}\n`);
+  return liquid.slice(0, limit).map((t) => ({ address: t.address, label: `${t.label} (${Number(formatEther(t.weth)).toFixed(2)} WETH)` }));
+}
+
+/** One run, or undefined if it broke rather than reached a verdict. */
+async function record(token: Hex): Promise<FrozenRun | undefined> {
+  let scan: PreScan | undefined;
+  let ids: string[] = [];
+  const verdicts: Verdict[] = [];
+  let narration = "";
+  let failed: string | undefined;
+
+  // Bypass the cache: it is seeded from the file this script rewrites, so
+  // reading it would replay the previous run instead of producing a new one.
+  for await (const ev of runSidik(token, { getCached: () => undefined, setCached: () => {} })) {
+    if (ev.type === "prescan") scan = ev.scan;
+    else if (ev.type === "plan") ids = ev.ids;
+    else if (ev.type === "verdict") verdicts.push(ev.verdict);
+    else if (ev.type === "narration") narration = ev.text;
+    else if (ev.type === "error") failed = ev.message;
+  }
+
+  // A run that broke proves nothing, and freezing it would hand judges a
+  // permanent failure no retry can clear. That includes a probe that threw:
+  // an RPC 429 mid-fork surfaces as an NA verdict, not an error event, and
+  // one slipped into the first generated set looking like a finding.
+  const broken = verdicts.find(isProbeFailure);
+  if (failed || !scan || broken) {
+    process.stderr.write(`SKIPPED (${(failed ?? broken?.title ?? "no prescan").slice(0, 70)})\n`);
+    return undefined;
+  }
+  return { scan, ids, verdicts, narration };
+}
+
+// ---- main ----------------------------------------------------------------
+
+const runs = loadExisting();
+const already = Object.keys(runs).length;
+if (already) process.stderr.write(`resuming: ${already} already recorded at block ${BASE_FORK_BLOCK}\n`);
+
+const targets: { address: Hex; label: string }[] = [
+  ...EXAMPLES.map((e) => ({ address: e.address, label: e.label })),
+  ...SEED.map((address) => ({ address, label: "seed" })),
+];
+if (CATALOG_SIZE > 0) {
+  process.stderr.write(`discovering the ${CATALOG_SIZE} most liquid Uniswap V2 tokens on Base...\n`);
+  targets.push(...await discover(CATALOG_SIZE));
+}
+
+const seen = new Set<string>();
+const queue = targets.filter((t) => {
+  const k = t.address.toLowerCase();
+  if (seen.has(k) || runs[k]) return false;
+  seen.add(k);
+  return true;
+});
+process.stderr.write(`${queue.length} to record\n\n`);
+
+let i = 0;
+for (const t of queue) {
+  i++;
+  process.stderr.write(`[${i}/${queue.length}] ${t.label} ${t.address} ... `);
+  const run = await record(t.address);
+  if (!run) continue;
+  runs[t.address.toLowerCase()] = run;
+  write(runs); // after every token, so an interrupted run keeps its progress
+  process.stderr.write(`${run.verdicts.map((v) => `${v.probe}=${v.status}`).join(" ")}\n`);
+}
+
+write(runs);
+process.stderr.write(`\nwrote ${Object.keys(runs).length} recorded run(s) at block ${BASE_FORK_BLOCK}\n-> ${OUT}\n`);

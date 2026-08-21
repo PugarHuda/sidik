@@ -1,5 +1,10 @@
 # Sidik engine, packaged for a Hugging Face Docker Space.
 #
+# UNUSABLE ON A FREE ACCOUNT as of 2026-08-21: creating this Space returns
+# 402, "hosting Gradio and Docker Spaces on free cpu-basic requires a PRO
+# subscription". Only static Spaces are free. Kept because it is correct and
+# one PRO subscription away from working.
+#
 # This Space deliberately holds no source of its own: it clones the repo at
 # build time, so engine/ and shared/ exist in exactly one place and cannot
 # drift from what is on GitHub. Rebuild the Space to pick up new commits, or
