@@ -192,6 +192,13 @@ async function record(token: Hex): Promise<FrozenRun | undefined> {
   // permanent failure no retry can clear. That includes a probe that threw:
   // an RPC 429 mid-fork surfaces as an NA verdict, not an error event, and
   // one slipped into the first generated set looking like a finding.
+  // A discovered address that turns out not to be a token has nothing to say
+  // in a token catalogue — it only ever yields the wallet probe reporting no
+  // approvals, which is noise.
+  if (scan && !scan.isErc20) {
+    process.stderr.write("SKIPPED (not an ERC-20)\n");
+    return undefined;
+  }
   const broken = verdicts.find(isProbeFailure);
   if (failed || !scan || broken) {
     process.stderr.write(`SKIPPED (${(failed ?? broken?.title ?? "no prescan").slice(0, 70)})\n`);

@@ -97,7 +97,7 @@ export const approvalDrainProbe: Probe = {
   // This probe targets a wallet, not a token — only applicable when the
   // pasted input wasn't recognized as an ERC-20.
   applicableWhen: (s) => !s.isErc20,
-  async setup() { /* no fork funding needed; spenders are impersonated, not funded */ },
+  async setup() { /* spenders are discovered during execute, and funded for gas there */ },
   async execute(fork, ctx): Promise<RawResult> {
     // ponytail: ProbeCtx/PreScan carry no dedicated wallet field — wallet-vs-token
     // input routing is properly resolved later at the orchestrator (Task 13).
@@ -138,6 +138,10 @@ export const approvalDrainProbe: Probe = {
       const reachableUsd = await priceUsd(pub, token, reachable);
 
       await fork.impersonate(spender);
+      // Same reason lpRug funds its impersonated owner: without gas the send
+      // fails on balance, not on whether the approval is drainable, and an
+      // infrastructure failure would read as a clean result.
+      await fork.setBalanceEth(spender, "1");
       const before = await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [ATTACKER] });
       const data = encodeFunctionData({ abi: ERC20_ABI, functionName: "transferFrom", args: [victim, ATTACKER, reachable] });
       const { hash, reverted } = await fork.send({ from: spender, to: token, data });

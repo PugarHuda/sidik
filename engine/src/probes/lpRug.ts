@@ -127,7 +127,7 @@ export const lpRugProbe: Probe = {
   id: "lpRug",
   title: "LP-rug probe",
   applicableWhen: (s) => s.isErc20 && s.hasPool,
-  async setup() { /* no fork funding needed; lpOwner is impersonated, not funded */ },
+  async setup() { /* the LP owner is discovered during execute, and funded for gas there */ },
   async execute(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
     const pool = ctx.scan.poolAddress;
     const nothingFound = (burnedLpPct = 0) => ({
@@ -187,6 +187,13 @@ export const lpRugProbe: Probe = {
     const ownerLpPct = Math.round(Number((lpBalance * 10000n) / totalSupply) / 100);
 
     await fork.impersonate(lpOwner);
+    // Impersonation gets you the sender, not their gas. A real LP owner who
+    // wanted to rug would have ETH; on a fork we hand it to them so the probe
+    // measures whether the pool CAN be drained rather than whether this
+    // particular account happens to hold gas money. Seven tokens in the
+    // catalogue failed outright on "total cost exceeds the balance" before
+    // this, and the failure looked like a finding.
+    await fork.setBalanceEth(lpOwner, "1");
     const approveData = encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [ROUTER, lpBalance] });
     const approveTx = await fork.send({ from: lpOwner, to: pool, data: approveData });
 
