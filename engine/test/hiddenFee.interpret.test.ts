@@ -91,3 +91,16 @@ describe("interpretHiddenFee — the sell side", () => {
     expect(v.rows.some((r) => /could not complete a test sell/i.test(r.proven))).toBe(true);
   });
 });
+
+// Regression: a honeypot whose sell reverts cannot have its sell side
+// measured, and the verdict claimed "no hidden fee on buying, selling or
+// transferring" anyway — reassurance about the exact thing that was broken,
+// on a card whose own row said the sell could not be tested.
+it("does not claim a clean sell when the sell was never measured", () => {
+  const v = interpretHiddenFee(
+    { sent: "1000", received: "1000", buyTaxBps: 0, sellTaxBps: 0, sellMeasured: false,
+      feeBps: 0, buyTxHash: "0xb", xferTxHash: "0xh" } as any, ctx);
+  expect(v.status).toBe("PASS");
+  expect(v.title).not.toMatch(/selling/i);
+  expect(v.title).toMatch(/could not be measured/i);
+});

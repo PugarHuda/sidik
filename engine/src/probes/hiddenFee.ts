@@ -95,8 +95,15 @@ export function interpretHiddenFee(raw: RawResult, ctx: ProbeCtx): Verdict {
   const rows = [buyRow, sellRow, xferRow];
 
   if (!taxedBuy && !taxedSell && !taxedTransfer) {
+    // Only claim the sides that were actually measured. An unmeasured sell is
+    // not a clean one, and saying otherwise put "no hidden fee on selling" on
+    // the card for a honeypot whose sell reverts — the single worst place to
+    // reassure anyone.
     return {
-      probe: "hiddenFee", status: "PASS", title: "No hidden fee on buying, selling or transferring",
+      probe: "hiddenFee", status: "PASS",
+      title: raw.sellMeasured
+        ? "No hidden fee on buying, selling or transferring"
+        : "No hidden fee on buying or transferring — the sell could not be measured",
       rows, numbers, txHashes,
     };
   }
