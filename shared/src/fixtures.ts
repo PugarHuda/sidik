@@ -16022,3 +16022,5 @@ export const FIXTURES: Record<string, FrozenRun> = {
     "narration": "Token-safety probe result: **approvalDrain — FAIL**.\n\nThe claim that \"approvals are safe\" was disproven. Testing found 1 approved spender able to pull funds via transferFrom, and the drain was actually executed: 0.677 WETH was reachable and 0.677 WETH was drained. No approvals were skipped (0). Transaction hash: 0x422d26f191ff662bbdad894ddfd517337449724ad194e273b3bb952cf57bec00.\n\nConclusion: existing token approvals are exploitable and funds were confirmed movable, not merely theoretical."
   }
 };
+
+export const FIXTURE_COUNT = 151;

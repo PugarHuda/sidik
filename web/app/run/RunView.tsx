@@ -113,18 +113,19 @@ function VerdictCard({ verdict }: { verdict: Verdict }) {
 
       {verdict.txHashes.length > 0 && (
         <div className="flex flex-wrap items-center gap-3 border-t border-border px-5 py-3 font-mono text-xs">
+          {/* Deliberately not a link. These transactions were mined on a fork
+              and never broadcast, so a block-explorer URL for them is a page
+              that cannot exist — and sending someone to an empty explorer
+              page to check our proof is worse than showing none. The hash is
+              the handle for the raw data below it. */}
           {verdict.txHashes.map((h) => (
-            <a
-              key={h}
-              href={`https://basescan.org/tx/${h}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-accent hover:underline"
-            >
-              {h.slice(0, 10)}…{h.slice(-6)} ↗
-            </a>
+            <span key={h} className="text-fg" title={h}>
+              {h.slice(0, 10)}…{h.slice(-6)}
+            </span>
           ))}
-          <span className="text-fg-dim">sandbox tx — replayed on a forked chain, never broadcast</span>
+          <span className="text-fg-dim">
+            fork tx — mined on a forked chain, never broadcast, so not on any explorer
+          </span>
         </div>
       )}
 
@@ -276,7 +277,16 @@ export default function RunView({ token }: { token: string }) {
           </div>
           <div className="mt-3 font-mono text-2xl font-semibold text-fg">
             {prescan?.symbol ?? "TOKEN"}{" "}
-            <span className="text-base font-normal text-fg-dim">{formatAddr(token)}</span>
+            {/* The token is real and on Base, unlike the fork transactions —
+                so this is the one link here that leads somewhere. */}
+            <a
+              href={`https://basescan.org/address/${token}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-base font-normal text-fg-dim hover:text-accent hover:underline"
+            >
+              {formatAddr(token)} ↗
+            </a>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {verdicts.map((v, i) => (

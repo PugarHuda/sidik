@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { EXAMPLES } from "@sidik/shared";
+import { EXAMPLES, FIXTURE_COUNT } from "@sidik/shared";
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -38,9 +38,11 @@ export default function Home() {
         </h1>
 
         <p className="mt-5 max-w-xl text-lg leading-7 text-fg-dim">
-          No wallet, no API key, no signup. Drop in a token address and watch
-          Sidik buy it, sell it, and transfer it against a live Base fork —
-          then show you exactly where the claims and the proof disagree.
+          No wallet, no API key, no signup. Sidik bought, sold and transferred{" "}
+          <span className="text-fg">{FIXTURE_COUNT} Base addresses</span>{" "}
+          against a forked chain and recorded what each one actually did — the
+          buy that worked, the sell that reverted, the fee nobody documented.
+          Pick one below, or paste an address to see whether it is covered.
         </p>
 
         <form

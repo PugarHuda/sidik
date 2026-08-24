@@ -111,7 +111,14 @@ export interface FrozenRun {
 export const FIXTURE_BLOCK = "${BASE_FORK_BLOCK}";
 
 export const FIXTURES: Record<string, FrozenRun> = `;
-  writeFileSync(OUT, banner + JSON.stringify(runs, null, 2) + ";\n");
+  // FIXTURE_COUNT is its own export so a client component can show the
+  // number without importing the runs themselves. Reading
+  // Object.keys(FIXTURES) in a browser bundle shipped all of them to it.
+  const count = `
+
+export const FIXTURE_COUNT = ${Object.keys(runs).length};
+`;
+  writeFileSync(OUT, banner + JSON.stringify(runs, null, 2) + ";" + count);
 }
 
 /** The most liquid Uniswap V2 tokens on Base, richest first. */

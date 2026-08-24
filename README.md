@@ -21,8 +21,8 @@ code reading the result of a real EVM transaction — never by an LLM. The LLM
 only decides *which probes to run* (planner) and *how to narrate the
 results in prose* (narrator); it never invents a number or a verdict. Every
 figure on screen traces back to a real call on a real fork, and every
-verdict exposes the tx hash it came from plus an expandable panel of the
-raw data behind it — not a decoded call-trace view.
+verdict exposes the fork tx hash it came from plus an expandable panel of
+the raw data behind it — not a decoded call-trace view.
 
 ## Architecture
 
@@ -32,8 +32,8 @@ token address
   -> planner (LLM, structured output): picks which probes apply, in what order
   -> executor: per probe -> fresh anvil fork of Base -> setup -> execute (real txs) -> interpret (code, not LLM)
   -> narrator (LLM): writes prose from the finished verdicts; numbers are injected, never generated
-  -> output: claimed-vs-proven table, tx hashes (linked to Basescan), an
-     expandable raw-verdict-data panel, streamed live over SSE
+  -> output: claimed-vs-proven table, fork tx hashes, an expandable
+     raw-verdict-data panel, streamed live over SSE
 ```
 
 Two packages, one shared types package:
