@@ -8,9 +8,24 @@ export const runtime = "nodejs";
 const encoder = new TextEncoder();
 const sseFrame = (e: RunEvent) => encoder.encode(`event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`);
 
+// Same shape the engine enforces. Validating here too means garbage never
+// reaches it, and — more to the point — never gets answered as though it were
+// an address that simply is not covered yet.
+const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
+
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
   if (!token) return new Response("token query param is required", { status: 400 });
+  if (!ADDRESS_RE.test(token)) {
+    // An error event rather than a 400 body: the client is reading an SSE
+    // stream, and handing it JSON it cannot parse breaks the page instead of
+    // telling anyone what went wrong. With an engine configured this also
+    // stops malformed input being proxied upstream.
+    return new Response(
+      sseFrame({ type: "error", message: `"${token.slice(0, 40)}" is not a Base address — expected 0x followed by 40 hex characters.` }),
+      { headers: sseHeaders },
+    );
+  }
 
   const engineUrl = process.env.ENGINE_URL;
   // ?replay=1 is a dev convenience only — a configured ENGINE_URL in

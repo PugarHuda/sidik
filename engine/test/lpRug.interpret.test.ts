@@ -49,3 +49,12 @@ describe("interpretLpRug", () => {
     expect(v.status).toBe("NA");
   });
 });
+
+// Regression: excluding the probe on V3 made its card disappear entirely, and
+// a missing card cannot be told apart from a check that was never run.
+it("says why it does not apply on a V3 token instead of vanishing", () => {
+  const v = interpretLpRug({ notApplicable: "v3" } as any, ctx);
+  expect(v.status).toBe("NA");
+  expect(v.title).toMatch(/uniswap v3/i);
+  expect(v.rows[0].proven).toMatch(/NFT positions/i);
+});

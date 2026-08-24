@@ -54,6 +54,16 @@ const TRANSFER_EVENT = parseAbiItem("event Transfer(address indexed from, addres
 const LP_TRANSFER_LOOKBACK_BLOCKS = 9_000n;
 
 export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
+  if (raw.notApplicable === "v3") {
+    return {
+      probe: "lpRug", status: "NA",
+      title: "LP rug does not apply — this token trades on Uniswap V3",
+      rows: [{ label: "LP owner can drain the pool", claimed: "Liquidity is locked/safe",
+        proven: "V3 liquidity is held as NFT positions, not a fungible LP token an owner can pull", ok: false }],
+      numbers: { venue: "uniswap-v3" }, txHashes: [],
+    };
+  }
+
   const ownerLpPct = Number(raw.ownerLpPct ?? 0);
   const lpOwner = String(raw.lpOwner ?? "0x0") as Hex;
   // priceHolder returns whole ether as a decimal string, so re-express it in
@@ -139,12 +149,18 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
 export const lpRugProbe: Probe = {
   id: "lpRug",
   title: "LP-rug probe",
-  // V2 only. A V3 pool has no fungible LP token to hold, burn or pull —
-  // liquidity there is a set of NFT positions with their own owners, so
-  // none of what this probe does translates. Saying so beats guessing.
-  applicableWhen: (s) => s.isErc20 && s.hasPool && s.venue !== "v3",
+  // Still applicable on V3 — but only to say so. Dropping the probe made the
+  // card vanish for every V3 token, and a missing card is indistinguishable
+  // from a check nobody ran. execute() returns immediately in that case,
+  // costing no fork work.
+  applicableWhen: (s) => s.isErc20 && s.hasPool,
   async setup() { /* the LP owner is discovered during execute, and funded for gas there */ },
   async execute(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
+    // A V3 pool has no fungible LP token to hold, burn or pull — liquidity
+    // there is a set of NFT positions with their own owners — so nothing this
+    // probe does translates. Report that rather than run a meaningless test.
+    if (ctx.scan.venue === "v3") return { notApplicable: "v3" };
+
     const pool = ctx.scan.poolAddress;
     const nothingFound = (burnedLpPct = 0) => ({
       lpOwner: NO_LP_OWNER, lpHolderFound: false, ownerLpPct: 0, burnedLpPct,
