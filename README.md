@@ -187,6 +187,7 @@ returns `{"ok":true}` — that's the URL you'll use as `ENGINE_URL`.
 | `VENICE_API_KEY` | no | Venice AI key — the planner and narrator calls run through it (`claude-sonnet-5`, OpenAI-compatible endpoint) |
 | `SIDIK_MODEL` | no | Overrides the model id, default `claude-sonnet-5` |
 | `BASE_FORK_BLOCK` | no | Pins the fork to a specific block for reproducible demo runs; defaults to a hardcoded recent block (see `engine/src/examples.ts`) |
+| `WEB_ORIGIN` | no | Restricts CORS to one origin, e.g. `https://sidik-eight.vercel.app`. Defaults to `*`, which lets any site spend your RPC quota |
 | `PORT` | no | Defaults to `8787` |
 
 `BASE_ARCHIVE_RPC` is the only hard requirement: without it there is no fork

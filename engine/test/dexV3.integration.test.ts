@@ -8,6 +8,11 @@ import { BASE_FORK_BLOCK } from "../src/examples.js";
 import type { Hex, ProbeCtx } from "@sidik/shared";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
+// Generous on purpose. These do real swaps on a real fork, and the sell
+// test alone takes ~42s on an idle machine — but every one of these
+// numbers is RPC latency, so anything else competing for the same key
+// multiplies it. A tight budget here fails on contention, not on code.
+const TIMEOUT_MS = 300_000;
 // anvil dev account #0 — the only kind of sender fork.send() can have anvil sign for.
 const TEST_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" as Hex;
 
@@ -37,7 +42,7 @@ async function mkCtx(token: Hex, fork: Parameters<typeof prescan>[0]): Promise<P
       // "Could not buy" would mean the swap never happened.
       expect(v.title).not.toMatch(/could not buy/i);
     });
-  }, 120_000);
+  }, TIMEOUT_MS);
 
   it("measures the V3 sell rather than quietly skipping it", async () => {
     await withFork(BASE_FORK_BLOCK, async (fork) => {
@@ -49,7 +54,7 @@ async function mkCtx(token: Hex, fork: Parameters<typeof prescan>[0]): Promise<P
       expect(v.numbers.sellTaxPct).not.toBe("n/a");
       expect(v.status).toBe("PASS");
     });
-  }, 120_000);
+  }, TIMEOUT_MS);
 
   it("says why LP-rug cannot apply on V3 instead of dropping the card", async () => {
     await withFork(BASE_FORK_BLOCK, async (fork) => {
@@ -59,7 +64,7 @@ async function mkCtx(token: Hex, fork: Parameters<typeof prescan>[0]): Promise<P
       expect(v.status).toBe("NA");
       expect(v.title).toMatch(/uniswap v3/i);
     });
-  }, 120_000);
+  }, TIMEOUT_MS);
 
   it("still routes a V2 token to V2, so the venue choice is a choice", async () => {
     await withFork(BASE_FORK_BLOCK, async (fork) => {
@@ -67,5 +72,5 @@ async function mkCtx(token: Hex, fork: Parameters<typeof prescan>[0]): Promise<P
       expect(ctx.scan.venue).toBe("v2");
       expect(lpRugProbe.applicableWhen(ctx.scan)).toBe(true);
     });
-  }, 120_000);
+  }, TIMEOUT_MS);
 });

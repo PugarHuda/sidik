@@ -1,5 +1,11 @@
 # Sidik — Design Spec
 
+> **Historical.** This is the design as it stood on 2026-08-15, kept for the
+> record. It has been overtaken in places — probing covers Uniswap V3 as well
+> as V2, the LLM runs through Venice rather than the Vercel AI Gateway, and
+> the deployed demo replays recorded runs instead of requiring a live engine.
+> `README.md` describes what actually ships.
+
 > An autonomous agent that **proves** what a Base token will do to you by
 > actually doing it in a forked mainnet sandbox — instead of inferring risk
 > from data like every other analytics agent.

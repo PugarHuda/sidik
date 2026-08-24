@@ -13,8 +13,12 @@ type Runner = (token: Hex) => AsyncGenerator<RunEvent>;
 export function createApp(runner: Runner = runSidik) {
   const app = new Hono();
 
-  // ponytail: "*" is demo-grade CORS — lock to the deployed web origin post-hackathon.
-  app.use("*", cors({ origin: "*" }));
+  // Anyone who deploys this is paying for its archive RPC, and an open origin
+  // means any page on the internet can spend that quota. Set WEB_ORIGIN to the
+  // site that should be allowed; "*" stays the default only because a demo
+  // with no configured origin should still work rather than fail silently.
+  const origin = process.env.WEB_ORIGIN ?? "*";
+  app.use("*", cors({ origin }));
 
   app.get("/health", (c) => c.json({ ok: true }));
 
