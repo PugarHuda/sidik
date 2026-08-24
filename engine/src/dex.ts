@@ -2,11 +2,13 @@ import { createPublicClient, http, encodeFunctionData, parseAbi } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, ProbeCtx, Hex } from "@sidik/shared";
 import { isRevertError } from "./fork.js";
+import { approveV3Data, quoteV3, swapV3Data, V3_ROUTER } from "./dexV3.js";
 
-// ponytail: V2 only; Base liquidity is largely Aerodrome/Uniswap V3 — add
-// adapters if RPC shows thin V2 coverage. Router + Factory per Uniswap's
-// official deployments doc (developers.uniswap.org/docs/protocols/v2/deployments),
-// cross-checked against BaseScan's "Uniswap: V2 Router02" label.
+// Uniswap V2 on Base. V3 lives in dexV3.ts; pre-scan decides which venue a
+// token actually trades on and everything here follows that decision.
+// Router + Factory per Uniswap's official deployments doc
+// (developers.uniswap.org/docs/protocols/v2/deployments), cross-checked
+// against BaseScan's "Uniswap: V2 Router02" label.
 const ROUTER: Hex = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24";
 const WETH: Hex = "0x4200000000000000000000000000000000000006";
 
@@ -68,14 +70,19 @@ async function balanceOf(fork: ForkClient, token: Hex, owner: Hex): Promise<bigi
 }
 
 export async function buyExactEth(fork: ForkClient, ctx: ProbeCtx, ethIn: bigint): Promise<DexResult> {
-  const predicted = await quote(fork, ethIn, [WETH, ctx.token]);
+  const v3 = ctx.scan.venue === "v3";
+  const predicted = await quote(fork, ctx, ethIn, [WETH, ctx.token]);
   const before = await balanceOf(fork, ctx.token, ctx.testWallet);
-  const data = encodeFunctionData({
-    abi: ROUTER_ABI,
-    functionName: "swapExactETHForTokensSupportingFeeOnTransferTokens",
-    args: [0n, [WETH, ctx.token], ctx.testWallet, DEADLINE],
-  });
-  const { hash, reverted, revertReason } = await fork.send({ from: ctx.testWallet, to: ROUTER, data, value: ethIn });
+  const to = v3 ? V3_ROUTER : ROUTER;
+  const data = v3
+    // SwapRouter02 wraps msg.value itself when tokenIn is WETH.
+    ? swapV3Data(WETH, ctx.token, ctx.scan.poolFee ?? 10000, ctx.testWallet, ethIn)
+    : encodeFunctionData({
+        abi: ROUTER_ABI,
+        functionName: "swapExactETHForTokensSupportingFeeOnTransferTokens",
+        args: [0n, [WETH, ctx.token], ctx.testWallet, DEADLINE],
+      });
+  const { hash, reverted, revertReason } = await fork.send({ from: ctx.testWallet, to, data, value: ethIn });
   if (reverted) return { ok: false, amount: "0", predicted: predicted.toString(), received: "0", hash, revertReason };
 
   // Measure the delta, not amountsOut — fee-on-transfer tokens skim on the way in.
@@ -85,7 +92,11 @@ export async function buyExactEth(fork: ForkClient, ctx: ProbeCtx, ethIn: bigint
   return { ok: true, amount: amount.toString(), predicted: predicted.toString(), received: "0", hash };
 }
 
-async function quote(fork: ForkClient, amountIn: bigint, path: Hex[]): Promise<bigint> {
+/** What the pool alone would deliver, with no token interference. */
+async function quote(fork: ForkClient, ctx: ProbeCtx, amountIn: bigint, path: Hex[]): Promise<bigint> {
+  if (ctx.scan.venue === "v3") {
+    return quoteV3(fork, path[0]!, path[path.length - 1]!, amountIn, ctx.scan.poolFee ?? 10000);
+  }
   try {
     const amounts = await fork.read<bigint[]>({
       address: ROUTER, abi: ROUTER_ABI, functionName: "getAmountsOut", args: [amountIn, path],
@@ -113,7 +124,11 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx, sellAmount?: bigi
     ({ ok: false, amount: amount.toString(), predicted: "0", received: "0", hash: "0x" as Hex, ...extra });
   if (amount === 0n) return { ...nothing(), amount: "0", revertReason: "no tokens to sell" };
 
-  const approveData = encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [ROUTER, amount] });
+  const v3 = ctx.scan.venue === "v3";
+  const router = v3 ? V3_ROUTER : ROUTER;
+  const approveData = v3
+    ? approveV3Data(amount)
+    : encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [ROUTER, amount] });
   const approveTx = await fork.send({ from: ctx.testWallet, to: ctx.token, data: approveData });
   if (approveTx.reverted) {
     // Some honeypots block specifically at approve() (blacklist/ownership gates) —
@@ -127,23 +142,32 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx, sellAmount?: bigi
   // Without the pool address there is nothing to weigh the proceeds against,
   // and a measurement of zero must never read as "you were paid nothing" —
   // that turned USDC into a honeypot. No quote means callers do not judge.
-  const predicted = pool ? await quote(fork, amount, [ctx.token, WETH]) : 0n;
-  const poolWethBefore = pool ? await balanceOf(fork, WETH, pool) : 0n;
+  const predicted = pool ? await quote(fork, ctx, amount, [ctx.token, WETH]) : 0n;
+  // V2's router unwraps to ETH, so the proceeds are read as the WETH that
+  // left the pool. V3's router can pay in WETH directly, so the wallet's own
+  // WETH delta is the measurement — exact either way, and neither touches
+  // ETH balances, so gas never enters the number.
+  const meter = v3 ? ctx.testWallet : pool;
+  const wethBefore = meter ? await balanceOf(fork, WETH, meter) : 0n;
 
-  const sellData = encodeFunctionData({
-    abi: ROUTER_ABI,
-    functionName: "swapExactTokensForETHSupportingFeeOnTransferTokens",
-    args: [amount, 0n, [ctx.token, WETH], ctx.testWallet, DEADLINE],
-  });
-  const sellTx = await fork.send({ from: ctx.testWallet, to: ROUTER, data: sellData });
+  const sellData = v3
+    ? swapV3Data(ctx.token, WETH, ctx.scan.poolFee ?? 10000, ctx.testWallet, amount)
+    : encodeFunctionData({
+        abi: ROUTER_ABI,
+        functionName: "swapExactTokensForETHSupportingFeeOnTransferTokens",
+        args: [amount, 0n, [ctx.token, WETH], ctx.testWallet, DEADLINE],
+      });
+  const sellTx = await fork.send({ from: ctx.testWallet, to: router, data: sellData });
   if (sellTx.reverted) {
     const revertReason = sellTx.revertReason
-      ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: ROUTER, data: sellData });
+      ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: router, data: sellData });
     return nothing({ hash: sellTx.hash, revertReason });
   }
 
-  const poolWethAfter = pool ? await balanceOf(fork, WETH, pool) : 0n;
-  const received = poolWethBefore > poolWethAfter ? poolWethBefore - poolWethAfter : 0n;
+  const wethAfter = meter ? await balanceOf(fork, WETH, meter) : 0n;
+  const received = v3
+    ? (wethAfter > wethBefore ? wethAfter - wethBefore : 0n)
+    : (wethBefore > wethAfter ? wethBefore - wethAfter : 0n);
   return {
     ok: true, amount: amount.toString(), predicted: predicted.toString(),
     received: received.toString(), hash: sellTx.hash,

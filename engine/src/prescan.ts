@@ -2,6 +2,7 @@ import { createPublicClient, http, parseAbi, parseAbiItem } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
 import { logsClient } from "./rpc.js";
+import { findV3Pool } from "./dexV3.js";
 
 // ponytail: duplicated from dex.ts (not exported there) rather than exporting
 // it just for this module — same convention approvalDrain.ts already uses for
@@ -59,15 +60,35 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
     return { token, isErc20: false, symbol: "", decimals: 18, hasPool: false, topHolders: [] };
   }
 
+  // Both venues are measured and the deeper one wins. Picking V2 just because
+  // a pair exists would probe an abandoned pool: BRETT keeps under 0.2 WETH on
+  // V2 and about 300 on V3, and trading against the empty one says nothing
+  // about the token.
   let hasPool = false;
   let poolAddress: Hex | undefined;
+  let venue: "v2" | "v3" | undefined;
+  let poolFee: number | undefined;
+
+  let v2Weth = 0n;
   try {
     const pair = await fork.read<Hex>({ address: FACTORY, abi: FACTORY_ABI, functionName: "getPair", args: [token, WETH] });
     if (pair && pair.toLowerCase() !== ZERO.toLowerCase()) {
+      v2Weth = await fork.read<bigint>({ address: WETH, abi: ERC20_ABI, functionName: "balanceOf", args: [pair] });
       hasPool = true;
       poolAddress = pair;
+      venue = "v2";
     }
-  } catch { /* factory read failed — treat as no pool */ }
+  } catch { /* factory read failed — treat as no V2 pool */ }
+
+  try {
+    const v3 = await findV3Pool((a) => fork.read(a), token);
+    if (v3 && v3.weth > v2Weth) {
+      hasPool = true;
+      poolAddress = v3.address;
+      venue = "v3";
+      poolFee = v3.fee;
+    }
+  } catch { /* no V3 pool — keep whatever V2 gave us */ }
 
   let owner: Hex | undefined;
   try {
@@ -76,7 +97,7 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
 
   const topHolders = await sampleTopHolders(fork, pub, token);
 
-  return { token, isErc20: true, symbol, decimals, hasPool, poolAddress, owner, topHolders };
+  return { token, isErc20: true, symbol, decimals, hasPool, poolAddress, venue, poolFee, owner, topHolders };
 }
 
 // ponytail: sampled from recent Transfer logs over a bounded window, not a

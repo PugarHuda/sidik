@@ -25,6 +25,10 @@ export interface PreScan {
   decimals: number;
   hasPool: boolean;
   poolAddress?: Hex;
+  /** Which venue the pool lives on. Probes trade where the liquidity is. */
+  venue?: "v2" | "v3";
+  /** V3 only: the fee tier of the pool that was picked. */
+  poolFee?: number;
   owner?: Hex;                      // owner()/getOwner() if present
   topHolders: { address: Hex; balance: string }[];
 }

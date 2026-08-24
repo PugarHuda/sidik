@@ -139,7 +139,10 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
 export const lpRugProbe: Probe = {
   id: "lpRug",
   title: "LP-rug probe",
-  applicableWhen: (s) => s.isErc20 && s.hasPool,
+  // V2 only. A V3 pool has no fungible LP token to hold, burn or pull —
+  // liquidity there is a set of NFT positions with their own owners, so
+  // none of what this probe does translates. Saying so beats guessing.
+  applicableWhen: (s) => s.isErc20 && s.hasPool && s.venue !== "v3",
   async setup() { /* the LP owner is discovered during execute, and funded for gas there */ },
   async execute(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
     const pool = ctx.scan.poolAddress;
