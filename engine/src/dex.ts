@@ -2,6 +2,7 @@ import { createPublicClient, http, encodeFunctionData, parseAbi } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, ProbeCtx, Hex } from "@sidik/shared";
 import { isRevertError } from "./fork.js";
+import { REVERT_MAX, untrustedText } from "./untrusted.js";
 import { approveV3Data, quoteV3, swapV3Data, V3_ROUTER } from "./dexV3.js";
 
 // Uniswap V2 on Base. V3 lives in dexV3.ts; pre-scan decides which venue a
@@ -188,6 +189,6 @@ async function deriveRevertReason(fork: ForkClient, args: { account: Hex; to: He
     // the replay must not be fabricated into a fake "revert reason" (same
     // distinction fork.ts's isRevertError makes for send()).
     if (!isRevertError(e)) return undefined;
-    return String(e?.shortMessage ?? e?.message ?? e).slice(0, 200);
+    return untrustedText(e?.shortMessage ?? e?.message ?? e, REVERT_MAX);
   }
 }

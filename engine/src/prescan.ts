@@ -3,6 +3,7 @@ import { base } from "viem/chains";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
 import { logsClient } from "./rpc.js";
 import { findV3Pool } from "./dexV3.js";
+import { SYMBOL_MAX, untrustedText } from "./untrusted.js";
 
 // ponytail: duplicated from dex.ts (not exported there) rather than exporting
 // it just for this module — same convention approvalDrain.ts already uses for
@@ -51,7 +52,7 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
   let symbol = "";
   let decimals = 18;
   try {
-    symbol = await fork.read<string>({ address: token, abi: ERC20_ABI, functionName: "symbol" });
+    symbol = untrustedText(await fork.read<string>({ address: token, abi: ERC20_ABI, functionName: "symbol" }), SYMBOL_MAX);
     decimals = Number(await fork.read<number>({ address: token, abi: ERC20_ABI, functionName: "decimals" }));
     await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [BALANCE_PROBE] });
   } catch {

@@ -6,6 +6,7 @@ import {
 } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, Hex } from "@sidik/shared";
+import { REVERT_MAX, untrustedText } from "./untrusted.js";
 
 // ponytail: fixed high gas cap for fork-only sends. Without an explicit gas
 // limit, viem runs eth_estimateGas first, which itself fails on an ordinary
@@ -124,8 +125,7 @@ export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promi
 }
 
 function shortRevert(e: any): string {
-  const m = e?.shortMessage || e?.message || String(e);
-  return m.slice(0, 200);
+  return untrustedText(e?.shortMessage || e?.message || String(e), REVERT_MAX);
 }
 
 // Minimal guard, not an error taxonomy: true only for revert-shaped errors
