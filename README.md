@@ -4,6 +4,17 @@
 is an agent that proves what a Base token will actually do to you, by doing
 it — on a forked mainnet sandbox, in real time, in front of you.
 
+## Try it
+
+**[sidik-eight.vercel.app](https://sidik-eight.vercel.app)**
+
+The live site replays runs that already happened: every token in it was
+bought, sold and transferred against a fork of Base at a pinned block, and
+what you see is that run's own event stream, tx hashes and all. It carries no
+engine, so an address outside the recorded set is answered with an error
+rather than a guess — the engine is what probes arbitrary addresses live, and
+deploying one is optional (see Deployment).
+
 ## The thesis: prove by executing
 
 Every other token-safety tool is read-only analytics: it infers risk from
