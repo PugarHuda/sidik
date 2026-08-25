@@ -52,7 +52,6 @@ export interface ForkClient {
   read<T = unknown>(args: { address: Hex; abi: unknown; functionName: string; args?: unknown[] }): Promise<T>;
   // send from `from` (impersonated or funded); returns tx hash even if it reverts.
   send(args: { from: Hex; to: Hex; data?: Hex; value?: bigint }): Promise<{ hash: Hex; reverted: boolean; revertReason?: string }>;
-  callTrace(hash: Hex): Promise<unknown>;   // debug_traceTransaction callTracer, raw for UI
 }
 
 export interface Probe {

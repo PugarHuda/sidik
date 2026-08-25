@@ -105,8 +105,8 @@ export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promi
           to, data, value, account: from, chain: base, gas: FORK_GAS_LIMIT,
         } as any);
         const rcpt = await pub.waitForTransactionReceipt({ hash });
-        // revertReason isn't on the receipt itself; leave undefined here —
-        // callTrace(hash) is how probes get the on-chain detail.
+        // revertReason isn't on the receipt itself; leave undefined here.
+        // dex.ts recovers it by replaying the call (deriveRevertReason).
         return { hash, reverted: rcpt.status === "reverted" };
       } catch (e: any) {
         // Only a genuine EVM revert (pre-broadcast, e.g. estimation still
@@ -116,8 +116,6 @@ export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promi
         return { hash: "0x" as Hex, reverted: true, revertReason: shortRevert(e) };
       }
     },
-    callTrace: (hash) => pub.request({ method: "debug_traceTransaction" as any,
-      params: [hash, { tracer: "callTracer" }] as any }) as any,
   };
 
   try { return await fn(fork); }

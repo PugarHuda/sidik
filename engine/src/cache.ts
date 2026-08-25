@@ -26,7 +26,9 @@ export function setCached<T = unknown>(token: string, block: bigint, value: T): 
 //
 // Keyed by the fork block they were produced at, so bumping BASE_FORK_BLOCK
 // makes them miss rather than serve stale proof about the current pin.
-export const seededFixtureCount = (() => {
+// Not exported: nothing reads the count, and an export that exists only to
+// trigger a side effect invites someone to delete it as unused.
+void (() => {
   const block = BigInt(FIXTURE_BLOCK);
   for (const [token, run] of Object.entries(FIXTURES)) setCached(token, block, run);
   return Object.keys(FIXTURES).length;

@@ -1,0 +1,29 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]: SIDIK
+    - heading "Sidik proves what a Base token does to you — by doing it in a fork." [level=1] [ref=e6]: Sidik proves what a Base tokendoes to you — by doing it in a fork.
+    - paragraph [ref=e7]:
+      - text: No wallet, no API key, no signup. Sidik bought, sold and transferred
+      - generic [ref=e8]: 140 Base addresses
+      - text: against a forked chain and recorded what each one actually did — the buy that worked, the sell that reverted, the fee nobody documented. Pick one below, or paste an address to see whether it is covered.
+    - generic [ref=e9]:
+      - generic [ref=e10]: Token address
+      - textbox "Token address" [ref=e11]:
+        - /placeholder: 0x…
+      - button "Run trace →" [disabled] [ref=e12]
+    - generic [ref=e13]:
+      - generic [ref=e14]: Or try an example
+      - generic [ref=e15]:
+        - button "USDC (Base) →" [ref=e16]:
+          - text: USDC (Base)
+          - generic [ref=e18]: →
+        - button "Anastasia (honeypot) →" [ref=e19]:
+          - text: Anastasia (honeypot)
+          - generic [ref=e21]: →
+        - button "BRB (3% buy tax) →" [ref=e22]:
+          - text: BRB (3% buy tax)
+          - generic [ref=e24]: →
+        - button "Wallet with a live approval →" [ref=e25]:
+          - text: Wallet with a live approval
+          - generic [ref=e27]: →
+  - alert [ref=e28]

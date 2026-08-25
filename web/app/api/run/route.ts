@@ -81,15 +81,18 @@ function replayStream(token: Hex): ReadableStream<Uint8Array> {
         [STEP_MS, { type: "narration", text: run.narration }],
         [STEP_MS / 2, { type: "done" }],
       ]
+    // No replay banner here. It announces "recorded run — real fork proof",
+    // and on this path there is no recording and no proof — only an error.
+    // Emitting it anyway put a claim of evidence at the top of a page whose
+    // whole content is that there is none.
     : [
-        [0, { type: "replay", block: FIXTURE_BLOCK }],
         [STEP_MS, {
           type: "error",
           // Counted, not written down: the catalogue grows every time it is
           // re-recorded, and a hardcoded number would start lying immediately.
           message:
             `No engine is configured, so this address cannot be probed live. ` +
-            `${Object.keys(FIXTURES).length} Base tokens have a recorded run — ` +
+            `${Object.keys(FIXTURES).length} Base addresses have a recorded run — ` +
             `try one of the examples.`,
         }],
       ];
