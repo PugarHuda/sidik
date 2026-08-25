@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Verdict } from "@sidik/shared";
 import { streamRunEvents, type RunEvent } from "@/lib/sse";
+import { listedTicker } from "@sidik/shared";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -306,6 +307,18 @@ export default function RunView({ token }: { token: string }) {
           <div className="mt-4 text-xs text-fg-dim">
             Proven against a forked Base state — not simulated, not inferred from bytecode.
           </div>
+          {/* Corroboration, deliberately kept out of the verdict. A token you
+              cannot sell cannot sustain a market on an independent venue, so a
+              listing supports a PASS — and would be alarming next to a FAIL.
+              It is never evidence: the verdict comes from the fork alone.
+              Matched by hand, because exchange tickers collide. */}
+          {listedTicker(token) && (
+            <div className="mt-2 text-xs text-fg-dim">
+              Also trades on BingX as{" "}
+              <span className="text-fg">{listedTicker(token)}</span> — an independent venue.
+              Corroboration only; it is not part of the proof.
+            </div>
+          )}
         </div>
       )}
     </div>
