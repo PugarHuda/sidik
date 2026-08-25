@@ -13,5 +13,10 @@ export default defineConfig({
     // answers 429, so the suite fails on quota rather than on the code. The
     // unit tests are milliseconds; serialising them costs nothing.
     fileParallelism: false,
+    // The integration suites spawn their own anvil and are competing for one
+    // archive RPC key. Run them while a catalogue sweep is going and anvil
+    // gets starved mid-run — the failure surfaces as "fetch failed" against
+    // the local fork, which looks like a code fault and is not one.
+    // Finish the sweep first.
   },
 });

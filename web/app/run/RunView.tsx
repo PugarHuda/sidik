@@ -74,8 +74,13 @@ function VerdictCard({ verdict }: { verdict: Verdict }) {
 
       <div className="grid grid-cols-1 divide-y divide-border border-t border-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
         <div className="px-5 py-4">
+          {/* Not "claimed": nothing here is quoted from the project. Sidik
+              never reads a token's site, docs or metadata. This column is the
+              default any listed ERC-20 implies simply by being tradable, and
+              labelling it as the token's own claim would be putting words in
+              its mouth — in the one product that must not do that. */}
           <div className="mb-3 font-mono text-xs uppercase tracking-widest text-fg-dim">
-            Claimed / expected
+            What a buyer assumes
           </div>
           <dl className="flex flex-col gap-3">
             {verdict.rows.map((r, i) => (

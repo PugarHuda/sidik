@@ -43,7 +43,7 @@ token address
   -> planner (LLM, structured output): picks which probes apply, in what order
   -> executor: per probe -> fresh anvil fork of Base -> setup -> execute (real txs) -> interpret (code, not LLM)
   -> narrator (LLM): writes prose from the finished verdicts; numbers are injected, never generated
-  -> output: claimed-vs-proven table, fork tx hashes, an expandable
+  -> output: assumed-vs-proven table, fork tx hashes, an expandable
      raw-verdict-data panel, streamed live over SSE
 ```
 
@@ -54,8 +54,8 @@ Two packages, one shared types package:
   fresh `anvil` fork (via Foundry) per request against a Base archive RPC,
   runs the probes, tears the fork down.
 - **`web/`** — a Next.js demo app. `GET /api/run` proxies the engine's SSE
-  stream straight through to the browser and renders the split view (claim
-  vs. proof) live as events arrive. With no engine configured it replays the
+  stream straight through to the browser and renders the split view (what a
+  buyer assumes vs. what the fork proved) live as events arrive. With no engine configured it replays the
   recorded runs in `shared/` instead (see below), so the demo works offline.
 - **`shared/`** — the `Verdict` / `ForkClient` / probe types both sides
   import, the example-token list, and the recorded example runs, so the
@@ -119,6 +119,19 @@ serving these calls outside ordinary EVM execution. anvil can only run what
 the code says, so a fork of such a token reverts on every read. Sidik cannot
 probe them by executing them, and executing them is the whole point — so it
 declines rather than guessing.
+
+## What "assumed" means
+
+The left-hand column is not a quote. Sidik never reads a token's website, its
+docs or its metadata, so it has nothing the project actually said to compare
+against. That column is the default any listed ERC-20 implies simply by being
+tradable: that you can sell what you bought, that a transfer delivers what it
+says, that the pool is not one address away from being emptied.
+
+It used to be labelled "claimed", which reads as though the token had made a
+promise Sidik caught it breaking. Putting words in a contract's mouth is
+exactly the kind of shortcut this tool exists to argue against, so the column
+says what it is.
 
 ## Recorded runs
 
