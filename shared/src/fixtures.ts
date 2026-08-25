@@ -13764,7 +13764,801 @@ export const FIXTURES: Record<string, FrozenRun> = {
       }
     ],
     "narration": "SRL passed all three checks. Buying and selling both succeeded, with 24,786,132.03 SRL bought and sold back without issue. LP tokens are 100% burned (owner LP percentage 0%), meaning liquidity cannot be pulled by an owner. No hidden fees were found on buy, sell, or transfer: sent and received amounts matched exactly at 12,393,066.01 SRL, with buy tax, sell tax, and fee percentages all at 0%. Overall, this token shows no honeypot behavior, no LP rug risk, and no hidden fees based on the executed tests."
+  },
+  "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf": {
+    "scan": {
+      "token": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+      "isErc20": true,
+      "symbol": "cbBTC",
+      "decimals": 8,
+      "hasPool": true,
+      "poolAddress": "0x8c7080564B5A792A33Ef2FD473fbA6364d5495e5",
+      "venue": "v3",
+      "poolFee": 3000,
+      "owner": "0xCe56D20689D836EC7A728CEb94A15746696c16e6",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0.03244 cbBTC"
+        },
+        "txHashes": [
+          "0x514f986d002d58c304a1eb21ad1eb7e7f0b156dd0b601b71dae1d10f434c2f88",
+          "0x99cee595d812bfbef8bf013fbb6437ee1f77c94d32531b59ffabe841d5b28577"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP rug does not apply — this token trades on Uniswap V3",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "V3 liquidity is held as NFT positions, not a fungible LP token an owner can pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "venue": "uniswap-v3"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "0.01622 cbBTC",
+          "received": "0.01622 cbBTC",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x514f986d002d58c304a1eb21ad1eb7e7f0b156dd0b601b71dae1d10f434c2f88",
+          "0xa7d247c516590d866a93bec4dd987d5392106740708ecf1f77f3f82fb86e3e54",
+          "0x32818d1782e8ec3b644ab702e44c7c8b5faef9db55ecc177224182b74f423f1a"
+        ]
+      }
+    ],
+    "narration": "Token-safety check results: The honeypot probe passed — both buying and selling succeeded, with 0.03244 cbBTC bought and successfully sold back. The LP rug probe does not apply, since this token trades on Uniswap V3, where liquidity is held as NFT positions rather than a fungible LP token an owner could drain. The hidden fee probe passed — buying, selling, and transferring all resulted in recipients receiving 100% of expected amounts, with 0.01622 cbBTC sent and received, and buy/sell/transfer tax all at 0%."
+  },
+  "0x0578d8a44db98b23bf096a382e016e29a5ce0ffe": {
+    "scan": {
+      "token": "0x0578d8A44db98B23BF096A382e016e29a5Ce0ffe",
+      "isErc20": true,
+      "symbol": "HIGHER",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xCC28456d4Ff980CeE3457Ca809a257E52Cd9CDb0",
+      "venue": "v3",
+      "poolFee": 10000,
+      "topHolders": [
+        {
+          "address": "0xCC28456d4Ff980CeE3457Ca809a257E52Cd9CDb0",
+          "balance": "102319601158176438640489249"
+        },
+        {
+          "address": "0x87cADde19468283aF8D610474ecbD19Ed285F698",
+          "balance": "99647049178838344392417339"
+        },
+        {
+          "address": "0xcEdF590857aE7Fbd4A342Ce9Ee9CA111570A1ca2",
+          "balance": "4217596067725201005304768"
+        },
+        {
+          "address": "0xd9932A538e4c7621D9Ab1b45DE31a5D60E672B1c",
+          "balance": "2783556277384089771749328"
+        },
+        {
+          "address": "0x05130741F418416D9AcC63f5Da0bf75A130E75EF",
+          "balance": "2518354323916895609003725"
+        },
+        {
+          "address": "0x507d4933EC93ABceb274C47B548512255c1C29e3",
+          "balance": "840326092787434617521673"
+        },
+        {
+          "address": "0x83817A0F7985D055684f01769427bF024373cF5a",
+          "balance": "668589877273663577409042"
+        },
+        {
+          "address": "0xAbfACC8042F18440159d32db38A1D3B2b100F620",
+          "balance": "417314864705204425182278"
+        },
+        {
+          "address": "0x5f2Fab273F1F64b6bc6ab8F35314CD21501F35C5",
+          "balance": "294834487219791467781034"
+        },
+        {
+          "address": "0x2fD0354Bf7B3207c3369785F61906657ee4ffd34",
+          "balance": "264353067532184134009716"
+        }
+      ]
+    },
+    "ids": [
+      "lpRug",
+      "honeypot",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP rug does not apply — this token trades on Uniswap V3",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "V3 liquidity is held as NFT positions, not a fungible LP token an owner can pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "venue": "uniswap-v3"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,424,180.31 HIGHER"
+        },
+        "txHashes": [
+          "0xae3de16025bc3f48db59dd7729364aa4edf6c527ebe67d18196c81a2fe1e09e8",
+          "0x85ad6712ad44483ac3384d317c4c307a9a5c2d5cff5035530cdd2f06c973e972"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "712,090.15 HIGHER",
+          "received": "712,090.15 HIGHER",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xae3de16025bc3f48db59dd7729364aa4edf6c527ebe67d18196c81a2fe1e09e8",
+          "0x896c2bbc1b0696798c3b5df7a0bbab4559395fc65211e8560fa775de7d88bfa9",
+          "0x2fcad9c02862b59572b591b8c340598aad11907d81d4c026ec5febab8b472f6b"
+        ]
+      }
+    ],
+    "narration": "Token trades on Uniswap V3, so the LP-rug check doesn't apply: V3 liquidity is held as NFT positions, not a pullable fungible LP token. The honeypot check passed — a sell after buying 1,424,180.31 HIGHER succeeded. The hidden-fee check also passed: buying, selling, and transferring 712,090.15 HIGHER all delivered the full amount, with buyTaxPct 0%, sellTaxPct 0%, and feePct 0% confirmed across the tested transactions."
+  },
+  "0xf6e932ca12afa26665dc4dde7e27be02a7c02e50": {
+    "scan": {
+      "token": "0xF6e932Ca12afa26665dC4dDE7e27be02A7c02e50",
+      "isErc20": true,
+      "symbol": "MOCHI",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xFcC89a1f250D76dE198767D33E1CA9138a7fB54B",
+      "venue": "v3",
+      "poolFee": 10000,
+      "owner": "0x000000000000000000000000000000000000dEaD",
+      "topHolders": [
+        {
+          "address": "0x4e3ae00E8323558fA5Cac04b152238924AA31B60",
+          "balance": "77474502652375541513598091693"
+        },
+        {
+          "address": "0xFcC89a1f250D76dE198767D33E1CA9138a7fB54B",
+          "balance": "66219623961258130085676123563"
+        },
+        {
+          "address": "0x9Ee8131b724edA85c762224B573dDBC1e3e23F5D",
+          "balance": "5600000000021467686127177165"
+        },
+        {
+          "address": "0x57071317E595bD751821d0Ac4e79A9F98aA080AC",
+          "balance": "2535251661128348609286533520"
+        },
+        {
+          "address": "0x16F9a294469b6A7B2e662D59a8ED0B44aCcB5684",
+          "balance": "2326319980218989976293911575"
+        },
+        {
+          "address": "0x0c85C8551Af9D9631E3c73A30F0912DfAe2a4Ae9",
+          "balance": "1176515288277847665525791056"
+        },
+        {
+          "address": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
+          "balance": "809147871500558559881604263"
+        },
+        {
+          "address": "0x54c477B1B7a458817419ce9695fa8C609c43c0C9",
+          "balance": "760591869956293780353796637"
+        },
+        {
+          "address": "0x69Ac1C6Ee298f7872710e62716EbD6c0Cd84d31F",
+          "balance": "743623055231839922524916315"
+        },
+        {
+          "address": "0xc3116248d16CcF16F67CC75408528c7Acc5724bf",
+          "balance": "124033622443260356612231726"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,246,303,431.24 MOCHI"
+        },
+        "txHashes": [
+          "0xa14afe9843714c25c5adb7037b13fc3bc54059f0eb45a4597e09677235fcf596",
+          "0xe729b7a671af98d0267437953c225bad6229606d4b0d11deef7be594808f454a"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP rug does not apply — this token trades on Uniswap V3",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "V3 liquidity is held as NFT positions, not a fungible LP token an owner can pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "venue": "uniswap-v3"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "623,151,715.62 MOCHI",
+          "received": "623,151,715.62 MOCHI",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xa14afe9843714c25c5adb7037b13fc3bc54059f0eb45a4597e09677235fcf596",
+          "0x1d299e10363e01786d665e0b11d4627cf244f1c1bf327fd815c085c5aa970baf",
+          "0xe93a2c181c5be3e5342c8e95dd8f12444d48e9a3f54d981a1ffd3996ef9bbd08"
+        ]
+      }
+    ],
+    "narration": "MOCHI passed the honeypot check: buying and selling both succeeded, with 1,246,303,431.24 MOCHI bought and sold successfully. The LP rug probe does not apply, since MOCHI trades on Uniswap V3, where liquidity is held as NFT positions rather than a fungible LP token an owner could pull. Hidden fee testing also passed: buys, sells, and transfers all delivered the full quoted amount, with 623,151,715.62 MOCHI sent and received, and buy/sell/fee percentages all at 0%."
+  },
+  "0x50c5725949a6f0c72e6c4a641f24049a917db0cb": {
+    "scan": {
+      "token": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+      "isErc20": true,
+      "symbol": "DAI",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x93e8542E6CA0eFFfb9D57a270b76712b968A38f5",
+      "venue": "v3",
+      "poolFee": 500,
+      "topHolders": [
+        {
+          "address": "0xd46660919Bad084569EEC4380a299480BE035C25",
+          "balance": "62451516400969889641176"
+        },
+        {
+          "address": "0xaE45F7Eb428Eb6403F2567C3A3eC47E9230Bc823",
+          "balance": "29795410931641949843050"
+        },
+        {
+          "address": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
+          "balance": "15917104276638621416343"
+        },
+        {
+          "address": "0xC18F50d6A832f12F6DcAaeEe8D0c87A65B96787E",
+          "balance": "15852866368120313782873"
+        },
+        {
+          "address": "0x22F9623817F152148B4E080E98Af66FBE9C5AdF8",
+          "balance": "12392807179611411728637"
+        },
+        {
+          "address": "0xE3832e74F6058627b8EefDfa4B00C6F45a66c2dF",
+          "balance": "10144597922789570355261"
+        },
+        {
+          "address": "0xe4eFf19c7AcE186ba39fD3eD639B2D34171f7efF",
+          "balance": "7155654253422184555320"
+        },
+        {
+          "address": "0x3BD740dc10864f35001AAB7771C56a85C48c901B",
+          "balance": "5938543476296820824578"
+        },
+        {
+          "address": "0xd604cf300A4aE4345426dF42FFb296aa35b4bef2",
+          "balance": "5847734474631091721584"
+        },
+        {
+          "address": "0x5Fb33b095c6e739BE19364Ab408CD8f102262bB6",
+          "balance": "5753248829899491614306"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "42.2 DAI"
+        },
+        "txHashes": [
+          "0x291332642eedf7ed00d521ab605796027e7d72b83c3d278620e92ea14ed6dbec",
+          "0xb5e3ff41f1e076789e5b7f474f46c6036f67b8b117b575dca7026df10ba0e384"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP rug does not apply — this token trades on Uniswap V3",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "V3 liquidity is held as NFT positions, not a fungible LP token an owner can pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "venue": "uniswap-v3"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "21.1 DAI",
+          "received": "21.1 DAI",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x291332642eedf7ed00d521ab605796027e7d72b83c3d278620e92ea14ed6dbec",
+          "0x97cf94a7114be164629c698e6bc3e856911e00b7998b2046890c6b9b00af79f4",
+          "0xfe490e1aff0c20758db511b4f9f9f0c037558ec2ca2622118b76ab8f1641d3cf"
+        ]
+      }
+    ],
+    "narration": "Token safety checks passed. Buying and selling both succeeded, confirming the token is not a honeypot (bought 42.2 DAI worth, then sold successfully). No hidden fees were found on buying, selling, or transferring: sent and received amounts matched exactly at 21.1 DAI, with buy tax, sell tax, and fee percentage all at 0%. The LP rug check does not apply, since this token trades on Uniswap V3, where liquidity is held as NFT positions rather than a fungible LP token that an owner could pull to drain the pool."
+  },
+  "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca": {
+    "scan": {
+      "token": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+      "isErc20": true,
+      "symbol": "USDbC",
+      "decimals": 6,
+      "hasPool": true,
+      "poolAddress": "0x4C36388bE6F416A29C8d8Eee81C771cE6bE14B18",
+      "venue": "v3",
+      "poolFee": 500,
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "355.76 USDbC"
+        },
+        "txHashes": [
+          "0xc8f6577e8606d966f6add8c30b32165c198733b2e84748d9c774e265a9b48788",
+          "0x9d35144c36d7350af31b06bd178e41ea75799d5121d07205ce7886a10516a7b7"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP rug does not apply — this token trades on Uniswap V3",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "V3 liquidity is held as NFT positions, not a fungible LP token an owner can pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "venue": "uniswap-v3"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "177.88 USDbC",
+          "received": "177.88 USDbC",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xc8f6577e8606d966f6add8c30b32165c198733b2e84748d9c774e265a9b48788",
+          "0x45c749753f52e7b0a1e5f2f8afc99407a5a17e52fc3c6cf474f0f346f616b0fb",
+          "0x7ceec18f1d58bc28d2a72e93aad4a4ec1ce3d4ef7ff6da6811e3af97911bdd74"
+        ]
+      }
+    ],
+    "narration": "This token passed the honeypot check: buying and selling both succeeded, with 355.76 USDbC bought and sales completing normally. The LP rug probe does not apply, as the token trades on Uniswap V3, where liquidity is held as NFT positions rather than a pullable fungible LP token. No hidden fees were found on buying, selling, or transferring — 177.88 USDbC sent resulted in 177.88 USDbC received, with buy tax, sell tax, and fee all at 0%. A full balance transfer delivered 100% to the recipient."
+  },
+  "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22": {
+    "scan": {
+      "token": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "isErc20": true,
+      "symbol": "cbETH",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x10648BA41B8565907Cfa1496765fA4D95390aa0d",
+      "venue": "v3",
+      "poolFee": 500,
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0.356 cbETH"
+        },
+        "txHashes": [
+          "0x7eb3418dc045f53683a62559b2a0a36020f54ba0d3e551ebdbefc1399d477073",
+          "0x0ef4618dc54993b7a26c74489538d464c35cedf4ff4694f5446b53657aaf86e5"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "0.178 cbETH",
+          "received": "0.178 cbETH",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0x7eb3418dc045f53683a62559b2a0a36020f54ba0d3e551ebdbefc1399d477073",
+          "0x39797c767f814c4f9ae2989df2150d833bc91c5fe752368ffd61a9fde0867aec",
+          "0x2809abbff59b8e815acd4a4ed969c9048af078aacff8a816a17e030af3a1c03c"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP rug does not apply — this token trades on Uniswap V3",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "V3 liquidity is held as NFT positions, not a fungible LP token an owner can pull",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "venue": "uniswap-v3"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Token safety check: buying and selling both succeeded (0.356 cbETH bought), confirming this is not a honeypot. No hidden fees were found on buying, selling, or transferring — amounts sent and received matched exactly (0.178 cbETH each way), with 0% fee, buy tax, and sell tax. Recipients received 100% on transfer. The LP rug probe does not apply, since this token trades on Uniswap V3, where liquidity is held as NFT positions rather than a fungible LP token an owner could drain."
+  },
+  "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b": {
+    "scan": {
+      "token": "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+      "isErc20": true,
+      "symbol": "VIRTUAL",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xE31c372a7Af875b3B5E0F3713B17ef51556da667",
+      "venue": "v2",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "3,646.96 VIRTUAL"
+        },
+        "txHashes": [
+          "0xa58f0fe75ba0141f3a43e20dc02c4870e0ec5df249df11562f647cf07c68dd34",
+          "0x86c0137f66dc4e71f502493402d6be1926ba89c1b3c09c85fcf10214714707c8"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "1,823.48 VIRTUAL",
+          "received": "1,823.48 VIRTUAL",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xa58f0fe75ba0141f3a43e20dc02c4870e0ec5df249df11562f647cf07c68dd34",
+          "0x3067bb60cf8505d80e4a5cba984e2ae3946dc547c6b47ff5396f0898f60f1539",
+          "0xeeff51ae8dde057e6a9ad2d2d637478105f3fa017da1eae8293c9dd88b328025"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS — buying and selling both succeeded (bought 3,646.96 VIRTUAL, sell after buying succeeded).\n\nLP rug check: NA — LP burned is 0% and owner LP is 0%; no LP holder could be identified (lpOwner shown as the zero address), so drain risk could not be confirmed either way.\n\nHidden fee check: PASS — buy, sell, and transfer all delivered full amounts with 0% fee, 0% buy tax, and 0% sell tax (sent and received 1,823.48 VIRTUAL).\n\nOverall: no honeypot or hidden fee behavior detected, but LP lock status remains unverified."
   }
 };
 
-export const FIXTURE_COUNT = 124;
+export const FIXTURE_COUNT = 131;

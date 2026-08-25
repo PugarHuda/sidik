@@ -65,6 +65,16 @@ const SEED: Hex[] = [
   "0xAC1Bd2486aAf3B5C0fc3Fd868558b082a531B2B4", // TOSHI
   "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed", // DEGEN
   "0x940181a94A35A4569E4529A3CDfB74e38FD98631", // AERO
+  // The rest of what a judge is likely to type. Some of these trade mostly
+  // on Aerodrome or Curve and will come back N/A — that is still an answer
+  // with a reason attached, which beats "no recorded run for this address".
+  "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf", // cbBTC
+  "0x0578d8A44db98B23BF096A382e016e29a5Ce0ffe", // HIGHER
+  "0xF6e932Ca12afa26665dC4dDE7e27be02A7c02e50", // MOCHI
+  "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb", // DAI
+  "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA", // USDbC
+  "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22", // cbETH
+  "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b", // VIRTUAL
 ];
 
 const logsRpc = createPublicClient({
@@ -89,8 +99,19 @@ function loadExisting(): Record<string, FrozenRun> {
     if (block !== BASE_FORK_BLOCK.toString()) return {};
     const start = src.indexOf("FIXTURES: Record<string, FrozenRun> = ");
     if (start === -1) return {};
-    const body = src.slice(src.indexOf("=", start) + 1).trim().replace(/;\s*$/, "");
-    return JSON.parse(body) as Record<string, FrozenRun>;
+    // Stop at the object's own closing brace, not the end of the file. Exports
+    // added after it — FIXTURE_COUNT — used to be swallowed into the slice,
+    // which made the parse throw, which made this return {}, which silently
+    // discarded every previously recorded run on the next write.
+    const from = src.indexOf("{", start);
+    // The newline is built with fromCharCode rather than written as an
+    // escape sequence: escaping it here has twice produced a real line break
+    // inside the literal, which is a syntax error the typechecker misses and
+    // only the runtime reports.
+    const objectEnd = String.fromCharCode(10) + "};";
+    const end = src.indexOf(objectEnd, from);
+    if (from === -1 || end === -1) return {};
+    return JSON.parse(src.slice(from, end + 2)) as Record<string, FrozenRun>;
   } catch {
     return {};
   }
