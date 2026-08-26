@@ -1,5 +1,7 @@
 # Sidik
 
+[![CI](https://github.com/PugarHuda/sidik/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/PugarHuda/sidik/actions/workflows/ci.yml)
+
 **Sidik** (Indonesian: *to investigate / detect* — *sidik jari* = fingerprint)
 is an agent that proves what a Base token will actually do to you, by doing
 it — on a forked mainnet sandbox, in real time, in front of you.
@@ -79,16 +81,16 @@ pnpm dev:engine
 # example runs instead of reaching an engine (see Deployment).
 pnpm dev:web
 
-# engine test suite (vitest) — 96 tests
+# engine test suite (vitest) — 138 tests
 pnpm test
 
-# browser suite (Playwright) — 253 tests across chromium, firefox, webkit,
+# browser suite (Playwright) — 353 tests across chromium, firefox, webkit,
 # and both mobile viewports, run against a production build. Includes an
 # axe-core accessibility audit of every page.
 pnpm e2e
 
-# everything CI would run, in order: types, lint, dead code, dependency
-# audit, unit tests, production build, browser suite.
+# everything CI runs, in order: types, lint, dead code, dependency audit,
+# unit tests, production build, browser suite.
 pnpm check
 
 # individually
@@ -96,6 +98,7 @@ pnpm typecheck   # both packages, strict + noUncheckedIndexedAccess
 pnpm lint        # eslint (web)
 pnpm deadcode    # knip — unused files, exports and dependencies
 pnpm audit       # dependency advisories
+pnpm coverage    # unit-test coverage (v8)
 
 # re-record the example runs against a real fork (needs BASE_ARCHIVE_RPC).
 # Run this after changing EXAMPLES or BASE_FORK_BLOCK.
