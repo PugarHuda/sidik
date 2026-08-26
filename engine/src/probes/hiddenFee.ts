@@ -1,12 +1,8 @@
-import { encodeFunctionData, parseAbi } from "viem";
+import { encodeFunctionData } from "viem";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { buyBudget, buyExactEth, sellAll } from "../dex.js";
 import { amount } from "../format.js";
-
-const ERC20_ABI = parseAbi([
-  "function balanceOf(address) view returns (uint256)",
-  "function transfer(address to, uint256 amount) returns (bool)",
-]);
+import { ERC20_ABI } from "../abi.js";
 
 // ponytail: distinct from testWallet, never needs to hold anything real — a
 // fixed burn-ish EOA on the fork is enough to measure the transfer delta.

@@ -3,18 +3,9 @@ import { base } from "viem/chains";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
 import { logsClient } from "./rpc.js";
 import { findV3Pool } from "./dexV3.js";
+import { UNISWAP_V2, WETH, ZERO_ADDRESS } from "./base.js";
+import { ERC20_ABI, OWNER_ABI, TRANSFER_EVENT, V2_FACTORY_ABI } from "./abi.js";
 import { SYMBOL_MAX, untrustedText } from "./untrusted.js";
-
-// ponytail: duplicated from dex.ts (not exported there) rather than exporting
-// it just for this module — same convention approvalDrain.ts already uses for
-// ROUTER. Same Uniswap V2 factory/WETH the router probes trade against, so
-// hasPool reflects where a probe will actually be able to buy/sell. Factory +
-// WETH per Uniswap's official Base deployments doc, cross-checked against
-// BaseScan's "Uniswap: V2 Factory" label.
-const FACTORY: Hex = "0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6";
-const WETH: Hex = "0x4200000000000000000000000000000000000006";
-
-const ZERO: Hex = (`0x${"0".repeat(40)}`) as Hex;
 
 // balanceOf is probed with the wallet the probes will actually trade from,
 // NOT the zero address. Plenty of real tokens revert on the zero address —
@@ -22,17 +13,6 @@ const ZERO: Hex = (`0x${"0".repeat(40)}`) as Hex;
 // on the strength of a deliberate guard rather than anything about the token.
 // Asking about the address that matters also makes a failure here meaningful.
 const BALANCE_PROBE: Hex = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-
-const ERC20_ABI = parseAbi([
-  "function symbol() view returns (string)",
-  "function decimals() view returns (uint8)",
-  "function balanceOf(address) view returns (uint256)",
-]);
-const FACTORY_ABI = parseAbi([
-  "function getPair(address tokenA, address tokenB) view returns (address pair)",
-]);
-const OWNER_ABI = parseAbi(["function owner() view returns (address)"]);
-const TRANSFER_EVENT = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 value)");
 
 // ponytail: same window as approvalDrain's APPROVAL_LOOKBACK_BLOCKS. ~1.7h of
 // Base blocks — a recent-activity sample, not a true top-holders index. Served
@@ -72,8 +52,8 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
 
   let v2Weth = 0n;
   try {
-    const pair = await fork.read<Hex>({ address: FACTORY, abi: FACTORY_ABI, functionName: "getPair", args: [token, WETH] });
-    if (pair && pair.toLowerCase() !== ZERO.toLowerCase()) {
+    const pair = await fork.read<Hex>({ address: UNISWAP_V2.factory, abi: V2_FACTORY_ABI, functionName: "getPair", args: [token, WETH] });
+    if (pair && pair.toLowerCase() !== ZERO_ADDRESS) {
       v2Weth = await fork.read<bigint>({ address: WETH, abi: ERC20_ABI, functionName: "balanceOf", args: [pair] });
       hasPool = true;
       poolAddress = pair;
@@ -117,7 +97,7 @@ async function sampleTopHolders(fork: ForkClient, pub: any, token: Hex): Promise
       if (from) candidates.add(from);
       if (to) candidates.add(to);
     }
-    candidates.delete(ZERO);
+    candidates.delete(ZERO_ADDRESS);
 
     const balances = await Promise.all(
       [...candidates].map(async (address) => ({

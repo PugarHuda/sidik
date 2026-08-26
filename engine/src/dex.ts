@@ -2,27 +2,10 @@ import { createPublicClient, http, encodeFunctionData, parseAbi } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, ProbeCtx, Hex } from "@sidik/shared";
 import { isRevertError } from "./fork.js";
+import { UNISWAP_V2, WETH } from "./base.js";
+import { ERC20_ABI, V2_ROUTER_ABI } from "./abi.js";
 import { REVERT_MAX, untrustedText } from "./untrusted.js";
 import { approveV3Data, quoteV3, swapV3Data, V3_ROUTER } from "./dexV3.js";
-
-// Uniswap V2 on Base. V3 lives in dexV3.ts; pre-scan decides which venue a
-// token actually trades on and everything here follows that decision.
-// Router + Factory per Uniswap's official deployments doc
-// (developers.uniswap.org/docs/protocols/v2/deployments), cross-checked
-// against BaseScan's "Uniswap: V2 Router02" label.
-const ROUTER: Hex = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24";
-const WETH: Hex = "0x4200000000000000000000000000000000000006";
-
-const ROUTER_ABI = parseAbi([
-  "function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[] amounts)",
-  "function swapExactETHForTokensSupportingFeeOnTransferTokens(uint256 amountOutMin, address[] path, address to, uint256 deadline) payable",
-  "function swapExactTokensForETHSupportingFeeOnTransferTokens(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline)",
-]);
-
-const ERC20_ABI = parseAbi([
-  "function balanceOf(address) view returns (uint256)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-]);
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
 
@@ -74,12 +57,12 @@ export async function buyExactEth(fork: ForkClient, ctx: ProbeCtx, ethIn: bigint
   const v3 = ctx.scan.venue === "v3";
   const predicted = await quote(fork, ctx, ethIn, [WETH, ctx.token]);
   const before = await balanceOf(fork, ctx.token, ctx.testWallet);
-  const to = v3 ? V3_ROUTER : ROUTER;
+  const to = v3 ? V3_ROUTER : UNISWAP_V2.router;
   const data = v3
     // SwapRouter02 wraps msg.value itself when tokenIn is WETH.
     ? swapV3Data(WETH, ctx.token, ctx.scan.poolFee ?? 10000, ctx.testWallet, ethIn)
     : encodeFunctionData({
-        abi: ROUTER_ABI,
+        abi: V2_ROUTER_ABI,
         functionName: "swapExactETHForTokensSupportingFeeOnTransferTokens",
         args: [0n, [WETH, ctx.token], ctx.testWallet, DEADLINE],
       });
@@ -100,7 +83,7 @@ async function quote(fork: ForkClient, ctx: ProbeCtx, amountIn: bigint, path: He
   }
   try {
     const amounts = await fork.read<bigint[]>({
-      address: ROUTER, abi: ROUTER_ABI, functionName: "getAmountsOut", args: [amountIn, path],
+      address: UNISWAP_V2.router, abi: V2_ROUTER_ABI, functionName: "getAmountsOut", args: [amountIn, path],
     });
     return amounts[amounts.length - 1] ?? 0n;
   } catch {
@@ -126,10 +109,10 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx, sellAmount?: bigi
   if (amount === 0n) return { ...nothing(), amount: "0", revertReason: "no tokens to sell" };
 
   const v3 = ctx.scan.venue === "v3";
-  const router = v3 ? V3_ROUTER : ROUTER;
+  const router = v3 ? V3_ROUTER : UNISWAP_V2.router;
   const approveData = v3
     ? approveV3Data(amount)
-    : encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [ROUTER, amount] });
+    : encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [UNISWAP_V2.router, amount] });
   const approveTx = await fork.send({ from: ctx.testWallet, to: ctx.token, data: approveData });
   if (approveTx.reverted) {
     // Some honeypots block specifically at approve() (blacklist/ownership gates) —
@@ -154,7 +137,7 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx, sellAmount?: bigi
   const sellData = v3
     ? swapV3Data(ctx.token, WETH, ctx.scan.poolFee ?? 10000, ctx.testWallet, amount)
     : encodeFunctionData({
-        abi: ROUTER_ABI,
+        abi: V2_ROUTER_ABI,
         functionName: "swapExactTokensForETHSupportingFeeOnTransferTokens",
         args: [amount, 0n, [ctx.token, WETH], ctx.testWallet, DEADLINE],
       });

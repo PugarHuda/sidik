@@ -3,26 +3,14 @@ import { base } from "viem/chains";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { logsClient } from "../rpc.js";
 import { amount } from "../format.js";
-
-const ERC20_ABI = parseAbi([
-  "function balanceOf(address) view returns (uint256)",
-  "function allowance(address owner, address spender) view returns (uint256)",
-  "function transferFrom(address from, address to, uint256 amount) returns (bool)",
-]);
-
-const APPROVAL_EVENT = parseAbiItem("event Approval(address indexed owner, address indexed spender, uint256 value)");
+import { UNISWAP_V2, WETH } from "../base.js";
+import { APPROVAL_EVENT, ERC20_ABI, V2_ROUTER_ABI } from "../abi.js";
 
 // 9k blocks — the logs RPC caps a single eth_getLogs at 10k, so this takes
 // the window right up to what one request allows. At 3k the holder sample
 // came back empty for 56% of the catalogue, which is what starved lpRug's
 // candidate search and left it saying NA more often than not.
 const APPROVAL_LOOKBACK_BLOCKS = 9_000n;
-
-// ponytail: duplicated from dex.ts (not exported there) rather than exporting
-// it just for this probe — same Uniswap V2 router/WETH already used elsewhere.
-const ROUTER: Hex = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24";
-const ROUTER_ABI = parseAbi(["function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[] amounts)"]);
-const WETH: Hex = "0x4200000000000000000000000000000000000006";
 
 // Value is reported in WETH, not dollars. It used to multiply by a hardcoded
 // $3000/ETH, which is an invented number — the one thing this project claims
@@ -87,7 +75,7 @@ async function priceWeth(pub: any, token: Hex, tokens: bigint): Promise<bigint> 
   if (tokens === 0n) return 0n;
   try {
     const amounts = await pub.readContract({
-      address: ROUTER, abi: ROUTER_ABI, functionName: "getAmountsOut", args: [tokens, [token, WETH]],
+      address: UNISWAP_V2.router, abi: V2_ROUTER_ABI, functionName: "getAmountsOut", args: [tokens, [token, WETH]],
     }) as bigint[];
     return amounts[1] ?? 0n;
   } catch {

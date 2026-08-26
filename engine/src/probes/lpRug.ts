@@ -2,22 +2,8 @@ import { encodeFunctionData, parseAbi, parseAbiItem, formatEther } from "viem";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe, ForkClient } from "@sidik/shared";
 import { logsClient } from "../rpc.js";
 import { amount } from "../format.js";
-
-// ponytail: duplicated from dex.ts (not exported there) rather than exporting
-// it just for this probe — same Uniswap V2 router already used elsewhere.
-const ROUTER: Hex = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24";
-const WETH: Hex = "0x4200000000000000000000000000000000000006";
-
-const ROUTER_ABI = parseAbi([
-  "function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[] amounts)",
-  "function removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline) returns (uint256 amountA, uint256 amountB)",
-]);
-
-const ERC20_ABI = parseAbi([
-  "function balanceOf(address) view returns (uint256)",
-  "function totalSupply() view returns (uint256)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-]);
+import { BURN_ADDRESSES, UNISWAP_V2, WETH } from "../base.js";
+import { ERC20_ABI, TRANSFER_EVENT, V2_ROUTER_ABI } from "../abi.js";
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
 
@@ -39,14 +25,6 @@ const MIN_TESTABLE_LP_PCT = 1;
 // projects routinely leave a dust remainder behind.
 const BURNED_LP_PCT_FOR_PASS = 99;
 
-// Addresses whose LP is beyond everyone's reach. They are not rug candidates,
-// so they must never be picked as "the LP owner" and impersonated.
-const BURN_ADDRESSES: Hex[] = [
-  "0x0000000000000000000000000000000000000000",
-  "0x000000000000000000000000000000000000dEaD",
-];
-
-const TRANSFER_EVENT = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 value)");
 // 9k blocks — the logs RPC caps a single eth_getLogs at 10k, so this takes
 // the window right up to what one request allows. At 3k the holder sample
 // came back empty for 56% of the catalogue, which is what starved lpRug's
@@ -202,7 +180,7 @@ export const lpRugProbe: Probe = {
       if (bal === 0n) return "0";
       try {
         const amounts = await fork.read<bigint[]>({
-          address: ROUTER, abi: ROUTER_ABI, functionName: "getAmountsOut", args: [bal, [ctx.token, WETH]],
+          address: UNISWAP_V2.router, abi: V2_ROUTER_ABI, functionName: "getAmountsOut", args: [bal, [ctx.token, WETH]],
         });
         return formatEther(amounts[1]);
       } catch {
@@ -226,17 +204,17 @@ export const lpRugProbe: Probe = {
     // catalogue failed outright on "total cost exceeds the balance" before
     // this, and the failure looked like a finding.
     await fork.setBalanceEth(lpOwner, "1");
-    const approveData = encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [ROUTER, lpBalance] });
+    const approveData = encodeFunctionData({ abi: ERC20_ABI, functionName: "approve", args: [UNISWAP_V2.router, lpBalance] });
     const approveTx = await fork.send({ from: lpOwner, to: pool, data: approveData });
 
     let pullTxHash: Hex = approveTx.hash;
     let holderValueAfter = holderValueBefore;
     if (!approveTx.reverted) {
       const removeData = encodeFunctionData({
-        abi: ROUTER_ABI, functionName: "removeLiquidity",
+        abi: V2_ROUTER_ABI, functionName: "removeLiquidity",
         args: [ctx.token, WETH, lpBalance, 0n, 0n, lpOwner, DEADLINE],
       });
-      const removeTx = await fork.send({ from: lpOwner, to: ROUTER, data: removeData });
+      const removeTx = await fork.send({ from: lpOwner, to: UNISWAP_V2.router, data: removeData });
       pullTxHash = removeTx.hash;
       if (!removeTx.reverted) holderValueAfter = await priceHolder();
     }
