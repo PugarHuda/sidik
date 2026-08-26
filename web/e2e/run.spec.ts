@@ -177,21 +177,30 @@ test.describe("hardening", () => {
     expect(h["content-security-policy"]).toContain("frame-ancestors 'none'");
   });
 
-  test("does not ship the recorded runs to the browser", async ({ page }) => {
-    // 172 frozen runs live in the same package as EXAMPLES. If tree-shaking
-    // ever stops dropping them, every visitor downloads the whole catalogue.
-    const scripts: string[] = [];
-    page.on("response", async (r) => {
-      if (r.url().includes("/_next/static/") && r.url().endsWith(".js")) {
-        scripts.push(await r.text().catch(() => ""));
-      }
+  // 194 frozen runs live in the same module as the helpers the pages import.
+  // If tree-shaking ever stops dropping them, every visitor downloads the
+  // whole catalogue. "/" was the only page checked here for a while, which was
+  // the one page that imports nothing from that module — the two that do are
+  // /run (impostorsOf, listedTicker, headlineOf) and /catalogue.
+  for (const path of ["/", "/catalogue", "/run?token=0x0e86eFe5Ba52336c2173AD69EE726e054619e0d8"]) {
+    test(`does not ship the recorded runs to the browser on ${path}`, async ({ page }) => {
+      const scripts: string[] = [];
+      page.on("response", async (r) => {
+        if (r.url().includes("/_next/static/") && r.url().endsWith(".js")) {
+          scripts.push(await r.text().catch(() => ""));
+        }
+      });
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      const shipped = scripts.join("");
+      expect(shipped).not.toContain("boughtAmount");
+      expect(shipped).not.toContain("TRANSFER_FROM_FAILED");
+      // The catalogue's rows are derived on the server; the runs they are
+      // derived from must not come along. This title is in 182 of the 194
+      // recorded runs, so it cannot be absent by luck.
+      expect(shipped).not.toContain("Not a honeypot — buy and sell both succeed");
     });
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    const shipped = scripts.join("");
-    expect(shipped).not.toContain("boughtAmount");
-    expect(shipped).not.toContain("TRANSFER_FROM_FAILED");
-  });
+  }
 });
 
 test.describe("catalogue", () => {
@@ -244,19 +253,8 @@ test.describe("catalogue", () => {
     await expect(page.getByText("DONE run complete")).toBeVisible();
   });
 
-  test("does not ship the recorded runs to the browser either", async ({ page }) => {
-    const scripts: string[] = [];
-    page.on("response", async (r) => {
-      if (r.url().includes("/_next/static/") && r.url().endsWith(".js")) {
-        scripts.push(await r.text().catch(() => ""));
-      }
-    });
-    await page.goto("/catalogue");
-    await page.waitForLoadState("networkidle");
-    // Rows carry a one-line finding; the full verdicts, rows and tx hashes
-    // must stay on the server.
-    expect(scripts.join("")).not.toContain("TRANSFER_FROM_FAILED");
-  });
+  // The leak check for this page lives with the other two under "hardening",
+  // which now covers every page that imports from the runs' module.
 });
 
 test.describe("token API", () => {
@@ -265,7 +263,11 @@ test.describe("token API", () => {
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.symbol).toBe("BRB");
-    expect(body.forkBlock).toBe("50200000");
+    // A number, not the string the runs are stored as. Left as text, a
+    // consumer comparing block numbers compares text instead — and
+    // "9000000" > "50200000" is true.
+    expect(body.forkBlock).toBe(50200000);
+    expect(typeof body.forkBlock).toBe("number");
     expect(body.headline).toBe("FAIL");
     expect(Array.isArray(body.verdicts)).toBe(true);
     // Anyone consuming this must not link the hashes to an explorer.

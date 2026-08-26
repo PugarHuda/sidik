@@ -1,6 +1,10 @@
 import type { NextRequest } from "next/server";
-import { FIXTURES, FIXTURE_BLOCK, listedTicker } from "@sidik/shared";
-import { headlineOf } from "@/lib/catalogue";
+import { FIXTURES, FIXTURE_BLOCK, headlineOf, listedTicker } from "@sidik/shared";
+
+// The runs store the block as a string because the engine turns it into a
+// BigInt; a JSON consumer should not inherit that. Left as a string, comparing
+// block numbers silently compares text — "9000000" > "50200000" is true.
+const FORK_BLOCK = Number(FIXTURE_BLOCK);
 
 export const runtime = "nodejs";
 
@@ -38,13 +42,13 @@ export async function GET(
     return Response.json({
       error: "No recorded run for this address.",
       recordedAddresses: Object.keys(FIXTURES).length,
-      forkBlock: FIXTURE_BLOCK,
+      forkBlock: FORK_BLOCK,
     }, { status: 404 });
   }
 
   return Response.json({
     address,
-    forkBlock: FIXTURE_BLOCK,
+    forkBlock: FORK_BLOCK,
     symbol: run.scan.symbol,
     decimals: run.scan.decimals,
     venue: run.scan.venue ?? null,

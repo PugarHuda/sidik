@@ -1,4 +1,4 @@
-import { FIXTURES, impostorsOf, listedTicker } from "@sidik/shared";
+import { FIXTURES, headlineOf, impostorsOf, listedTicker } from "@sidik/shared";
 import type { ProbeStatus } from "@sidik/shared";
 
 /**
@@ -22,16 +22,6 @@ export interface CatalogueRow {
   listedAs: string | null;
   /** Other recorded addresses using this same symbol. */
   sharesSymbolWith: number;
-}
-
-export function headlineOf(
-  verdicts: { status: ProbeStatus; applicable?: boolean }[],
-): ProbeStatus {
-  const answered = verdicts.filter((v) => v.applicable !== false);
-  if (answered.length === 0) return "NA";
-  if (answered.some((v) => v.status === "FAIL")) return "FAIL";
-  if (answered.some((v) => v.status === "NA")) return "NA";
-  return "PASS";
 }
 
 export function catalogueRows(): CatalogueRow[] {

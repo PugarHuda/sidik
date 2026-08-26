@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { Verdict } from "@sidik/shared";
+import { headlineOf, impostorsOf, listedTicker, type Verdict } from "@sidik/shared";
 import { streamRunEvents, type RunEvent } from "@/lib/sse";
-import { impostorsOf, listedTicker } from "@sidik/shared";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -12,18 +11,6 @@ type Ev<T extends RunEvent["type"]> = Extract<RunEvent, { type: T }>;
 
 function formatAddr(a: string) {
   return a.length > 12 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a;
-}
-
-function overallStatus(verdicts: Verdict[]): Verdict["status"] {
-  // A probe whose mechanism does not exist for this token says nothing about
-  // it, and must not drag the headline down. LP-rug on a Uniswap V3 pool is
-  // the case: 82 of 172 recorded tokens were summarised as NA purely because
-  // of it, while passing everything that did apply.
-  const answered = verdicts.filter((v) => v.applicable !== false);
-  if (answered.length === 0) return "NA";
-  if (answered.some((v) => v.status === "FAIL")) return "FAIL";
-  if (answered.some((v) => v.status === "NA")) return "NA";
-  return "PASS";
 }
 
 const TONE = {
@@ -216,7 +203,7 @@ export default function RunView({ token }: { token: string }) {
   const prescan = findLast("prescan")?.scan ?? null;
   const verdicts = events.filter((e): e is Ev<"verdict"> => e.type === "verdict").map((e) => e.verdict);
   const narration = findLast("narration")?.text ?? null;
-  const overall = overallStatus(verdicts);
+  const overall = headlineOf(verdicts);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
