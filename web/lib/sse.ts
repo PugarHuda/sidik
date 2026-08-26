@@ -1,4 +1,5 @@
 import type { PreScan, Verdict } from "@sidik/shared";
+import { EventSourceParserStream } from "eventsource-parser/stream";
 
 // Mirrors engine/src/orchestrator.ts's RunEvent union. Not imported directly —
 // the engine package pulls in server-only deps (hono, anvil tooling) we don't
@@ -19,10 +20,18 @@ export type RunEvent =
   | { type: "replay"; block: string };
 
 /**
- * Opens `url` and yields parsed SSE frames as typed RunEvents. Uses
- * fetch + ReadableStream (not EventSource) because the request goes through
- * our own Next.js proxy route, and EventSource can't send through it with
- * custom handling / non-GET-only semantics as cleanly as fetch can.
+ * Opens `url` and yields parsed SSE frames as typed RunEvents.
+ *
+ * Uses fetch + ReadableStream rather than EventSource because the request goes
+ * through our own Next.js proxy route, and EventSource cannot carry the
+ * abort semantics this needs.
+ *
+ * Framing is handed to eventsource-parser rather than done here. The previous
+ * hand-rolled version split the buffer on "\n\n" and nothing else, so a
+ * stream delivered with CRLF line endings — legal per the SSE spec, and what
+ * some proxies emit — would never yield a single event and the page would sit
+ * there waiting forever with no error to show for it. That library also
+ * handles the BOM, comment lines and multi-line data fields properly.
  */
 export async function* streamRunEvents(url: string, signal?: AbortSignal): AsyncGenerator<RunEvent> {
   const res = await fetch(url, { signal });
@@ -30,27 +39,26 @@ export async function* streamRunEvents(url: string, signal?: AbortSignal): Async
     throw new Error(`stream failed: ${res.status} ${res.statusText}`);
   }
 
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
+  const events = res.body
+    .pipeThrough(new TextDecoderStream())
+    // A malformed frame should cost that frame, not the rest of the run:
+    // leaving onError unset means the parser skips and keeps going.
+    .pipeThrough(new EventSourceParserStream());
 
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-
-    let idx: number;
-    while ((idx = buf.indexOf("\n\n")) !== -1) {
-      const frame = buf.slice(0, idx);
-      buf = buf.slice(idx + 2);
-      const dataLines = frame.split("\n").filter((l) => l.startsWith("data:"));
-      if (dataLines.length === 0) continue; // comment/keep-alive frame
-      const json = dataLines.map((l) => l.slice(5).trimStart()).join("\n");
+  const reader = events.getReader();
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      if (!value?.data) continue; // keep-alive or a frame carrying only metadata
       try {
-        yield JSON.parse(json) as RunEvent;
+        yield JSON.parse(value.data) as RunEvent;
       } catch {
-        // ponytail: skip a malformed frame rather than kill the whole stream
+        // Skip a frame whose payload is not the JSON we expect rather than
+        // killing the whole stream over it.
       }
     }
+  } finally {
+    reader.releaseLock();
   }
 }
