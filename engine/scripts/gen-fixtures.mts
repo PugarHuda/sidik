@@ -303,9 +303,16 @@ const queue = targets.filter((t) => {
 });
 process.stderr.write(`${queue.length} to record\n\n`);
 
+// Windows fails new process creation with 0xC0000142 (DLL init) once a
+// session has churned through enough of them — it is desktop-heap exhaustion,
+// not anything about the token being probed. Three sweeps died on it. A short
+// pause between tokens lets terminated anvils release before the next spawn.
+const BREATHE_MS = 400;
+
 let i = 0;
 for (const t of queue) {
   i++;
+  if (i > 1) await new Promise((r) => setTimeout(r, BREATHE_MS));
   process.stderr.write(`[${i}/${queue.length}] ${t.label} ${t.address} ... `);
   const run = await record(t.address, t.mustBeToken ?? true);
   if (!run) continue;

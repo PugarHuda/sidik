@@ -60,7 +60,7 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
       title: "LP rug does not apply — this token trades on Uniswap V3",
       rows: [{ label: "LP owner can drain the pool", claimed: "Liquidity is locked/safe",
         proven: "V3 liquidity is held as NFT positions, not a fungible LP token an owner can pull", ok: false }],
-      numbers: { venue: "uniswap-v3" }, txHashes: [],
+      numbers: { venue: "uniswap-v3" }, txHashes: [], applicable: false,
     };
   }
 

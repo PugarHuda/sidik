@@ -15,9 +15,14 @@ function formatAddr(a: string) {
 }
 
 function overallStatus(verdicts: Verdict[]): Verdict["status"] {
-  if (verdicts.length === 0) return "NA";
-  if (verdicts.some((v) => v.status === "FAIL")) return "FAIL";
-  if (verdicts.some((v) => v.status === "NA")) return "NA";
+  // A probe whose mechanism does not exist for this token says nothing about
+  // it, and must not drag the headline down. LP-rug on a Uniswap V3 pool is
+  // the case: 82 of 172 recorded tokens were summarised as NA purely because
+  // of it, while passing everything that did apply.
+  const answered = verdicts.filter((v) => v.applicable !== false);
+  if (answered.length === 0) return "NA";
+  if (answered.some((v) => v.status === "FAIL")) return "FAIL";
+  if (answered.some((v) => v.status === "NA")) return "NA";
   return "PASS";
 }
 

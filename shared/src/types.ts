@@ -16,6 +16,13 @@ export interface Verdict {
   numbers: Record<string, string>;  // ALL figures, pre-formatted as strings
   txHashes: Hex[];                  // sandbox tx hashes
   reason?: string;                  // e.g. revert reason
+  /**
+   * False when the probe cannot say anything about THIS token because its
+   * mechanism does not exist here — LP-rug against a Uniswap V3 pool, which
+   * has no fungible LP token to pull. Distinct from an NA meaning "tried and
+   * could not tell". Summaries must not let the first kind drag a token down.
+   */
+  applicable?: boolean;
 }
 
 export interface PreScan {
