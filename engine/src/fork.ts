@@ -94,6 +94,10 @@ export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promi
   const { proc, url } = await spawnAnvilWithRetry(rpc, block);
   const transport = http(url);
   const test = createTestClient({ mode: "anvil", chain: base, transport });
+  // batch:multicall lets viem coalesce reads issued in the same tick into a
+  // single Multicall3 call. Every read here crosses anvil to the archive RPC,
+  // so the round trips — not the computation — are what a run spends its time
+  // on. Base has Multicall3 deployed and the fork inherits it.
   const pub = createPublicClient({ chain: base, transport });
 
   const fork: ForkClient = {

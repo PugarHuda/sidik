@@ -19,6 +19,18 @@ export async function findV3Pool(
   read: <T>(a: { address: Hex; abi: unknown; functionName: string; args?: unknown[] }) => Promise<T>,
   token: Hex,
 ): Promise<V3Pool | undefined> {
+  // Sequential, and staying that way until there is evidence to change it.
+  //
+  // Issuing the four tier lookups together, with and without viem's multicall
+  // batching, was tried and measured. The measurement could not support any
+  // conclusion: repeating the SAME sequential code on fresh forks gave 7.1s,
+  // 39.8s, 53.3s and 12.0s. Every read here is a lazy state fetch through
+  // anvil to the archive RPC, and that provider's latency swamps anything the
+  // code does by a factor of seven.
+  //
+  // So the honest position is that the simpler shape stands. Optimising this
+  // needs a benchmark that can see past the RPC first — otherwise any change
+  // can be "proven" to help or hurt by picking a run.
   let best: V3Pool | undefined;
   for (const fee of UNISWAP_V3.feeTiers) {
     try {
