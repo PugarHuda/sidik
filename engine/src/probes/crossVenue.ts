@@ -20,9 +20,15 @@ function pct(n: number): string {
   return `${n >= 0 ? "+" : ""}${n.toFixed(2).replace(/\.00$/, "")}%`;
 }
 
-function usd(n: number): string {
+export function usd(n: number): string {
+  // Zero and the non-finite cases first. log10(0) is -Infinity, which made the
+  // digit count Infinity, which capped at ten — so an hour with no trading at
+  // all was reported as "$0.0000000000", ten decimal places of nothing.
+  if (!Number.isFinite(n)) return "$—";
+  if (n === 0) return "$0";
+  const abs = Math.abs(n);
   // Memecoins price in millionths; a fixed 2dp would render every one as 0.00.
-  const digits = n >= 1 ? 2 : Math.min(10, Math.max(4, Math.ceil(-Math.log10(n)) + 3));
+  const digits = abs >= 1 ? 2 : Math.min(10, Math.max(4, Math.ceil(-Math.log10(abs)) + 3));
   return `$${n.toFixed(digits)}`;
 }
 
@@ -121,9 +127,14 @@ export const crossVenueProbe: Probe = {
     // print from some earlier hour, and calling it "what the wider market
     // paid" would be describing a market that was not open for business.
     if (!isTraded(tokenCandle)) {
+      // Said differently when the hour is genuinely empty: "traded only $0" is
+      // a stranger sentence than the plain fact.
+      const how = tokenCandle.quoteVolume === 0
+        ? `${ticker} did not trade on BingX at all in that hour`
+        : `BingX traded only ${usd(tokenCandle.quoteVolume)} of ${ticker} in that hour`;
       return {
         ticker,
-        unavailable: `BingX traded only ${usd(tokenCandle.quoteVolume)} of ${ticker} in that hour — too thin for its price to stand as a market comparison`,
+        unavailable: `${how} — too thin for its price to stand as a market comparison`,
       };
     }
     if (!isTraded(ethCandle)) {

@@ -20339,124 +20339,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
     ],
     "narration": "$YC passed all three checks. Honeypot probe: buying and selling both succeeded, with 190,387.32 $YC bought and sold without issue. LP rug probe: 100% of LP supply is burned (burnedLpPct 100%, ownerLpPct 0%), sent to the zero address, so no owner can withdraw liquidity. Hidden fee probe: buy, sell, and transfer of 95,193.66 $YC all delivered full amounts, with buyTaxPct, sellTaxPct, and feePct all at 0%. No adverse findings were reported across these three probes."
   },
-  "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b": {
-    "scan": {
-      "token": "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
-      "isErc20": true,
-      "symbol": "VIRTUAL",
-      "decimals": 18,
-      "hasPool": true,
-      "poolAddress": "0xE31c372a7Af875b3B5E0F3713B17ef51556da667",
-      "venue": "v2",
-      "owner": "0x0000000000000000000000000000000000000000",
-      "topHolders": []
-    },
-    "ids": [
-      "honeypot",
-      "lpRug",
-      "hiddenFee",
-      "crossVenue"
-    ],
-    "verdicts": [
-      {
-        "probe": "honeypot",
-        "status": "PASS",
-        "title": "Not a honeypot — buy and sell both succeed",
-        "rows": [
-          {
-            "label": "Sell after buying",
-            "claimed": "Freely tradable",
-            "proven": "Sell succeeded",
-            "ok": true
-          }
-        ],
-        "numbers": {
-          "boughtAmount": "3,646.96 VIRTUAL"
-        },
-        "txHashes": [
-          "0xa58f0fe75ba0141f3a43e20dc02c4870e0ec5df249df11562f647cf07c68dd34",
-          "0x86c0137f66dc4e71f502493402d6be1926ba89c1b3c09c85fcf10214714707c8"
-        ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP is not burned (0%) and its holder could not be identified",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "0%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "hiddenFee",
-        "status": "PASS",
-        "title": "No hidden fee on buying, selling or transferring",
-        "rows": [
-          {
-            "label": "Buy through the pool",
-            "claimed": "You receive the full quoted amount",
-            "proven": "Received the full quoted amount",
-            "ok": true
-          },
-          {
-            "label": "Sell back through the pool",
-            "claimed": "You receive the full quoted proceeds",
-            "proven": "Proceeds matched the quote",
-            "ok": true
-          },
-          {
-            "label": "Transfer the full balance",
-            "claimed": "Recipient gets 100%",
-            "proven": "Recipient got 100%",
-            "ok": true
-          }
-        ],
-        "numbers": {
-          "sent": "1,823.48 VIRTUAL",
-          "received": "1,823.48 VIRTUAL",
-          "feePct": "0%",
-          "buyTaxPct": "0%",
-          "sellTaxPct": "0%"
-        },
-        "txHashes": [
-          "0xa58f0fe75ba0141f3a43e20dc02c4870e0ec5df249df11562f647cf07c68dd34",
-          "0x3067bb60cf8505d80e4a5cba984e2ae3946dc547c6b47ff5396f0898f60f1539",
-          "0xeeff51ae8dde057e6a9ad2d2d637478105f3fa017da1eae8293c9dd88b328025"
-        ]
-      },
-      {
-        "probe": "crossVenue",
-        "status": "NA",
-        "title": "No BingX price for VIRTUAL at the forked block",
-        "rows": [
-          {
-            "label": "Price inside the pool vs. an independent venue",
-            "claimed": "The pool prices it like the wider market",
-            "proven": "BingX traded only $0.0000000000 of VIRTUAL in that hour — too thin for its price to stand as a market comparison",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "venue": "bingx",
-          "ticker": "VIRTUAL"
-        },
-        "txHashes": []
-      }
-    ],
-    "narration": "Honeypot check passed: buying and selling both succeeded (3,646.96 VIRTUAL bought, sell succeeded). Hidden fee check passed: buy, sell, and transfer of 1,823.48 VIRTUAL all delivered 100% of quoted amounts, with 0% fee, buy tax, and sell tax. LP rug check was inconclusive: 0% of LP is burned and the LP owner could not be identified (owner address shown as the null address). Cross-venue check was inconclusive: no usable BingX comparison, as BingX traded only $0.0000000000 of VIRTUAL in that hour, too thin to compare prices."
-  },
   "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": {
     "scan": {
       "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -21025,6 +20907,124 @@ export const FIXTURES: Record<string, FrozenRun> = {
       }
     ],
     "narration": "AERO passed all applicable checks. Buying and selling both succeeded (bought 5,005.77 AERO), confirming it is not a honeypot. No hidden fees were found on buying, selling, or transferring: sent and received amounts matched exactly at 2,502.88 AERO, with buyTaxPct and sellTaxPct both at 0%. The LP rug check does not apply, since this token trades on Uniswap V3, where liquidity is held as NFT positions rather than a drainable LP token. Cross-venue pricing checked out: the pool price of $0.4524 was within -0.01% of BingX's $0.4525."
+  },
+  "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b": {
+    "scan": {
+      "token": "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+      "isErc20": true,
+      "symbol": "VIRTUAL",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xE31c372a7Af875b3B5E0F3713B17ef51556da667",
+      "venue": "v2",
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee",
+      "crossVenue"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "3,646.96 VIRTUAL"
+        },
+        "txHashes": [
+          "0xa58f0fe75ba0141f3a43e20dc02c4870e0ec5df249df11562f647cf07c68dd34",
+          "0x86c0137f66dc4e71f502493402d6be1926ba89c1b3c09c85fcf10214714707c8"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP is not burned (0%) and its holder could not be identified",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned, so someone can still withdraw it — but no holder could be identified",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "1,823.48 VIRTUAL",
+          "received": "1,823.48 VIRTUAL",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%"
+        },
+        "txHashes": [
+          "0xa58f0fe75ba0141f3a43e20dc02c4870e0ec5df249df11562f647cf07c68dd34",
+          "0x3067bb60cf8505d80e4a5cba984e2ae3946dc547c6b47ff5396f0898f60f1539",
+          "0xeeff51ae8dde057e6a9ad2d2d637478105f3fa017da1eae8293c9dd88b328025"
+        ]
+      },
+      {
+        "probe": "crossVenue",
+        "status": "NA",
+        "title": "No BingX price for VIRTUAL at the forked block",
+        "rows": [
+          {
+            "label": "Price inside the pool vs. an independent venue",
+            "claimed": "The pool prices it like the wider market",
+            "proven": "VIRTUAL did not trade on BingX at all in that hour — too thin for its price to stand as a market comparison",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "venue": "bingx",
+          "ticker": "VIRTUAL"
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "Honeypot check passed: buying and selling both succeeded (bought 3,646.96 VIRTUAL). Hidden-fee check passed: buy, sell, and transfer all delivered full amounts, with 0% fee/buy tax/sell tax on 1,823.48 VIRTUAL sent and received. LP rug check was inconclusive: 0% of LP is burned and no LP holder could be identified, so drain risk is unverified. Cross-venue check was inconclusive: no BingX trading data for VIRTUAL existed at the forked block, so pool pricing could not be compared to an independent market."
   }
 };
 

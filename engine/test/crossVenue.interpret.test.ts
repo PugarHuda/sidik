@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interpretCrossVenue } from "../src/probes/crossVenue.js";
+import { interpretCrossVenue, usd } from "../src/probes/crossVenue.js";
 const ctx = {} as any;
 
 describe("interpretCrossVenue", () => {
@@ -38,5 +38,39 @@ describe("interpretCrossVenue", () => {
         ethSpent: "1 ETH", buyTxHash: "0xb" }, ctx);
     expect(v.numbers.onchainPrice).toBe("$0.0001087");
     expect(v.numbers.onchainPrice).not.toBe("$0.00");
+  });
+});
+
+describe("usd", () => {
+  it("renders an empty hour as $0, not ten decimal places of nothing", () => {
+    // log10(0) is -Infinity, so the digit count came out Infinity, capped at
+    // ten: an hour with no trading was reported as "$0.0000000000".
+    expect(usd(0)).toBe("$0");
+  });
+
+  it("keeps two decimals once the whole part carries the meaning", () => {
+    expect(usd(47.64)).toBe("$47.64");
+    expect(usd(1)).toBe("$1.00");
+    expect(usd(2843557.63)).toBe("$2843557.63");
+  });
+
+  it("keeps significant digits for prices below a dollar", () => {
+    // A memecoin at two decimal places is $0.00 for every one of them.
+    expect(usd(0.0001061)).toMatch(/^\$0\.0001/);
+    expect(usd(0.004177)).toMatch(/^\$0\.004/);
+    expect(Number(usd(0.000000123).slice(1))).toBeGreaterThan(0);
+  });
+
+  it("does not print Infinity or NaN at a reader", () => {
+    expect(usd(Infinity)).toBe("$—");
+    expect(usd(-Infinity)).toBe("$—");
+    expect(usd(NaN)).toBe("$—");
+  });
+
+  it("handles a negative without inverting the digit count", () => {
+    // Math.log10 of a negative is NaN, which made the digit count NaN and
+    // toFixed fall back to zero decimals.
+    expect(usd(-0.5)).toMatch(/^\$-0\.5/);
+    expect(usd(-3)).toBe("$-3.00");
   });
 });
