@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FIXTURES, FIXTURE_BLOCK, headlineOf } from "@sidik/shared";
+import { FIXTURE_BLOCK, headlineOf, recordedRun } from "@sidik/shared";
 import RunView from "./RunView";
 
 /**
@@ -18,7 +18,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const raw = (await searchParams).token;
   const token = (Array.isArray(raw) ? raw[0] : raw) ?? "";
-  const run = FIXTURES[token.toLowerCase()];
+  const run = recordedRun(token);
   if (!run) return { title: "Sidik — run" };
 
   const headline = headlineOf(run.verdicts);

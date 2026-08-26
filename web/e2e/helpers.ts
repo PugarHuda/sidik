@@ -54,3 +54,13 @@ export async function clickFilter(page: Page, name: string): Promise<void> {
     await expect(button).toHaveAttribute("aria-pressed", "true", { timeout: 1_000 });
   }).toPass({ timeout: READY_TIMEOUT });
 }
+
+/**
+ * How long to wait for the catalogue to respond to a keystroke.
+ *
+ * Filtering used to happen in the browser and was effectively instant. It now
+ * runs on the server, so typing costs a 250ms debounce plus a navigation —
+ * a deliberate trade for filters that live in the URL, but a real one, and
+ * this is where it shows up.
+ */
+export const SEARCH_SETTLE_MS = 5_000;

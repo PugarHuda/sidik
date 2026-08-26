@@ -1,0 +1,104 @@
+name: CI
+
+# `pnpm check` already ran everything worth running; nothing ran `pnpm check`.
+# Every gate below was one somebody had to remember to type.
+on:
+  push:
+    branches: [main, master, sidik-impl]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: types, lint, dead code, advisories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm run lint
+      - run: pnpm run deadcode
+      # Fails on moderate and above. One low advisory is known and documented
+      # in pnpm-workspace.yaml: every ai@5 release pins @ai-sdk/provider-utils
+      # to exactly 3.0.33, so the fixed version is unreachable without a major.
+      - run: pnpm run audit
+
+  unit:
+    name: unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Integration suites are excluded here on purpose: each spawns anvil and
+      # replays archive reads through a keyed RPC, so without the secret they
+      # fail on configuration rather than on the code. They run in `integration`
+      # below, which is skipped when the secret is absent.
+      - run: pnpm run test:unit
+
+  build-and-e2e:
+    name: build + browsers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      # All three engines. The suite spent its whole life on Chromium, which is
+      # the one place the streaming reader and the SSE parser never differ.
+      - run: pnpm --filter web exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm run e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/test-results
+          retention-days: 7
+
+  integration:
+    name: fork integration (needs an archive RPC)
+    runs-on: ubuntu-latest
+    # A fork of this repo has no secrets, and a job that always fails there
+    # teaches people to ignore the badge.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check for the archive RPC
+        id: rpc
+        run: |
+          if [ -n "${{ secrets.BASE_ARCHIVE_RPC }}" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::BASE_ARCHIVE_RPC is not set, so the fork integration suites are skipped."
+          fi
+      - uses: foundry-rs/foundry-toolchain@v1
+        if: steps.rpc.outputs.present == 'true'
+      - name: Run the fork integration suites
+        if: steps.rpc.outputs.present == 'true'
+        env:
+          BASE_ARCHIVE_RPC: ${{ secrets.BASE_ARCHIVE_RPC }}
+        run: pnpm run test:integration

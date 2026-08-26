@@ -268,7 +268,11 @@ async function discover(limit: number): Promise<{ address: Hex; label: string }[
     process.stderr.write(`  reserves ${Math.min(i + BATCH, pairs.length)}/${pairs.length} -> ${liquid.length} liquid\r`);
   }
   process.stderr.write("\n");
-  liquid.sort((a, b) => (b.weth > a.weth ? 1 : -1));
+  // Three-way, including the equal case. The previous form returned -1 for
+  // "equal" as well as for "greater", which is an inconsistent comparator —
+  // the other two sorts in this codebase already handle ties, and a sort that
+  // claims a != a is the kind of thing that only misbehaves under load.
+  liquid.sort((a, b) => (b.weth > a.weth ? 1 : b.weth < a.weth ? -1 : 0));
   process.stderr.write(`  ${liquid.length} liquid; taking top ${limit}\n`);
   return liquid.slice(0, limit).map((t) => ({ address: t.address, label: `${t.label} (${Number(formatEther(t.weth)).toFixed(2)} WETH)` }));
 }

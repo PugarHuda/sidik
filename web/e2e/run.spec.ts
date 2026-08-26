@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { clickFilter, fillWhenReady } from "./helpers";
+import { clickFilter, fillWhenReady, SEARCH_SETTLE_MS } from "./helpers";
 
 // A honeypot: the buy lands, the sell reverts.
 const ANASTASIA = "0x48F617e5b1B214a90800348D7944bBc0E9290Fbb";
@@ -238,7 +238,7 @@ test.describe("catalogue", () => {
     // Deliberately not an exact count: two recorded Base tokens call
     // themselves BRETT, which is the point of the collision warning.
     await fillWhenReady(page, page.getByLabel("Filter by symbol or address"), "BRETT",
-      () => expect(rows.first()).toContainText("BRETT", { timeout: 1_000 }));
+      () => expect(rows.first()).toContainText("BRETT", { timeout: SEARCH_SETTLE_MS }));
     expect(await rows.count()).toBeGreaterThanOrEqual(1);
   });
 
@@ -246,13 +246,13 @@ test.describe("catalogue", () => {
     await page.goto("/catalogue");
     // Five separate contracts on Base call themselves BRIAN.
     await fillWhenReady(page, page.getByLabel("Filter by symbol or address"), "BRIAN",
-      () => expect(page.locator("ul li").first()).toContainText(/sharing this symbol/, { timeout: 1_000 }));
+      () => expect(page.locator("ul li").first()).toContainText(/sharing this symbol/, { timeout: SEARCH_SETTLE_MS }));
   });
 
   test("a row opens that token's run", async ({ page }) => {
     await page.goto("/catalogue");
     await fillWhenReady(page, page.getByLabel("Filter by symbol or address"), "0x532f",
-      () => expect(page.locator("ul li")).toHaveCount(1, { timeout: 1_000 }));
+      () => expect(page.locator("ul li")).toHaveCount(1, { timeout: SEARCH_SETTLE_MS }));
     await page.locator("ul li a").first().click();
     await expect(page).toHaveURL(/token=0x532f/i);
     await expect(page.getByText("DONE run complete")).toBeVisible();

@@ -8,8 +8,14 @@
   ],
   "workspaces": {
     "engine": {
-      "entry": ["scripts/*.mts", "test/**/*.test.ts"],
-      "project": ["src/**/*.ts", "scripts/**/*.mts"]
+      "entry": [
+        "scripts/*.mts",
+        "test/**/*.test.ts"
+      ],
+      "project": [
+        "src/**/*.ts",
+        "scripts/**/*.mts"
+      ]
     },
     "web": {
       "entry": [
@@ -19,10 +25,16 @@
         "e2e/**/*.spec.ts",
         "*.config.{ts,mjs}"
       ],
-      "project": ["app/**/*.{ts,tsx}", "lib/**/*.ts", "e2e/**/*.ts"]
+      "project": [
+        "app/**/*.{ts,tsx}",
+        "lib/**/*.ts",
+        "e2e/**/*.ts"
+      ]
     },
     "shared": {
-      "project": ["src/**/*.ts"]
+      "project": [
+        "src/**/*.ts"
+      ]
     }
   }
 }

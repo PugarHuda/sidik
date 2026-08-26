@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { catalogueRows, catalogueSummary } from "@/lib/catalogue";
-import CatalogueTable from "./CatalogueTable";
+import {
+  catalogueRows, catalogueSummary, filterRows, isCatalogueFilter,
+} from "@sidik/shared";
+import CatalogueControls from "./CatalogueControls";
+import CatalogueRows from "./CatalogueRows";
 
 export const metadata = {
   title: "Sidik — every recorded run",
@@ -8,14 +11,35 @@ export const metadata = {
 };
 
 /**
- * Server component on purpose.
+ * Server component, and the filtering happens here too.
  *
- * The recorded runs carry every verdict, row and tx hash. Rendering this list
- * in the browser would ship all 194 of them to every visitor; deriving the
- * rows here means only what a row displays crosses the boundary.
+ * The recorded runs carry every verdict, row and tx hash, so deriving the
+ * rows here keeps all of that on the server. Filtering was the part still
+ * happening in the browser: the client component took every row as props,
+ * which serialised the whole catalogue into the page a second time on top of
+ * the HTML it was already rendered as — one address appeared twice in a
+ * measured 222KB document.
+ *
+ * Reading the filter from the URL also makes it the single source of truth.
+ * It used to live in React state alone, so a filtered view could not be
+ * linked or bookmarked and the back button stepped straight over it.
  */
-export default function CataloguePage() {
+export default async function CataloguePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string | string[]; q?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+  const rawFilter = one(params.filter);
+  // An unknown filter shows everything rather than nothing: a hand-edited URL
+  // should not produce an empty page that looks like a catalogue with no runs
+  // in it.
+  const filter = isCatalogueFilter(rawFilter) ? rawFilter : "all";
+  const query = one(params.q).slice(0, 100);
+
   const rows = catalogueRows();
+  const shown = filterRows(rows, { filter, query });
   const s = catalogueSummary(rows);
 
   const stats: [string, number][] = [
@@ -55,7 +79,13 @@ export default function CataloguePage() {
       </p>
 
       <div className="mt-10">
-        <CatalogueTable rows={rows} />
+        <CatalogueControls
+          filter={filter}
+          query={query}
+          shown={shown.length}
+          total={rows.length}
+        />
+        <CatalogueRows rows={shown} />
       </div>
     </div>
   );

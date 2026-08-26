@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import type { Hex } from "@sidik/shared";
 import type { RunEvent } from "@/lib/sse";
-import { FIXTURES, FIXTURE_BLOCK } from "@sidik/shared";
+import { FIXTURES, FIXTURE_BLOCK, recordedRun, safeNarration } from "@sidik/shared";
 
 export const runtime = "nodejs";
 
@@ -111,7 +111,7 @@ const STEP_MS = 260;
 const PROBE_MS = 620;
 
 function replayStream(token: Hex): ReadableStream<Uint8Array> {
-  const run = FIXTURES[token.toLowerCase()];
+  const run = recordedRun(token);
 
   const script: [number, RunEvent][] = run
     ? [
@@ -122,7 +122,7 @@ function replayStream(token: Hex): ReadableStream<Uint8Array> {
           [STEP_MS, { type: "probe:start", id: verdict.probe }],
           [PROBE_MS, { type: "verdict", verdict }],
         ]),
-        [STEP_MS, { type: "narration", text: run.narration }],
+        [STEP_MS, { type: "narration", text: safeNarration(run.narration, run.verdicts) }],
         [STEP_MS / 2, { type: "done" }],
       ]
     // No replay banner here. It announces "recorded run — real fork proof",
@@ -142,16 +142,46 @@ function replayStream(token: Hex): ReadableStream<Uint8Array> {
       ];
 
   let i = 0;
+  // Cancellation is the normal case, not the exception: every reader who
+  // navigates away, reloads, or closes the tab abandons this stream part-way
+  // through its paced script.
+  //
+  // Without this, `pull` was already awaiting its delay when the reader left,
+  // and enqueued into a controller that no longer accepts writes when the
+  // timer fired. That throws inside the stream, and the rejection has nowhere
+  // to go — it took the whole Next server down mid-suite, which then read as
+  // ERR_CONNECTION_REFUSED on every test after it.
+  let cancelled = false;
+  let wake: (() => void) | undefined;
+
   return new ReadableStream({
     async pull(controller) {
       const step = script[i++];
-      if (!step) {
-        controller.close();
+      if (!step || cancelled) {
+        if (!cancelled) controller.close();
         return;
       }
       const [delayMs, event] = step;
-      await new Promise((r) => setTimeout(r, delayMs));
-      controller.enqueue(sseFrame(event));
+
+      // Interruptible: a cancel during the pause resolves the wait
+      // immediately rather than holding a timer open for another half second.
+      await new Promise<void>((resolve) => {
+        const timer = setTimeout(() => { wake = undefined; resolve(); }, delayMs);
+        wake = () => { clearTimeout(timer); wake = undefined; resolve(); };
+      });
+
+      if (cancelled) return;
+      try {
+        controller.enqueue(sseFrame(event));
+      } catch {
+        // The reader went away between the check above and this write. Their
+        // stream, their loss — it must not be this process's problem.
+        cancelled = true;
+      }
+    },
+    cancel() {
+      cancelled = true;
+      wake?.();
     },
   });
 }

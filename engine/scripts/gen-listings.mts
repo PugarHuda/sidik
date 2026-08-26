@@ -63,7 +63,14 @@ export const LISTED_ON_BINGX: Record<string, string> = ${
 };
 
 export function listedTicker(address: Hex | string): string | undefined {
-  return LISTED_ON_BINGX[String(address).toLowerCase()];
+  // Object.hasOwn, not a bare index. A plain object literal inherits from
+  // Object.prototype, so LISTED_ON_BINGX["constructor"] returns a function
+  // rather than undefined — as do __proto__, toString, valueOf and
+  // hasOwnProperty. Every caller today passes a regex-validated address, so
+  // this is not reachable; it becomes reachable the moment one does not, and
+  // the caller would get a function where it expected a ticker.
+  const key = String(address).toLowerCase();
+  return Object.hasOwn(LISTED_ON_BINGX, key) ? LISTED_ON_BINGX[key] : undefined;
 }
 `);
 process.stderr.write(`\nwrote ${confirmed.length} confirmed listing(s) -> ${out}\n`);

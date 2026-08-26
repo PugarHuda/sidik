@@ -49,9 +49,19 @@ export default defineConfig({
   webServer: externalTarget
     ? undefined
     : {
-        command: "pnpm exec next start -p 3210",
+        // node on next's own entry point, not `pnpm exec next`. Each shim in
+        // between is another process for Windows to lose track of, and it did:
+        // Playwright's managed server died partway through a 355-test run and
+        // every test after it failed with ERR_CONNECTION_REFUSED — 330 of
+        // them. The identical suite against a server started by hand, which
+        // reuseExistingServer picks up, passed 353/353 with the same
+        // application code. The application was never the problem; the
+        // process tree was.
+        command: "node node_modules/next/dist/bin/next start -p 3210",
         url: "http://127.0.0.1:3210",
         reuseExistingServer: true,
+        stdout: "pipe",
+        stderr: "pipe",
         timeout: 120_000,
       },
 });

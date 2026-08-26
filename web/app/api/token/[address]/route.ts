@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { FIXTURES, FIXTURE_BLOCK, headlineOf, listedTicker } from "@sidik/shared";
+import { FIXTURES, FIXTURE_BLOCK, headlineOf, listedTicker, recordedRun, safeNarration } from "@sidik/shared";
 
 // The runs store the block as a string because the engine turns it into a
 // BigInt; a JSON consumer should not inherit that. Left as a string, comparing
@@ -34,7 +34,7 @@ export async function GET(
     }, { status: 400 });
   }
 
-  const run = FIXTURES[address.toLowerCase()];
+  const run = recordedRun(address);
   if (!run) {
     // 404 rather than an empty verdict: "no recorded run" is a different
     // statement from "nothing was found wrong", and a consumer must not be
@@ -55,7 +55,7 @@ export async function GET(
     poolAddress: run.scan.poolAddress ?? null,
     headline: headlineOf(run.verdicts),
     verdicts: run.verdicts,
-    narration: run.narration,
+    narration: safeNarration(run.narration, run.verdicts),
     alsoListedOn: listedTicker(address) ? { bingx: listedTicker(address) } : null,
     // Said plainly so nobody links these hashes to an explorer and finds
     // nothing: they were mined on a fork and never broadcast.

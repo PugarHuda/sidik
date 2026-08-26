@@ -65,3 +65,87 @@ test.describe("indexing", () => {
     expect(txt).toMatch(/Sitemap:\s*https?:\/\/\S+\/sitemap\.xml/);
   });
 });
+
+/**
+ * The catalogue's filter lives in the URL.
+ *
+ * It used to live in React state alone: a filtered view could not be linked
+ * or bookmarked, the back button stepped straight over it, and the address
+ * bar disagreed with the screen.
+ */
+test.describe("catalogue filter state", () => {
+  test("puts the filter in the URL so it can be linked", async ({ page }) => {
+    await page.goto("/catalogue");
+    const honeypots = page.getByRole("button", { name: "Honeypots", exact: true });
+    await expect(honeypots).toBeVisible();
+    await honeypots.click();
+
+    await expect(page).toHaveURL(/[?&]filter=honeypot/);
+    await expect(honeypots).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("a filtered URL opened cold shows the filtered list", async ({ page }) => {
+    await page.goto("/catalogue?filter=honeypot");
+    await expect(page.getByRole("button", { name: "Honeypots", exact: true }))
+      .toHaveAttribute("aria-pressed", "true");
+    const rows = await page.locator("ul li").count();
+    expect(rows).toBeGreaterThan(0);
+    // Every row on this page must actually be a honeypot finding.
+    await expect(page.locator("ul li").first()).toContainText(/Honeypot/i);
+  });
+
+  test("the back button steps back through filter states", async ({ page }) => {
+    await page.goto("/catalogue");
+    const all = await page.locator("ul li").count();
+
+    await page.getByRole("button", { name: "Honeypots", exact: true }).click();
+    await expect(page).toHaveURL(/filter=honeypot/);
+    const filtered = await page.locator("ul li").count();
+    expect(filtered).toBeLessThan(all);
+
+    await page.goBack();
+    await expect(page).not.toHaveURL(/filter=honeypot/);
+    await expect.poll(() => page.locator("ul li").count()).toBe(all);
+  });
+
+  test("an unknown filter shows everything rather than an empty page", async ({ page }) => {
+    // A hand-edited URL should not produce a page that looks like a catalogue
+    // with nothing in it — that reads as "no runs recorded", which is a lie.
+    await page.goto("/catalogue?filter=notarealfilter");
+    expect(await page.locator("ul li").count()).toBeGreaterThan(100);
+    await expect(page.getByRole("button", { name: "Everything", exact: true }))
+      .toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("a very long search string is bounded, not reflected whole", async ({ page }) => {
+    await page.goto(`/catalogue?q=${"z".repeat(5000)}`);
+    await expect(page.getByText(/Nothing recorded matches that/)).toBeVisible();
+    const value = await page.getByLabel("Filter by symbol or address").inputValue();
+    expect(value.length).toBeLessThanOrEqual(100);
+  });
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("the catalogue still lists and still filters", async ({ page }) => {
+    // The filters are links and the search is a real GET form, so the page is
+    // readable and usable with scripting off — which is also what a crawler
+    // and a text browser see.
+    await page.goto("/catalogue");
+    expect(await page.locator("ul li").count()).toBeGreaterThan(100);
+
+    await page.goto("/catalogue?filter=honeypot");
+    const rows = await page.locator("ul li").count();
+    expect(rows).toBeGreaterThan(0);
+    expect(rows).toBeLessThan(50);
+    await expect(page.locator("ul li").first()).toContainText(/Honeypot/i);
+  });
+
+  test("a run page still states what was proven", async ({ page }) => {
+    // The trace streams over SSE and cannot run without scripting — but the
+    // page must still say so rather than render an empty shell.
+    await page.goto(`/run?token=${BRB}`);
+    await expect(page).toHaveTitle("Sidik — BRB: FAIL");
+  });
+});

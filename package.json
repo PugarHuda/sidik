@@ -16,7 +16,10 @@
     "e2e": "pnpm --filter web e2e",
     "audit": "pnpm audit --audit-level moderate",
     "deadcode": "knip",
-    "check": "pnpm run typecheck && pnpm run lint && pnpm run deadcode && pnpm run audit && pnpm run test && pnpm run build && pnpm run e2e"
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run deadcode && pnpm run audit && pnpm run test && pnpm run build && pnpm run e2e",
+    "test:unit": "pnpm --filter @sidik/engine test:unit",
+    "test:integration": "pnpm --filter @sidik/engine test:integration",
+    "coverage": "pnpm --filter @sidik/engine coverage"
   },
   "devDependencies": {
     "knip": "^6.32.2"

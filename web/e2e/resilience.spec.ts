@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillWhenReady } from "./helpers";
+import { fillWhenReady, SEARCH_SETTLE_MS } from "./helpers";
 
 /**
  * What happens when things go wrong or the reader does something impatient.
@@ -160,7 +160,7 @@ test.describe("catalogue edge cases", () => {
   test("a search matching nothing shows the empty state, not a blank page", async ({ page }) => {
     await page.goto("/catalogue");
     await fillWhenReady(page, page.getByPlaceholder("symbol or address…"), "zzzzzzzznotathing",
-      () => expect(page.getByText(/Nothing recorded matches that/)).toBeVisible({ timeout: 1_000 }));
+      () => expect(page.getByText(/Nothing recorded matches that/)).toBeVisible({ timeout: SEARCH_SETTLE_MS }));
     await expect(page.getByText(/^0 of \d+ recorded runs$/)).toBeVisible();
   });
 
@@ -172,13 +172,13 @@ test.describe("catalogue edge cases", () => {
     const all = await counter.textContent();
 
     await fillWhenReady(page, search, "zzzz",
-      () => expect(page.getByText(/^0 of/)).toBeVisible({ timeout: 1_000 }));
+      () => expect(page.getByText(/^0 of/)).toBeVisible({ timeout: SEARCH_SETTLE_MS }));
 
     // Clearing goes through the same guard. It was the one interaction in
     // this file still typing straight at the DOM, and under load on WebKit it
     // was the one that lost the race.
     await fillWhenReady(page, search, "",
-      () => expect(counter).toHaveText(all!, { timeout: 1_000 }));
+      () => expect(counter).toHaveText(all!, { timeout: SEARCH_SETTLE_MS }));
   });
 
   test("a filter and a search compose instead of overriding each other", async ({ page }) => {
@@ -200,5 +200,42 @@ test.describe("catalogue edge cases", () => {
     // if the two did not compose, this would jump back to all 194.
     await expect.poll(count).toBe(filtered);
     await expect(honeypotsButton).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
+/**
+ * Keys that exist on every JavaScript object.
+ *
+ * The recorded runs are a plain object, so `FIXTURES["constructor"]` is the
+ * Object constructor rather than undefined — and a `if (!run) return` guard
+ * sails straight past a function. The run page reads its token from
+ * searchParams without a regex check before deriving the page title, so this
+ * was reachable: it threw inside generateMetadata and served a 500 instead of
+ * the "not a Base address" page that every other malformed input gets.
+ */
+test.describe("prototype keys are not addresses", () => {
+  for (const token of ["constructor", "__proto__", "toString", "valueOf", "hasOwnProperty"]) {
+    test(`"${token}" is refused like any other malformed address`, async ({ page }) => {
+      const res = await page.goto(`/run?token=${encodeURIComponent(token)}`);
+      expect(res?.status(), `${token} must not 500`).toBe(200);
+      await expect(page.getByText(/is not a Base address/)).toBeVisible();
+      // And it must never be described as a run that exists.
+      await expect(page).toHaveTitle("Sidik — run");
+    });
+  }
+
+  test("the JSON API refuses them too", async ({ request }) => {
+    for (const token of ["constructor", "__proto__", "toString"]) {
+      const res = await request.get(`/api/token/${encodeURIComponent(token)}`);
+      expect(res.status(), `${token}`).toBe(400);
+    }
+  });
+
+  test("the stream refuses them without inventing a verdict", async ({ request }) => {
+    const res = await request.get("/api/run?token=constructor");
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("is not a Base address");
+    expect(body).not.toContain("verdict");
   });
 });

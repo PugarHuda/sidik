@@ -1,6 +1,7 @@
 import { generateText } from "ai";
 import { llm, LLM_TIMEOUT_MS, VENICE_OPTIONS } from "./llm.js";
 import type { Verdict } from "@sidik/shared";
+import { contradictsVerdicts, templateNarration } from "@sidik/shared";
 
 const NUM = /\d[\d,]*(?:\.\d+)?/g;
 const HEX = /0x[0-9a-fA-F]+/g;
@@ -70,11 +71,15 @@ Data: ${JSON.stringify(verdicts)}`,
   } catch {
     // The prose is decoration; the verdicts are the product. An unreachable
     // or unauthorized gateway degrades to the template, it does not fail the run.
-    return templateFallback(verdicts);
+    return templateNarration(verdicts);
   }
-  return guardProse(text, allowed, hex) || templateFallback(verdicts);
+
+  const checked = guardProse(text, allowed, hex);
+  // Figures first, then the claim. guardProse proves every number and hash
+  // came from the run; it says nothing about what the sentence asserts, and a
+  // summary can get every figure right and still close by calling a token
+  // that failed "safe to trade".
+  if (!checked || contradictsVerdicts(checked, verdicts)) return templateNarration(verdicts);
+  return checked;
 }
 
-function templateFallback(verdicts: Verdict[]): string {
-  return verdicts.map((v) => `${v.status === "FAIL" ? "⚠️" : v.status === "PASS" ? "✓" : "—"} ${v.title}`).join("\n");
-}

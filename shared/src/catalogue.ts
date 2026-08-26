@@ -1,5 +1,7 @@
-import { FIXTURES, headlineOf, impostorsOf, listedTicker } from "@sidik/shared";
-import type { ProbeStatus } from "@sidik/shared";
+import { FIXTURES, impostorsOf, type FrozenRun } from "./fixtures";
+import { headlineOf } from "./headline";
+import { listedTicker } from "./listings";
+import type { ProbeStatus } from "./types";
 
 /**
  * A compact row per recorded run.
@@ -50,6 +52,59 @@ export function catalogueRows(): CatalogueRow[] {
   const rank: Record<ProbeStatus, number> = { FAIL: 0, NA: 1, PASS: 2 };
   return rows.sort((a, b) =>
     rank[a.headline] - rank[b.headline] || a.symbol.localeCompare(b.symbol));
+}
+
+/**
+ * The recorded run for one address, or undefined.
+ *
+ * The single place FIXTURES is looked up by key. A bare `FIXTURES[key]` walks
+ * the prototype chain: `FIXTURES["constructor"]` is the Object constructor,
+ * not undefined, and a caller that checked `if (!run)` would sail past the
+ * guard and then read `.scan` off a function. Every caller validates the
+ * address first today, so nothing reaches this — which is precisely why it is
+ * worth closing before someone adds a caller that does not.
+ */
+export function recordedRun(address: string): FrozenRun | undefined {
+  const key = String(address).toLowerCase();
+  return Object.hasOwn(FIXTURES, key) ? FIXTURES[key] : undefined;
+}
+
+/** The filters the catalogue offers, and what each one keeps. */
+export const CATALOGUE_FILTERS = [
+  { id: "all", label: "Everything" },
+  { id: "failing", label: "Anything failed" },
+  { id: "honeypot", label: "Honeypots" },
+  { id: "hiddenFee", label: "Hidden fees" },
+  { id: "lpRug", label: "LP rugs" },
+] as const;
+
+export type CatalogueFilter = (typeof CATALOGUE_FILTERS)[number]["id"];
+
+export function isCatalogueFilter(v: string | undefined): v is CatalogueFilter {
+  return CATALOGUE_FILTERS.some((f) => f.id === v);
+}
+
+/**
+ * Narrow the catalogue. Pure, so it can run on the server and be tested
+ * without a browser.
+ *
+ * This used to live inside a client component, which meant every row had to
+ * be serialised into the page as component props on top of already being
+ * rendered as HTML — the same 194 addresses shipped twice. Filtering here
+ * means the browser receives only the rows it is going to show.
+ */
+export function filterRows(
+  rows: CatalogueRow[],
+  { filter, query }: { filter: CatalogueFilter; query: string },
+): CatalogueRow[] {
+  const q = query.trim().toLowerCase();
+  return rows.filter((r) => {
+    if (filter === "failing" && r.headline !== "FAIL") return false;
+    if (filter !== "all" && filter !== "failing"
+      && !r.probes.some((p) => p.id === filter && p.status === "FAIL")) return false;
+    if (!q) return true;
+    return r.symbol.toLowerCase().includes(q) || r.address.toLowerCase().includes(q);
+  });
 }
 
 export function catalogueSummary(rows: CatalogueRow[]) {
