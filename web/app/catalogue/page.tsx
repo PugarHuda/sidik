@@ -1,9 +1,10 @@
 import Link from "next/link";
 import {
-  catalogueRows, catalogueSummary, filterRows, isCatalogueFilter,
+  catalogueRows, catalogueSummary, filterRows, isCatalogueFilter, paginate,
 } from "@sidik/shared";
 import CatalogueControls from "./CatalogueControls";
 import CatalogueRows from "./CatalogueRows";
+import CataloguePager from "./CataloguePager";
 
 export const metadata = {
   title: "Sidik — every recorded run",
@@ -27,7 +28,11 @@ export const metadata = {
 export default async function CataloguePage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string | string[]; q?: string | string[] }>;
+  searchParams: Promise<{
+    filter?: string | string[];
+    q?: string | string[];
+    page?: string | string[];
+  }>;
 }) {
   const params = await searchParams;
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -39,7 +44,11 @@ export default async function CataloguePage({
   const query = one(params.q).slice(0, 100);
 
   const rows = catalogueRows();
-  const shown = filterRows(rows, { filter, query });
+  const matching = filterRows(rows, { filter, query });
+  // Bounded on purpose: rendering all 194 rows produced a 336KB document, and
+  // a response that size is read slowly enough by a browser to back up the
+  // server's gzip stream — measurably, and fatally under a full test run.
+  const page = paginate(matching, Number(one(params.page)) || 1);
   const s = catalogueSummary(rows);
 
   const stats: [string, number][] = [
@@ -82,10 +91,11 @@ export default async function CataloguePage({
         <CatalogueControls
           filter={filter}
           query={query}
-          shown={shown.length}
+          shown={page.total}
           total={rows.length}
         />
-        <CatalogueRows rows={shown} />
+        <CatalogueRows rows={page.rows} />
+        <CataloguePager page={page} filter={filter} query={query} />
       </div>
     </div>
   );

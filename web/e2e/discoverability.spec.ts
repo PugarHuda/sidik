@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { CATALOGUE_PAGE_SIZE } from "@sidik/shared";
 
 /**
  * The parts that decide whether a run can be found or shared.
@@ -112,7 +113,10 @@ test.describe("catalogue filter state", () => {
     // A hand-edited URL should not produce a page that looks like a catalogue
     // with nothing in it — that reads as "no runs recorded", which is a lie.
     await page.goto("/catalogue?filter=notarealfilter");
-    expect(await page.locator("ul li").count()).toBeGreaterThan(100);
+    // A full page of rows, and the counter reporting the whole catalogue
+    // behind them — not an empty list.
+    expect(await page.locator("ul li").count()).toBe(CATALOGUE_PAGE_SIZE);
+    await expect(page.getByText(/\d+ of \d+ recorded runs/)).toBeVisible();
     await expect(page.getByRole("button", { name: "Everything", exact: true }))
       .toHaveAttribute("aria-pressed", "true");
   });
@@ -133,7 +137,10 @@ test.describe("without JavaScript", () => {
     // readable and usable with scripting off — which is also what a crawler
     // and a text browser see.
     await page.goto("/catalogue");
-    expect(await page.locator("ul li").count()).toBeGreaterThan(100);
+    expect(await page.locator("ul li").count()).toBe(CATALOGUE_PAGE_SIZE);
+    // Paging is links, so it works here too.
+    await page.goto("/catalogue?page=2");
+    expect(await page.locator("ul li").count()).toBe(CATALOGUE_PAGE_SIZE);
 
     await page.goto("/catalogue?filter=honeypot");
     const rows = await page.locator("ul li").count();
@@ -147,5 +154,70 @@ test.describe("without JavaScript", () => {
     // page must still say so rather than render an empty shell.
     await page.goto(`/run?token=${BRB}`);
     await expect(page).toHaveTitle("Sidik — BRB: FAIL");
+  });
+});
+
+/**
+ * Paging exists to bound the response, not to tidy the layout.
+ *
+ * All 194 rows in one document came to 336KB, and a body that size is read
+ * slowly enough by a browser to back up the server's gzip stream — 40
+ * rate-limited readers produced 40 MaxListeners warnings, and under a full
+ * suite the server died outright. The same 40 readers against the paged
+ * catalogue produce none.
+ */
+test.describe("catalogue paging", () => {
+  test("bounds the first page and says what it is showing", async ({ page }) => {
+    await page.goto("/catalogue");
+    expect(await page.locator("ul li").count()).toBe(CATALOGUE_PAGE_SIZE);
+    await expect(page.getByText(/showing 1–50/)).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Catalogue pages" })).toBeVisible();
+  });
+
+  test("walks to the next page and back with plain links", async ({ page }) => {
+    await page.goto("/catalogue");
+    const first = await page.locator("ul li").first().textContent();
+
+    await page.getByRole("link", { name: /next/ }).click();
+    await expect(page).toHaveURL(/page=2/);
+    const second = await page.locator("ul li").first().textContent();
+    expect(second).not.toBe(first);
+
+    await page.getByRole("link", { name: /previous/ }).click();
+    await expect(page.locator("ul li").first()).toHaveText(first!);
+  });
+
+  test("keeps the filter while paging", async ({ page }) => {
+    // Failures first means page 2 of "anything failed" is still failures.
+    await page.goto("/catalogue?filter=failing");
+    const nav = page.getByRole("navigation", { name: "Catalogue pages" });
+    if (await nav.isVisible()) {
+      await page.getByRole("link", { name: /next/ }).click();
+      await expect(page).toHaveURL(/filter=failing/);
+      await expect(page).toHaveURL(/page=2/);
+    }
+    await expect(page.getByRole("button", { name: "Anything failed", exact: true }))
+      .toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("a page number past the end shows the last page, not an empty one", async ({ page }) => {
+    // A hand-typed number must not produce a catalogue that looks empty.
+    await page.goto("/catalogue?page=9999");
+    expect(await page.locator("ul li").count()).toBeGreaterThan(0);
+    await expect(page.getByRole("link", { name: /next/ })).toHaveCount(0);
+  });
+
+  test("a nonsense page number falls back to the first page", async ({ page }) => {
+    for (const bad of ["abc", "-4", "0", "1e9", "NaN"]) {
+      await page.goto(`/catalogue?page=${encodeURIComponent(bad)}`);
+      expect(await page.locator("ul li").count(), bad).toBeGreaterThan(0);
+    }
+  });
+
+  test("hides paging entirely when a filter fits on one page", async ({ page }) => {
+    await page.goto("/catalogue?filter=honeypot");
+    const rows = await page.locator("ul li").count();
+    expect(rows).toBeLessThan(CATALOGUE_PAGE_SIZE);
+    await expect(page.getByRole("navigation", { name: "Catalogue pages" })).toHaveCount(0);
   });
 });

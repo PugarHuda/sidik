@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  CATALOGUE_FILTERS, catalogueRows, catalogueSummary, filterRows,
-  isCatalogueFilter, type CatalogueRow,
+  CATALOGUE_FILTERS, CATALOGUE_PAGE_SIZE, catalogueRows, catalogueSummary,
+  filterRows, isCatalogueFilter, paginate, type CatalogueRow,
 } from "@sidik/shared";
 
 /**
@@ -132,5 +132,66 @@ describe("the real catalogue", () => {
     const honeypots = filterRows(rows, { filter: "honeypot", query: "" });
     expect(honeypots.length).toBeGreaterThan(0);
     expect(honeypots.length).toBeLessThan(rows.length);
+  });
+});
+
+describe("paginate", () => {
+  const many = (n: number) =>
+    Array.from({ length: n }, (_, i) => row({ address: `0x${i}` }));
+
+  it("bounds a page to the page size", () => {
+    const p = paginate(many(194), 1);
+    expect(p.rows).toHaveLength(CATALOGUE_PAGE_SIZE);
+    expect(p.total).toBe(194);
+    expect(p.pageCount).toBe(4);
+    expect([p.from, p.to]).toEqual([1, 50]);
+  });
+
+  it("reports the right window on a middle page", () => {
+    const p = paginate(many(194), 3);
+    expect([p.from, p.to]).toEqual([101, 150]);
+  });
+
+  it("gives the last page only what is left", () => {
+    const p = paginate(many(194), 4);
+    expect(p.rows).toHaveLength(44);
+    expect([p.from, p.to]).toEqual([151, 194]);
+  });
+
+  it("clamps past the end rather than returning an empty page", () => {
+    // A hand-typed ?page=9999 must not render a catalogue that looks empty.
+    const p = paginate(many(194), 9999);
+    expect(p.page).toBe(4);
+    expect(p.rows.length).toBeGreaterThan(0);
+  });
+
+  it("clamps nonsense to the first page", () => {
+    for (const bad of [0, -1, -9999, NaN, 0.5]) {
+      const p = paginate(many(60), bad);
+      expect(p.page, String(bad)).toBe(1);
+      expect(p.rows.length, String(bad)).toBeGreaterThan(0);
+    }
+  });
+
+  it("handles an empty list without dividing by zero", () => {
+    const p = paginate([], 1);
+    expect(p).toMatchObject({ rows: [], page: 1, pageCount: 1, total: 0, from: 0, to: 0 });
+  });
+
+  it("handles a list that fits exactly on one page", () => {
+    const p = paginate(many(CATALOGUE_PAGE_SIZE), 1);
+    expect(p.pageCount).toBe(1);
+    expect(p.to).toBe(CATALOGUE_PAGE_SIZE);
+  });
+
+  it("covers every row exactly once across all pages", () => {
+    // The property that matters: paging must not drop or duplicate evidence.
+    const rows = many(194);
+    const seen: string[] = [];
+    for (let n = 1; n <= paginate(rows, 1).pageCount; n++) {
+      seen.push(...paginate(rows, n).rows.map((r) => r.address));
+    }
+    expect(seen).toHaveLength(194);
+    expect(new Set(seen).size).toBe(194);
   });
 });

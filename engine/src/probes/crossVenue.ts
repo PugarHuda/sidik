@@ -3,7 +3,7 @@ import { base } from "viem/chains";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { listedTicker } from "@sidik/shared";
 import { buyBudget, buyExactEth } from "../dex.js";
-import { candleAt, midPrice } from "../bingx.js";
+import { candleAt, isTraded, midPrice } from "../bingx.js";
 
 // What a buy actually costs inside the pool, against what the same asset cost
 // on a venue that has never heard of that pool, at the same moment.
@@ -116,6 +116,18 @@ export const crossVenueProbe: Probe = {
     }
     if (!ethCandle) {
       return { ticker, unavailable: "No ETH price for that hour, so the pool price cannot be put in dollars" };
+    }
+    // A candle exists but nothing moved in it. The price is then the last
+    // print from some earlier hour, and calling it "what the wider market
+    // paid" would be describing a market that was not open for business.
+    if (!isTraded(tokenCandle)) {
+      return {
+        ticker,
+        unavailable: `BingX traded only ${usd(tokenCandle.quoteVolume)} of ${ticker} in that hour — too thin for its price to stand as a market comparison`,
+      };
+    }
+    if (!isTraded(ethCandle)) {
+      return { ticker, unavailable: "The ETH market was too thin in that hour to convert the pool price into dollars" };
     }
 
     const ethUsd = midPrice(ethCandle);

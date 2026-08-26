@@ -25,6 +25,7 @@ export default function CatalogueControls({
 }: {
   filter: CatalogueFilter;
   query: string;
+  /** Rows matching the current filter and query, across every page. */
   shown: number;
   total: number;
 }) {

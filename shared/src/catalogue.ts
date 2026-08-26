@@ -107,6 +107,60 @@ export function filterRows(
   });
 }
 
+/**
+ * Rows per page.
+ *
+ * Not a style choice — a response-size limit with a measurement behind it.
+ * Rendering all 194 rows produced a 336KB document, and a page that large is
+ * consumed slowly enough by a real browser to apply backpressure to the
+ * server's gzip stream. Each stalled write adds a `drain` listener, Node warns
+ * past ten, and under a browser suite hammering the page the server
+ * eventually died outright, taking every test after it with it.
+ *
+ * Measured on this build: 40 rate-limited readers of the full catalogue
+ * produced 40 of those warnings. The same 40 readers against the 21KB
+ * filtered view, and against the 11KB home page, produced none. Size is what
+ * matters, not whether the route is dynamic.
+ *
+ * Fifty rows keeps a page near the size that behaved, and it is the only
+ * answer that still holds when the catalogue is ten times larger.
+ */
+export const CATALOGUE_PAGE_SIZE = 50;
+
+export interface CataloguePage {
+  rows: CatalogueRow[];
+  /** 1-based, already clamped into range. */
+  page: number;
+  pageCount: number;
+  total: number;
+  /** 1-based inclusive positions of the first and last row shown. */
+  from: number;
+  to: number;
+}
+
+/**
+ * One page of an already-filtered list.
+ *
+ * An out-of-range page clamps rather than rendering empty: a hand-typed
+ * `?page=999` should show the last page, not a blank catalogue that reads as
+ * "nothing was recorded".
+ */
+export function paginate(rows: CatalogueRow[], requested: number): CataloguePage {
+  const total = rows.length;
+  const pageCount = Math.max(1, Math.ceil(total / CATALOGUE_PAGE_SIZE));
+  const page = Math.min(Math.max(1, Math.floor(requested) || 1), pageCount);
+  const start = (page - 1) * CATALOGUE_PAGE_SIZE;
+  const slice = rows.slice(start, start + CATALOGUE_PAGE_SIZE);
+  return {
+    rows: slice,
+    page,
+    pageCount,
+    total,
+    from: total === 0 ? 0 : start + 1,
+    to: start + slice.length,
+  };
+}
+
 export function catalogueSummary(rows: CatalogueRow[]) {
   const count = (id: string) =>
     rows.filter((r) => r.probes.some((p) => p.id === id && p.status === "FAIL")).length;

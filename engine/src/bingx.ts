@@ -22,7 +22,31 @@ export interface Candle {
   closeTimeMs: number;
   open: number;
   close: number;
+  /** Base-asset units traded in the hour. */
+  volume: number;
+  /** Value traded in the hour, in the quote asset (USDT). */
+  quoteVolume: number;
 }
+
+/**
+ * Below this, an hour's price is not a market price.
+ *
+ * The candle endpoint returns volume alongside the prices, and this code read
+ * only open and close — so a completely still hour was quoted with exactly
+ * the confidence of a busy one.
+ *
+ * Measured in the hour containing block 50,200,000 (unix 1787189347, the
+ * timestamp the probe actually reads off the fork): USDC traded $2,843,558,
+ * ETH $7,501,536, AERO $12,318, BRETT $1,763, TOSHI $1,576 — and VIRTUAL
+ * traded nothing at all. Zero. Its candle carries the previous hour's closing
+ * print, and on that basis the probe had returned PASS: "the pool prices it
+ * like the wider market."
+ *
+ * A thousand dollars sits inside the wide gap between VIRTUAL and TOSHI
+ * rather than at a round number picked for its own sake. Below it the probe
+ * says it could not price the token, which is what actually happened.
+ */
+export const MIN_QUOTE_VOLUME_USD = 1_000;
 
 /**
  * The candle whose window contains `atUnixSeconds`, or undefined if the pair
@@ -52,13 +76,23 @@ export async function candleAt(symbol: string, atUnixSeconds: number): Promise<C
   for (const row of rows) {
     // [openTime, open, high, low, close, volume, closeTime, quoteVolume]
     const r = row as [number, number, number, number, number, number, number, number];
-    if (!Array.isArray(r) || r.length < 7) continue;
+    if (!Array.isArray(r) || r.length < 8) continue;
     const openTimeMs = Number(r[0]);
     const closeTimeMs = Number(r[6]);
     if (ms < openTimeMs || ms > closeTimeMs) continue;
-    return { openTimeMs, closeTimeMs, open: Number(r[1]), close: Number(r[4]) };
+    return {
+      openTimeMs, closeTimeMs,
+      open: Number(r[1]), close: Number(r[4]),
+      volume: Number(r[5]) || 0,
+      quoteVolume: Number(r[7]) || 0,
+    };
   }
   return undefined;
+}
+
+/** Whether the hour carried enough trade for its price to mean anything. */
+export function isTraded(c: Candle): boolean {
+  return c.quoteVolume >= MIN_QUOTE_VOLUME_USD;
 }
 
 /** Mid of the candle that was open at that moment. */
