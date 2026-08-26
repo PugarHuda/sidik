@@ -27,7 +27,7 @@ describe("interpretCrossVenue", () => {
     const v = interpretCrossVenue(
       { ticker: "DEGEN", unavailable: "DEGEN was not trading on BingX during that hour" }, ctx);
     expect(v.status).toBe("NA");
-    expect(v.rows[0].proven).toMatch(/not trading/i);
+    expect(v.rows[0]?.proven).toMatch(/not trading/i);
     expect(v.numbers.onchainPrice).toBeUndefined();
   });
 

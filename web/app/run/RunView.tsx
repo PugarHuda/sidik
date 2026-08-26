@@ -195,7 +195,8 @@ export default function RunView({ token }: { token: string }) {
 
   const findLast = <T extends RunEvent["type"]>(t: T): Ev<T> | undefined => {
     for (let i = events.length - 1; i >= 0; i--) {
-      if (events[i].type === t) return events[i] as Ev<T>;
+      const e = events[i];
+      if (e?.type === t) return e as Ev<T>;
     }
     return undefined;
   };
@@ -238,7 +239,18 @@ export default function RunView({ token }: { token: string }) {
           {isRunning && <span className="h-2 w-2 rounded-full bg-accent animate-recording" />}
           live trace
         </div>
-        <div className="flex max-h-64 flex-col gap-1 overflow-y-auto">
+        {/* Focusable on purpose. At desktop width the trace fits and this is
+            an ordinary block; at phone width it overflows and becomes a
+            scroll region, which a keyboard or switch user then cannot reach
+            or scroll at all. axe caught it only on the mobile viewports —
+            desktop-only testing would never have shown it. The group role and
+            label give it a name once it takes focus. */}
+        <div
+          tabIndex={0}
+          role="group"
+          aria-label="Live trace log"
+          className="flex max-h-64 flex-col gap-1 overflow-y-auto rounded outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        >
           {traceEvents.length === 0 && <div className="text-fg-dim">connecting…</div>}
           {traceEvents.map((e, i) => (
             <div

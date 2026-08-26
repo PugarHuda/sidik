@@ -1,10 +1,11 @@
+import { ANVIL_ACCOUNT_0 } from "../src/base.js";
 import { describe, it, expect } from "vitest";
 import { withFork } from "../src/fork.js";
 import { prescan } from "../src/prescan.js";
 import { honeypotProbe } from "../src/probes/honeypot.js";
 import { hiddenFeeProbe } from "../src/probes/hiddenFee.js";
 import { lpRugProbe } from "../src/probes/lpRug.js";
-import { BASE_FORK_BLOCK } from "../src/examples.js";
+import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
 import type { Hex, ProbeCtx } from "@sidik/shared";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
@@ -14,7 +15,7 @@ const RUN = !!process.env.BASE_ARCHIVE_RPC;
 // multiplies it. A tight budget here fails on contention, not on code.
 const TIMEOUT_MS = 300_000;
 // anvil dev account #0 — the only kind of sender fork.send() can have anvil sign for.
-const TEST_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" as Hex;
+const TEST_WALLET = ANVIL_ACCOUNT_0;
 
 // BRETT holds ~300 WETH on Uniswap V3 and under 0.2 on V2. Probing V2 reported
 // it as having no liquidity to test, which is the wrong answer about a token

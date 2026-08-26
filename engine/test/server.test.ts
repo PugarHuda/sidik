@@ -22,6 +22,16 @@ describe("server", () => {
     // that is refusing every caller because it is saturated.
     expect(body.maxConcurrentRuns).toBeGreaterThan(0);
     expect(body.runsInFlight).toBe(0);
+    // Which block its answers describe, and how many it can already serve
+    // without touching the network — both needed to tell a working engine
+    // from one that started but has nothing behind it.
+    expect(body.forkBlock).toMatch(/^\d+$/);
+    expect(body.cache.seeded).toBeGreaterThan(0);
+    expect(typeof body.uptimeSeconds).toBe("number");
+    // Presence only. The archive URL carries an API key and must never be
+    // echoed by an endpoint anyone can call.
+    expect(["configured", "missing"]).toContain(body.archiveRpc);
+    expect(JSON.stringify(body)).not.toMatch(/https?:\/\//);
   });
 
   // Accepting unbounded runs means every one of them gets rate-limited forks,

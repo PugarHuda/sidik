@@ -4,11 +4,24 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
+    // strict alone leaves arr[i] typed as T even when i is out of range, which
+    // is how three real ones got here: lpRug read amounts[1] from a router
+    // answer that need not have a second element, and two more indexed a
+    // split() result. Each was inside a try/catch, so the TypeError surfaced
+    // as a silent "0" — a wrong number rather than a visible failure.
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "outDir": "dist"
   },
-  "include": ["src"]
+  // Tests were outside this until now, so the only thing that ever checked
+  // them was vitest actually running them — a test that failed to compile
+  // looked like a test that failed.
+  "include": ["src", "test", "scripts"]
 }

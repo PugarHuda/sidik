@@ -19,16 +19,32 @@ export default defineConfig({
   // events so the trace reads as a sequence rather than appearing at once.
   timeout: 60_000,
   expect: { timeout: 15_000 },
+  // Parallel across files, and deliberately not via `retries`. On one worker a
+  // single browser process served all 253 tests in sequence, and Firefox's
+  // software compositor died partway through — "RenderCompositorSWGL failed
+  // mapping default framebuffer" — taking three unrelated tests with it. The
+  // whole firefox project passes 51/51 when run on its own, so the failure was
+  // the harness exhausting itself, not the pages. Spreading the run over
+  // several workers keeps any one browser process short-lived. Retries stay at
+  // zero: a flake that gets retried away is a flake nobody reads.
   fullyParallel: false,
+  workers: 2,
   retries: 0,
   reporter: [["list"]],
   use: {
     baseURL: externalTarget ?? "http://127.0.0.1:3210",
     trace: "retain-on-failure",
   },
+  // Both browsers here used to be Chromium — "desktop" and "Pixel 7" share an
+  // engine, so the suite had never once run the streaming reader, the SSE
+  // parser or the CSS on Gecko or WebKit. Those are exactly the layers where
+  // engines differ.
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
+    { name: "mobile-safari", use: { ...devices["iPhone 14"] } },
   ],
   webServer: externalTarget
     ? undefined

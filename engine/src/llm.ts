@@ -5,7 +5,7 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 // changes.
 const BASE_URL = process.env.VENICE_BASE_URL ?? "https://api.venice.ai/api/v1";
 
-export const MODEL = process.env.SIDIK_MODEL ?? "claude-sonnet-5";
+const MODEL = process.env.SIDIK_MODEL ?? "claude-sonnet-5";
 
 // ponytail: one provider instance for the whole engine. Both callers wrap
 // their request in a try/catch and fall back to deterministic behaviour, so
@@ -25,3 +25,17 @@ export const llm = venice(MODEL);
 export const VENICE_OPTIONS = {
   venice: { venice_parameters: { include_venice_system_prompt: false } },
 } as const;
+
+/**
+ * How long either LLM call may take before the run gives up on it.
+ *
+ * Both callers already degrade to deterministic behaviour when the gateway
+ * errors — but "errors" was doing work it could not do. Node's fetch has no
+ * default timeout, so a gateway that accepts the request and then goes quiet
+ * never rejects, and neither try/catch ever fires. The planner would sit
+ * there before a single probe had run.
+ *
+ * One signal covers every retry the SDK makes rather than each attempt, so
+ * this is the whole budget, not a per-attempt one.
+ */
+export const LLM_TIMEOUT_MS = 30_000;

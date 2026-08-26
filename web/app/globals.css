@@ -7,14 +7,22 @@
   --card: #1b1f26;
   --border: #2a2f38;
   --fg: #e7eaee;
-  --fg-dim: #8b94a3;
+  /* Was #8b94a3, which measured 4.27:1 against the card — under AA's 4.5:1.
+     This is the colour most of the running commentary is set in. */
+  --fg-dim: #9aa3b2;
 
-  /* brand accent — indigo "scan" blue, distinct from all three verdict colors */
-  --accent: #6c8cff;
+  /* brand accent — indigo "scan" blue, distinct from all three verdict colors.
+     Was #6c8cff at 4.31:1, also under AA. */
+  --accent: #8aa4ff;
 
-  /* verdict semantics: red = FAIL, green = PASS, amber = NA */
+  /* Verdict semantics: red = FAIL, green = PASS, amber = NA.
+     Measured against the composited badge backgrounds these actually render
+     on (bg-fail/10 and /15 over --card), not against --ink. FAIL was #fb4141,
+     which came out at 4.00:1 — the single most important word this product
+     says was the hardest one to read, and axe flagged it on both the run page
+     and the catalogue. Green and amber already passed at 6.36 and 6.12. */
   --pass: #34d399;
-  --fail: #fb4141;
+  --fail: #ff6b6b;
   --na: #f5a623;
 }
 

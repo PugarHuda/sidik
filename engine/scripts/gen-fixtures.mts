@@ -21,7 +21,7 @@ import { base } from "viem/chains";
 import { EXAMPLES } from "@sidik/shared";
 import type { Hex, PreScan, Verdict } from "@sidik/shared";
 import { isProbeFailure, runSidik } from "../src/orchestrator.js";
-import { BASE_FORK_BLOCK } from "../src/examples.js";
+import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
 
 const CATALOG_SIZE = Number(process.env.SIDIK_CATALOG ?? "0");
 // ~70 days of Base blocks. The factory holds over 3M pairs, so enumerating it
@@ -235,18 +235,19 @@ async function discover(limit: number): Promise<{ address: Hex; label: string }[
     const keep: typeof batch = [];
     const weths: bigint[] = [];
     reserves.forEach((r, j) => {
-      if (r.status !== "success") return;
+      const pair = batch[j];
+      if (r.status !== "success" || !pair) return;
       // A V2 pair reports reserves; a V3 pool simply holds the WETH, so its
       // balance is the same measurement reached a different way.
       let weth: bigint;
-      if (batch[j].v3) {
+      if (pair.v3) {
         weth = r.result as unknown as bigint;
       } else {
         const [r0, r1] = r.result as unknown as [bigint, bigint, number];
-        weth = batch[j].wethIsToken0 ? r0 : r1;
+        weth = pair.wethIsToken0 ? r0 : r1;
       }
       if (weth < MIN_WETH_RESERVE) return;
-      keep.push(batch[j]);
+      keep.push(pair);
       weths.push(weth);
     });
     if (keep.length) {
@@ -255,11 +256,14 @@ async function discover(limit: number): Promise<{ address: Hex; label: string }[
         blockNumber: BASE_FORK_BLOCK,
         allowFailure: true,
       });
-      keep.forEach((p, j) => liquid.push({
-        address: p.token,
-        label: symbols[j].status === "success" ? String(symbols[j].result) : "?",
-        weth: weths[j],
-      }));
+      keep.forEach((p, j) => {
+        const sym = symbols[j];
+        liquid.push({
+          address: p.token,
+          label: sym?.status === "success" ? String(sym.result) : "?",
+          weth: weths[j] ?? 0n,
+        });
+      });
     }
     process.stderr.write(`  reserves ${Math.min(i + BATCH, pairs.length)}/${pairs.length} -> ${liquid.length} liquid\r`);
   }

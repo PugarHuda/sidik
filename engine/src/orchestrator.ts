@@ -1,20 +1,19 @@
-import type { Hex, PreScan, Verdict, Probe, ForkClient, ProbeCtx } from "@sidik/shared";
+import type { Hex, PreScan, Verdict, Probe, ForkClient, ProbeCtx, EngineEvent } from "@sidik/shared";
+import { headlineOf } from "@sidik/shared";
 import { withFork } from "./fork.js";
 import { prescan as realPrescan } from "./prescan.js";
 import { planProbes as realPlanProbes } from "./planner.js";
 import { narrate as realNarrate } from "./narrator.js";
 import { PROBES } from "./probes/registry.js";
-import { BASE_FORK_BLOCK } from "./examples.js";
+import { BASE_FORK_BLOCK } from "./forkBlock.js";
+import { ANVIL_ACCOUNT_0 } from "./base.js";
 import { getCached, setCached } from "./cache.js";
+import { log, since } from "./log.js";
 
-export type RunEvent =
-  | { type: "prescan"; scan: PreScan }
-  | { type: "plan"; ids: string[] }
-  | { type: "probe:start"; id: string }
-  | { type: "verdict"; verdict: Verdict }
-  | { type: "narration"; text: string }
-  | { type: "done" }
-  | { type: "error"; message: string };
+// Defined in @sidik/shared so the page that renders these frames and the
+// engine that emits them cannot drift apart. Re-exported under the name the
+// engine has always used it by.
+export type RunEvent = EngineEvent;
 
 interface CachedRun {
   scan: PreScan;
@@ -23,10 +22,10 @@ interface CachedRun {
   narration: string;
 }
 
-// ponytail: fixed demo EOA (anvil/hardhat's default account #0, pre-funded
-// on every fork) rather than a wallet-derivation service — each probe still
-// tops it up via fork.setBalanceEth in its own setup().
-const TEST_WALLET: Hex = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+// ponytail: fixed demo EOA (anvil's default account #0, pre-funded on every
+// fork) rather than a wallet-derivation service — each probe still tops it up
+// via fork.setBalanceEth in its own setup().
+const TEST_WALLET: Hex = ANVIL_ACCOUNT_0;
 
 export interface Deps {
   withFork: typeof withFork;
@@ -52,9 +51,11 @@ const defaultDeps: Deps = {
 
 export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGenerator<RunEvent> {
   const d: Deps = { ...defaultDeps, ...deps };
+  const started = performance.now();
   try {
     const cached = d.getCached<CachedRun>(token, d.block);
     if (cached) {
+      log.info({ event: "run.cached", token, count: cached.verdicts.length, ms: since(started) });
       yield { type: "prescan", scan: cached.scan };
       yield { type: "plan", ids: cached.ids };
       for (const verdict of cached.verdicts) yield { type: "verdict", verdict };
@@ -85,9 +86,15 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
     yield { type: "narration", text };
 
     d.setCached(token, d.block, { scan, ids, verdicts, narration: text } satisfies CachedRun);
+    log.info({
+      event: "run.done", token, count: verdicts.length, ms: since(started),
+      status: headlineOf(verdicts),
+    });
     yield { type: "done" };
   } catch (e) {
-    yield { type: "error", message: e instanceof Error ? e.message : String(e) };
+    const message = e instanceof Error ? e.message : String(e);
+    log.error({ event: "run.failed", token, ms: since(started), reason: message });
+    yield { type: "error", message };
   }
 }
 
@@ -96,15 +103,22 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
 async function runProbe(d: Deps, token: Hex, scan: PreScan, id: string): Promise<Verdict> {
   const probe = PROBES.find((p) => p.id === id) as Probe | undefined;
   if (!probe) return naVerdict(id, `probe ${id} could not run — unknown probe id`);
+  const started = performance.now();
   try {
-    return await d.withFork(d.block, async (fork) => {
+    const verdict = await d.withFork(d.block, async (fork) => {
       const ctx: ProbeCtx = { token, scan, testWallet: d.testWallet, block: d.block };
       await probe.setup(fork, ctx);
       const raw = await probe.execute(fork, ctx);
       return probe.interpret(raw, ctx);
     });
+    log.info({ event: "probe.done", token, probe: id, status: verdict.status, ms: since(started) });
+    return verdict;
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
+    // Logged at error level, deliberately. This NA is the run breaking, not a
+    // finding about the token, and from the outside the two look identical on
+    // the page. Without this line there was no way to tell them apart at all.
+    log.error({ event: "probe.failed", token, probe: id, ms: since(started), reason: msg });
     return naVerdict(id, `probe ${id} could not run — ${msg}`);
   }
 }

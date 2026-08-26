@@ -16,7 +16,7 @@ export function amount(raw: string | bigint, decimals: number, symbol?: string):
     return String(raw); // not a number we can format — pass it through untouched
   }
 
-  const [whole, frac = ""] = formatUnits(value, decimals).split(".");
+  const [whole = "0", frac = ""] = formatUnits(value, decimals).split(".");
   const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   // Two decimals once the whole part carries the meaning; for sub-1 amounts

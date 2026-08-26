@@ -79,8 +79,23 @@ pnpm dev:engine
 # example runs instead of reaching an engine (see Deployment).
 pnpm dev:web
 
-# engine test suite (vitest)
+# engine test suite (vitest) — 96 tests
 pnpm test
+
+# browser suite (Playwright) — 253 tests across chromium, firefox, webkit,
+# and both mobile viewports, run against a production build. Includes an
+# axe-core accessibility audit of every page.
+pnpm e2e
+
+# everything CI would run, in order: types, lint, dead code, dependency
+# audit, unit tests, production build, browser suite.
+pnpm check
+
+# individually
+pnpm typecheck   # both packages, strict + noUncheckedIndexedAccess
+pnpm lint        # eslint (web)
+pnpm deadcode    # knip — unused files, exports and dependencies
+pnpm audit       # dependency advisories
 
 # re-record the example runs against a real fork (needs BASE_ARCHIVE_RPC).
 # Run this after changing EXAMPLES or BASE_FORK_BLOCK.
@@ -89,7 +104,7 @@ pnpm --filter @sidik/engine fixtures
 
 ### Reproducibility: the pinned fork block
 
-`BASE_FORK_BLOCK` (see `engine/src/examples.ts`) pins every fork to a fixed,
+`BASE_FORK_BLOCK` (see `engine/src/forkBlock.ts`) pins every fork to a fixed,
 known-good Base block instead of "latest". Without a pin, a demo run against
 a live chain tip is not reproducible — token balances, pool liquidity, and
 even contract behavior can shift between runs. Pinning means the same token
@@ -199,10 +214,13 @@ returns `{"ok":true}` — that's the URL you'll use as `ENGINE_URL`.
 | `BASE_ARCHIVE_RPC` | yes | Base archive-node RPC URL (e.g. Alchemy free tier) — `anvil --fork-url` forks from this |
 | `VENICE_API_KEY` | no | Venice AI key — the planner and narrator calls run through it (`claude-sonnet-5`, OpenAI-compatible endpoint) |
 | `SIDIK_MODEL` | no | Overrides the model id, default `claude-sonnet-5` |
-| `BASE_FORK_BLOCK` | no | Pins the fork to a specific block for reproducible demo runs; defaults to a hardcoded recent block (see `engine/src/examples.ts`) |
+| `BASE_FORK_BLOCK` | no | Pins the fork to a specific block for reproducible demo runs; defaults to a hardcoded recent block (see `engine/src/forkBlock.ts`) |
 | `WEB_ORIGIN` | no | Restricts CORS to one origin, e.g. `https://sidik-eight.vercel.app`. Defaults to `*`, which lets any site spend your RPC quota |
 | `SIDIK_MAX_CONCURRENT_RUNS` | no | Runs allowed in flight at once, default `2`. Beyond it `/run` returns 503 rather than handing everyone rate-limited forks |
 | `PORT` | no | Defaults to `8787` |
+| `BASE_LOGS_RPC` | no | Endpoint for historical `eth_getLogs`, default `https://mainnet.base.org`. Alchemy's free tier caps a single range at 10 blocks, which makes the approval and holder scans useless |
+| `BINGX_BASE_URL` | no | Overrides the BingX public market-data host used by the cross-venue probe |
+| `VENICE_BASE_URL` | no | Overrides the Venice API base URL |
 
 `BASE_ARCHIVE_RPC` is the only hard requirement: without it there is no fork
 and nothing can be proven. `VENICE_API_KEY` is not. Every verdict is
@@ -221,7 +239,8 @@ the workspace and an upload scoped to `web/` cannot resolve it. No
 
 | Var | Required | Purpose |
 |---|---|---|
-| `ENGINE_URL` | yes (for real runs) | Public URL of the deployed engine, e.g. `https://sidik-engine.up.railway.app` (no trailing slash) |
+| `ENGINE_URL` | yes (for real runs) | Public URL of the deployed engine, e.g. `https://sidik-engine.up.railway.app` (no trailing slash). Requests to it time out after 180s and surface as an SSE `error` frame, never as a hung page |
+| `NEXT_PUBLIC_SITE_URL` | no | Absolute origin used in `sitemap.xml` and `robots.txt`, default `https://sidik-eight.vercel.app` |
 
 **Without `ENGINE_URL` set, `/api/run` replays the recorded example runs**
 in `shared/src/fixtures.ts` — **including in production.** Those are the real

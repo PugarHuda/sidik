@@ -1,18 +1,19 @@
-import { createPublicClient, http, parseAbi, parseAbiItem } from "viem";
+import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
 import { logsClient } from "./rpc.js";
 import { findV3Pool } from "./dexV3.js";
-import { UNISWAP_V2, WETH, ZERO_ADDRESS } from "./base.js";
+import { ANVIL_ACCOUNT_0, UNISWAP_V2, WETH, ZERO_ADDRESS } from "./base.js";
 import { ERC20_ABI, OWNER_ABI, TRANSFER_EVENT, V2_FACTORY_ABI } from "./abi.js";
 import { SYMBOL_MAX, untrustedText } from "./untrusted.js";
+import { mapLimit } from "./pool.js";
 
 // balanceOf is probed with the wallet the probes will actually trade from,
 // NOT the zero address. Plenty of real tokens revert on the zero address —
 // PEPETO and LAYOOO both do — and probing there declared them "not an ERC-20"
 // on the strength of a deliberate guard rather than anything about the token.
 // Asking about the address that matters also makes a failure here meaningful.
-const BALANCE_PROBE: Hex = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+const BALANCE_PROBE: Hex = ANVIL_ACCOUNT_0;
 
 // ponytail: same window as approvalDrain's APPROVAL_LOOKBACK_BLOCKS. ~1.7h of
 // Base blocks — a recent-activity sample, not a true top-holders index. Served
@@ -23,6 +24,14 @@ const BALANCE_PROBE: Hex = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 // candidate search and left it saying NA more often than not.
 const TOP_HOLDERS_LOOKBACK_BLOCKS = 9_000n;
 const TOP_HOLDERS_SAMPLE_N = 10;
+
+// Every candidate costs one balanceOf, and the window names far more of them
+// than the ten that survive: BRETT alone yields 388 unique addresses over
+// 9,000 blocks. Reading those in one tick is a 388-deep burst against a
+// single anvil, and the same burst upstream is what starts the 429s that get
+// reported as findings about the token. Eight at a time keeps the sample
+// intact and the fork responsive.
+const HOLDER_READ_CONCURRENCY = 8;
 
 export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
   // ponytail: `any` here, not the full viem PublicClient<Base> generic — see
@@ -99,12 +108,17 @@ async function sampleTopHolders(fork: ForkClient, pub: any, token: Hex): Promise
     }
     candidates.delete(ZERO_ADDRESS);
 
-    const balances = await Promise.all(
-      [...candidates].map(async (address) => ({
-        address,
-        balance: await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [address] }),
-      })),
-    );
+    const addresses = [...candidates];
+    const settled = await mapLimit(addresses, HOLDER_READ_CONCURRENCY, (address) =>
+      fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [address] }));
+
+    // Settled, not all-or-nothing: a token that reverts balanceOf for one
+    // address used to cost the entire sample, which then starved lpRug's
+    // candidate search and made it answer NA about a pool it could have tested.
+    const balances = settled.flatMap((r, i) => {
+      const address = addresses[i];
+      return r.status === "fulfilled" && address ? [{ address, balance: r.value }] : [];
+    });
 
     return balances
       .filter((b) => b.balance > 0n)

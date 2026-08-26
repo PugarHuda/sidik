@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { createPublicClient, http, parseEther } from "viem";
 import { base } from "viem/chains";
 import { withFork } from "../src/fork.js";
-import { BASE_FORK_BLOCK } from "../src/examples.js";
+import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
 const BLOCK = BASE_FORK_BLOCK;

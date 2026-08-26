@@ -1,9 +1,10 @@
+import { ANVIL_ACCOUNT_0 } from "../src/base.js";
 import { describe, it, expect } from "vitest";
 import { runSidik, type RunEvent } from "../src/orchestrator.js";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
 
 const TOKEN = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Hex; // checksum-valid (USDC on Base)
-const TEST_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" as Hex;
+const TEST_WALLET = ANVIL_ACCOUNT_0;
 
 const scan: PreScan = {
   token: TOKEN,
@@ -32,7 +33,6 @@ function makeStubFork(): ForkClient {
       return balances[Math.min(i++, balances.length - 1)] as unknown as any;
     },
     send: async () => ({ hash: "0xhash" as Hex, reverted: false }),
-    callTrace: async () => ({}),
   };
 }
 
@@ -65,11 +65,11 @@ describe("runSidik", () => {
 
     const verdicts = events.filter((e): e is RunEvent & { type: "verdict" } => e.type === "verdict")
       .map((e) => e.verdict);
-    expect(verdicts[0].probe).toBe("honeypot");
-    expect(verdicts[0].status).toBe("PASS");
-    expect(verdicts[1].probe).toBe("hiddenFee");
-    expect(verdicts[1].status).toBe("NA"); // fork threw -> NA, run continued
-    expect(verdicts[1].title).toMatch(/hiddenFee/);
+    expect(verdicts[0]?.probe).toBe("honeypot");
+    expect(verdicts[0]?.status).toBe("PASS");
+    expect(verdicts[1]?.probe).toBe("hiddenFee");
+    expect(verdicts[1]?.status).toBe("NA"); // fork threw -> NA, run continued
+    expect(verdicts[1]?.title).toMatch(/hiddenFee/);
 
     const narration = events.find((e) => e.type === "narration");
     expect(narration && (narration as any).text).toBe("summary text");

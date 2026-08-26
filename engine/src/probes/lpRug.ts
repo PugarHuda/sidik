@@ -1,4 +1,4 @@
-import { encodeFunctionData, parseAbi, parseAbiItem, formatEther } from "viem";
+import { encodeFunctionData, formatEther } from "viem";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe, ForkClient } from "@sidik/shared";
 import { logsClient } from "../rpc.js";
 import { amount } from "../format.js";
@@ -47,7 +47,7 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   // priceHolder returns whole ether as a decimal string, so re-express it in
   // wei before formatting; an 18-place tail on screen reads as noise.
   const toWei = (v: unknown): bigint => {
-    const [w, f = ""] = String(v ?? "0").split(".");
+    const [w = "0", f = ""] = String(v ?? "0").split(".");
     try { return BigInt(w) * 10n ** 18n + BigInt((f + "0".repeat(18)).slice(0, 18)); } catch { return 0n; }
   };
   const beforeWei = toWei(raw.holderValueBefore);
@@ -182,7 +182,10 @@ export const lpRugProbe: Probe = {
         const amounts = await fork.read<bigint[]>({
           address: UNISWAP_V2.router, abi: V2_ROUTER_ABI, functionName: "getAmountsOut", args: [bal, [ctx.token, WETH]],
         });
-        return formatEther(amounts[1]);
+        // Last hop, defaulted — same access dex.ts and approvalDrain.ts use.
+        // Indexing [1] blindly threw a TypeError on any router answer shorter
+        // than the path, and the catch below turned that into a silent "0".
+        return formatEther(amounts[amounts.length - 1] ?? 0n);
       } catch {
         return "0"; // ponytail: no route left (e.g. pool already drained) — value is 0
       }

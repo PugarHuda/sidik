@@ -1,4 +1,4 @@
-import { createPublicClient, http, encodeFunctionData, formatEther, parseAbi, parseAbiItem } from "viem";
+import { createPublicClient, http, encodeFunctionData } from "viem";
 import { base } from "viem/chains";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { logsClient } from "../rpc.js";

@@ -1,14 +1,15 @@
+import { ANVIL_ACCOUNT_0 } from "../src/base.js";
 import { describe, it, expect } from "vitest";
 import { withFork } from "../src/fork.js";
 import { honeypotProbe } from "../src/probes/honeypot.js";
 import type { PreScan, ProbeCtx, Hex } from "@sidik/shared";
-import { BASE_FORK_BLOCK } from "../src/examples.js";
+import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
 const BLOCK = BASE_FORK_BLOCK;
 // anvil dev account #0 — fork.send() has anvil sign for the sender, which it
 // only does for its own funded accounts (same wallet the orchestrator uses).
-const TEST_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" as const;
+const TEST_WALLET = ANVIL_ACCOUNT_0;
 
 // Both confirmed against a real fork at BASE_FORK_BLOCK on 2026-08-20 (see
 // examples.ts for how the honeypot was found and what it does).

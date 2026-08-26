@@ -35,11 +35,6 @@ export const V2_FACTORY_ABI = parseAbi([
   "function allPairsLength() view returns (uint256)",
 ]);
 
-export const V2_PAIR_ABI = parseAbi([
-  "function getReserves() view returns (uint112,uint112,uint32)",
-  "function token0() view returns (address)",
-]);
-
 export const V3_FACTORY_ABI = parseAbi([
   "function getPool(address,address,uint24) view returns (address)",
 ]);
@@ -62,10 +57,4 @@ export const TRANSFER_EVENT = parseAbiItem(
 );
 export const APPROVAL_EVENT = parseAbiItem(
   "event Approval(address indexed owner, address indexed spender, uint256 value)",
-);
-export const PAIR_CREATED_EVENT = parseAbiItem(
-  "event PairCreated(address indexed token0, address indexed token1, address pair, uint256 allPairs)",
-);
-export const POOL_CREATED_EVENT = parseAbiItem(
-  "event PoolCreated(address indexed token0, address indexed token1, uint24 indexed fee, int24 tickSpacing, address pool)",
 );

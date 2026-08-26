@@ -36,11 +36,55 @@ export async function GET(req: NextRequest) {
     return new Response(replayStream(token as Hex), { headers: sseHeaders });
   }
 
+  return proxyToEngine(engineUrl, token, req.signal);
+}
+
+// A live run spawns one anvil per probe, so it is slow by nature — but not
+// unbounded. Node's fetch has no default timeout at all: an engine that
+// accepts the connection and then stops talking would hold this route open
+// until the platform kills it, and the page would sit on a spinner the whole
+// time with nothing to show.
+const ENGINE_TIMEOUT_MS = 180_000;
+
+async function proxyToEngine(engineUrl: string, token: string, clientSignal: AbortSignal): Promise<Response> {
+  // Either the reader going away or the engine going quiet ends this.
+  const signal = AbortSignal.any([clientSignal, AbortSignal.timeout(ENGINE_TIMEOUT_MS)]);
+
+  let upstream: Response;
+  try {
+    upstream = await fetch(`${engineUrl}/run?token=${encodeURIComponent(token)}`, { signal });
+  } catch (e) {
+    // The client is reading an event stream. Throwing here hands it a 500 HTML
+    // error page under a text/event-stream content type, which the parser
+    // cannot read — the page would wait forever instead of showing the fault.
+    if (clientSignal.aborted) return new Response(null, { status: 499 });
+    const why = e instanceof Error && e.name === "TimeoutError"
+      ? `The engine did not respond within ${ENGINE_TIMEOUT_MS / 1000}s.`
+      : "The engine could not be reached.";
+    return new Response(sseFrame({ type: "error", message: `${why} No verdict was produced, so nothing here is a finding about this token.` }), { headers: sseHeaders });
+  }
+
+  // A non-200 engine response is JSON, not SSE — the engine answers 503 with a
+  // JSON body when it is already running its maximum number of forks. Piping
+  // that through under an event-stream content type yields a stream the parser
+  // reads as zero events, so the page hangs on a busy engine rather than
+  // saying it is busy.
+  if (!upstream.ok || !upstream.body) {
+    const detail = await upstream.text().catch(() => "");
+    let message = `The engine refused the run (HTTP ${upstream.status}).`;
+    try {
+      const parsed = JSON.parse(detail) as { error?: unknown; retryable?: unknown };
+      if (typeof parsed.error === "string") {
+        message = parsed.retryable === true
+          ? `${parsed.error}. This is temporary — try again in a moment.`
+          : parsed.error;
+      }
+    } catch { /* not JSON — the status line above is what we can honestly say */ }
+    return new Response(sseFrame({ type: "error", message }), { headers: sseHeaders });
+  }
+
   // Thin passthrough — no rewriting, just pipe the engine's SSE bytes straight through.
-  const upstream = await fetch(`${engineUrl}/run?token=${encodeURIComponent(token)}`, {
-    signal: req.signal,
-  });
-  return new Response(upstream.body, { status: upstream.status, headers: sseHeaders });
+  return new Response(upstream.body, { status: 200, headers: sseHeaders });
 }
 
 const sseHeaders = {
@@ -100,11 +144,12 @@ function replayStream(token: Hex): ReadableStream<Uint8Array> {
   let i = 0;
   return new ReadableStream({
     async pull(controller) {
-      if (i >= script.length) {
+      const step = script[i++];
+      if (!step) {
         controller.close();
         return;
       }
-      const [delayMs, event] = script[i++];
+      const [delayMs, event] = step;
       await new Promise((r) => setTimeout(r, delayMs));
       controller.enqueue(sseFrame(event));
     },

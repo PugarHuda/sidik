@@ -16,7 +16,17 @@ const KIND_DOT: Record<string, string> = {
 export default function Home() {
   const router = useRouter();
   const [address, setAddress] = useState("");
-  const valid = ADDRESS_RE.test(address.trim());
+  const trimmed = address.trim();
+  const valid = ADDRESS_RE.test(trimmed);
+  // Only once something has been typed: an empty box is not a mistake, and
+  // scolding someone before they have started is noise. Until this existed
+  // the button simply sat there greyed out with nothing saying why, which
+  // reads as a broken page rather than as invalid input.
+  const problem = !trimmed || valid ? null
+    : !trimmed.startsWith("0x") ? "A Base address starts with 0x."
+    : /[^0-9a-fA-F]/.test(trimmed.slice(2)) ? "Only the digits 0-9 and letters a-f can appear after 0x."
+    : trimmed.length < 42 ? `That is ${trimmed.length - 2} characters after 0x; an address has 40.`
+    : `That is ${trimmed.length - 2} characters after 0x; an address has 40.`;
 
   function run(token: string) {
     router.push(`/run?token=${token}`);
@@ -62,7 +72,13 @@ export default function Home() {
             placeholder="0x…"
             spellCheck={false}
             autoComplete="off"
-            className="flex-1 rounded-md border border-border bg-panel px-4 py-3 font-mono text-sm text-fg placeholder:text-fg-dim/60 outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+            aria-invalid={problem ? true : undefined}
+            aria-describedby={problem ? "token-address-problem" : undefined}
+            className={`flex-1 rounded-md border bg-panel px-4 py-3 font-mono text-sm text-fg placeholder:text-fg-dim/60 outline-none focus:ring-1 ${
+              problem
+                ? "border-fail/60 focus:border-fail focus:ring-fail"
+                : "border-border focus:border-accent focus:ring-accent"
+            }`}
           />
           <button
             type="submit"
@@ -72,6 +88,17 @@ export default function Home() {
             Run trace →
           </button>
         </form>
+
+        {/* Announced, not just coloured: someone using a screen reader gets
+            the same explanation as someone watching the border turn red. */}
+        <p
+          id="token-address-problem"
+          role="status"
+          aria-live="polite"
+          className={`mt-2 font-mono text-xs ${problem ? "text-fail" : "sr-only"}`}
+        >
+          {problem ?? ""}
+        </p>
 
         <div className="mt-10">
           {/* The catalogue is the largest thing this project has, and until now

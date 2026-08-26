@@ -1,13 +1,14 @@
+import { ANVIL_ACCOUNT_0 } from "../src/base.js";
 import { describe, it, expect } from "vitest";
 import { withFork } from "../src/fork.js";
 import { prescan } from "../src/prescan.js";
 import { hiddenFeeProbe } from "../src/probes/hiddenFee.js";
-import { BASE_FORK_BLOCK } from "../src/examples.js";
+import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
 import type { Hex, ProbeCtx } from "@sidik/shared";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
 // anvil dev account #0 — the only kind of sender fork.send() can have anvil sign for.
-const TEST_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" as Hex;
+const TEST_WALLET = ANVIL_ACCOUNT_0;
 
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Hex;
 // Taxes the pool route 2.99% each way but never taxes transfer() — see

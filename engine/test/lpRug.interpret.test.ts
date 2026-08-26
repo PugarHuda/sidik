@@ -56,5 +56,5 @@ it("says why it does not apply on a V3 token instead of vanishing", () => {
   const v = interpretLpRug({ notApplicable: "v3" } as any, ctx);
   expect(v.status).toBe("NA");
   expect(v.title).toMatch(/uniswap v3/i);
-  expect(v.rows[0].proven).toMatch(/NFT positions/i);
+  expect(v.rows[0]?.proven).toMatch(/NFT positions/i);
 });

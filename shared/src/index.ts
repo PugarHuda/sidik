@@ -4,6 +4,7 @@
 // happy either way.
 export * from "./types";
 export * from "./headline";
+export * from "./events";
 export * from "./examples";
 export * from "./fixtures";
 export * from "./listings";

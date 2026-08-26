@@ -6,6 +6,9 @@ import { serve } from "@hono/node-server";
 import type { Hex } from "@sidik/shared";
 import { runSidik, type RunEvent } from "./orchestrator.js";
 import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "./concurrency.js";
+import { cacheSize } from "./cache.js";
+import { BASE_FORK_BLOCK } from "./forkBlock.js";
+import { log } from "./log.js";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -21,10 +24,17 @@ export function createApp(runner: Runner = runSidik) {
   const origin = process.env.WEB_ORIGIN ?? "*";
   app.use("*", cors({ origin }));
 
+  // Enough to answer "is it up, is it busy, and is it configured" without a
+  // second request. archiveRpc reports only whether the variable is set —
+  // never the URL, which carries the API key.
   app.get("/health", (c) => c.json({
     ok: true,
     runsInFlight: runsInFlight(),
     maxConcurrentRuns: MAX_CONCURRENT_RUNS,
+    forkBlock: BASE_FORK_BLOCK.toString(),
+    cache: cacheSize(),
+    archiveRpc: process.env.BASE_ARCHIVE_RPC ? "configured" : "missing",
+    uptimeSeconds: Math.round(process.uptime()),
   }));
 
   app.get("/run", (c) => {
@@ -66,5 +76,5 @@ export const app = createApp();
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const port = Number(process.env.PORT ?? 8787);
   serve({ fetch: app.fetch, port });
-  console.log(`sidik engine listening on :${port}`);
+  log.info({ event: "server.listening", count: port });
 }

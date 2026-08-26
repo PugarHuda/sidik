@@ -1,4 +1,4 @@
-import { createPublicClient, http, encodeFunctionData, parseAbi } from "viem";
+import { createPublicClient, http, encodeFunctionData } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, ProbeCtx, Hex } from "@sidik/shared";
 import { isRevertError } from "./fork.js";

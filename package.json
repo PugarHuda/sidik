@@ -2,10 +2,23 @@
   "name": "sidik",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.21.0",
   "scripts": {
     "dev:engine": "pnpm --filter @sidik/engine dev",
     "dev:web": "pnpm --filter web dev",
-    "test": "pnpm --filter @sidik/engine test"
+    "build": "pnpm --filter web build",
+    "typecheck": "pnpm --filter @sidik/engine exec tsc --noEmit && pnpm --filter web exec tsc --noEmit",
+    "lint": "pnpm --filter web lint",
+    "test": "pnpm --filter @sidik/engine test",
+    "e2e": "pnpm --filter web e2e",
+    "audit": "pnpm audit --audit-level moderate",
+    "deadcode": "knip",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run deadcode && pnpm run audit && pnpm run test && pnpm run build && pnpm run e2e"
+  },
+  "devDependencies": {
+    "knip": "^6.32.2"
   }
 }

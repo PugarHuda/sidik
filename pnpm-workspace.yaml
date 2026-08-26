@@ -2,6 +2,32 @@ packages:
   - shared
   - engine
   - web
+
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+
+# Both are transitive under the AI SDK, whose ranges resolved to undici 5.29.0
+# — eleven advisories, three of them high (unbounded WebSocket decompression,
+# request smuggling, CRLF injection via the upgrade option). Neither is
+# reachable by bumping a direct dependency, so the floor is set here.
+#
+# This lives in pnpm-workspace.yaml, not the `pnpm.overrides` field of
+# package.json: pnpm 11 stopped reading that field and warns that it ignored
+# it, which is a silent no-op if you only read the manifest.
+overrides:
+  undici: ">=6.28.0"
+  # Deliberately NOT overriding @ai-sdk/provider-utils. Its one advisory is a
+  # low (uncontrolled resource consumption, fixed in 3.0.98), but every
+  # release in the ai@5 line pins it to exactly 3.0.33 — forcing 3.0.98 broke
+  # the build outright: `ai` imports `lazyValidator`, which that version no
+  # longer exports, and all four suites that touch the planner failed to load.
+  # Reaching the fix means migrating to ai@6/7, a major this is not the moment
+  # for. Recorded here rather than left as an unexplained audit line.
+  # vitest 3.2.7 resolves vite 5.4.21, which carries a high (server.fs.deny
+  # bypass on Windows alternate paths) plus two moderates, and drags in an
+  # esbuild with its own. vitest declares vite "^5 || ^6 || ^7", so v6 is
+  # inside the range it supports rather than a forced mismatch. Dev-only —
+  # the vite dev server is never run here — but a tool that judges other
+  # people's security posture does not get to carry a known high.
+  vite: ">=6.4.3"

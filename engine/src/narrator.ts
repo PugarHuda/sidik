@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { llm, VENICE_OPTIONS } from "./llm.js";
+import { llm, LLM_TIMEOUT_MS, VENICE_OPTIONS } from "./llm.js";
 import type { Verdict } from "@sidik/shared";
 
 const NUM = /\d[\d,]*(?:\.\d+)?/g;
@@ -56,6 +56,7 @@ export async function narrate(verdicts: Verdict[]): Promise<string> {
       // controlled by asking for it: a cap of 300 cut all three example
       // narrations off mid-sentence, which reads as broken.
       maxOutputTokens: 700,
+      abortSignal: AbortSignal.timeout(LLM_TIMEOUT_MS),
       providerOptions: VENICE_OPTIONS,
       prompt: `Write a short, hype-free summary of these executed token-safety verdicts.
 At most 100 words. Finish every sentence you start.
@@ -74,6 +75,6 @@ Data: ${JSON.stringify(verdicts)}`,
   return guardProse(text, allowed, hex) || templateFallback(verdicts);
 }
 
-export function templateFallback(verdicts: Verdict[]): string {
+function templateFallback(verdicts: Verdict[]): string {
   return verdicts.map((v) => `${v.status === "FAIL" ? "⚠️" : v.status === "PASS" ? "✓" : "—"} ${v.title}`).join("\n");
 }

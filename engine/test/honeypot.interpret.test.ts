@@ -11,7 +11,7 @@ describe("interpretHoneypot", () => {
     }, ctx);
     expect(v.status).toBe("FAIL");
     expect(v.reason).toBe("TRANSFER_FAILED");
-    expect(v.rows[0].ok).toBe(false);
+    expect(v.rows[0]?.ok).toBe(false);
     expect(v.txHashes).toEqual(["0xbuy", "0xsell"]);
   });
 
@@ -20,7 +20,7 @@ describe("interpretHoneypot", () => {
       boughtAmount: "1000", soldOk: true, buyTxHash: "0xbuy", sellTxHash: "0xsell",
     }, ctx);
     expect(v.status).toBe("PASS");
-    expect(v.rows[0].ok).toBe(true);
+    expect(v.rows[0]?.ok).toBe(true);
   });
 
   it("is NA when the buy itself failed (no pool / no liquidity)", () => {

@@ -8,6 +8,3 @@ export const BASE_FORK_BLOCK: bigint = process.env.BASE_FORK_BLOCK
   ? BigInt(process.env.BASE_FORK_BLOCK)
   : DEFAULT_BASE_FORK_BLOCK;
 
-// EXAMPLES lives in @sidik/shared — engine and web both need the same list,
-// and keeping two copies in sync by hand already failed once.
-export { EXAMPLES, type ExampleToken } from "@sidik/shared";

@@ -1,16 +1,31 @@
 import { describe, it, expect } from "vitest";
-import { PROBES, PROBE_IDS } from "../src/probes/registry.js";
+import { PROBES } from "../src/probes/registry.js";
 
 describe("registry", () => {
-  it("exposes every probe with a unique id", () => {
-    expect(PROBE_IDS).toEqual(["honeypot", "hiddenFee", "approvalDrain", "lpRug", "crossVenue"]);
+  // These ids are not internal labels. They key every recorded run in
+  // @sidik/shared, they are what the catalogue filters on, and they are what
+  // the planner offers the model. Renaming or reordering one silently
+  // invalidates 194 stored verdicts, so the list is pinned here on purpose.
+  it("exposes exactly the probes the recorded runs were keyed by", () => {
+    expect(PROBES.map((p) => p.id)).toEqual([
+      "honeypot", "hiddenFee", "approvalDrain", "lpRug", "crossVenue",
+    ]);
+  });
+
+  it("gives every probe a unique id", () => {
     expect(new Set(PROBES.map((p) => p.id)).size).toBe(PROBES.length);
   });
 
-  // PROBE_IDS is the planner's enum. A probe missing from it can never be
-  // chosen by the model, and one listed without an implementation would make
-  // the planner offer something that cannot run.
-  it("keeps the planner's id list in step with the probes themselves", () => {
-    expect(PROBE_IDS).toEqual(PROBES.map((p) => p.id));
+  // A probe reaching the registry without one of these does not fail at
+  // registration — it fails mid-run, inside a fork, as an NA that reads like
+  // a finding about the token.
+  it("gives every probe the full contract the orchestrator calls", () => {
+    for (const p of PROBES) {
+      expect(typeof p.applicableWhen, `${p.id}.applicableWhen`).toBe("function");
+      expect(typeof p.setup, `${p.id}.setup`).toBe("function");
+      expect(typeof p.execute, `${p.id}.execute`).toBe("function");
+      expect(typeof p.interpret, `${p.id}.interpret`).toBe("function");
+      expect(p.title, `${p.id}.title`).toBeTruthy();
+    }
   });
 });

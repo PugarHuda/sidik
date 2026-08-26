@@ -1,23 +1,10 @@
-import type { PreScan, Verdict } from "@sidik/shared";
 import { EventSourceParserStream } from "eventsource-parser/stream";
+import type { RunEvent } from "@sidik/shared";
 
-// Mirrors engine/src/orchestrator.ts's RunEvent union. Not imported directly —
-// the engine package pulls in server-only deps (hono, anvil tooling) we don't
-// want in the web bundle, so this is the client-side source of truth's twin.
-// Keep in sync by hand if the engine union changes.
-export type RunEvent =
-  | { type: "prescan"; scan: PreScan }
-  | { type: "plan"; ids: string[] }
-  | { type: "probe:start"; id: string }
-  | { type: "verdict"; verdict: Verdict }
-  | { type: "narration"; text: string }
-  | { type: "done" }
-  | { type: "error"; message: string }
-  // Client-only marker the proxy route prepends when it replays a recorded
-  // run instead of reaching a live engine. The engine itself never sends it.
-  // The data that follows is genuine fork output, just not produced just now,
-  // which is why the banner says "recorded" and not "simulated".
-  | { type: "replay"; block: string };
+// The union lives in @sidik/shared, defined once for both ends of the wire.
+// It used to be copied here by hand under a comment asking whoever edited the
+// engine's copy to remember this one.
+export type { RunEvent };
 
 /**
  * Opens `url` and yields parsed SSE frames as typed RunEvents.

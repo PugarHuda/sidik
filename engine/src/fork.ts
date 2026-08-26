@@ -94,10 +94,12 @@ export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promi
   const { proc, url } = await spawnAnvilWithRetry(rpc, block);
   const transport = http(url);
   const test = createTestClient({ mode: "anvil", chain: base, transport });
-  // batch:multicall lets viem coalesce reads issued in the same tick into a
-  // single Multicall3 call. Every read here crosses anvil to the archive RPC,
-  // so the round trips — not the computation — are what a run spends its time
-  // on. Base has Multicall3 deployed and the fork inherits it.
+  // Plain client, no read batching. viem can coalesce same-tick reads through
+  // Multicall3, and it was tried: the identical sequential code timed 7.1s,
+  // 39.8s, 53.3s and 12.0s across four fresh forks. Upstream archive latency
+  // swamps anything the client does, so any change here can be "proven" to
+  // help by picking a run. Batching goes back in when there is a benchmark
+  // that can see past the RPC.
   const pub = createPublicClient({ chain: base, transport });
 
   const fork: ForkClient = {

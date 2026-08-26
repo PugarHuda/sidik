@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { clickFilter, fillWhenReady } from "./helpers";
 
 // A honeypot: the buy lands, the sell reverts.
 const ANASTASIA = "0x48F617e5b1B214a90800348D7944bBc0E9290Fbb";
@@ -45,11 +46,14 @@ test.describe("landing", () => {
     const button = page.getByRole("button", { name: /Run trace/ });
     await expect(button).toBeDisabled();
 
+    // The disabled state is also what the server renders, so it proves
+    // nothing about hydration on its own — the enabling fill is the one that
+    // has to wait for React to be listening.
+    await fillWhenReady(page, page.getByLabel("Token address"), BRB,
+      () => expect(button).toBeEnabled({ timeout: 1_000 }));
+
     await page.getByLabel("Token address").fill("0x123");
     await expect(button).toBeDisabled();
-
-    await page.getByLabel("Token address").fill(BRB);
-    await expect(button).toBeEnabled();
   });
 
   test("an example button navigates into its run", async ({ page }) => {
@@ -221,7 +225,7 @@ test.describe("catalogue", () => {
     await page.goto("/catalogue");
     const before = await page.locator("ul li").count();
 
-    await page.getByRole("button", { name: "Honeypots" }).click();
+    await clickFilter(page, "Honeypots");
     const after = await page.locator("ul li").count();
     expect(after).toBeGreaterThan(0);
     expect(after).toBeLessThan(before);
@@ -230,24 +234,25 @@ test.describe("catalogue", () => {
 
   test("searching by symbol narrows the list", async ({ page }) => {
     await page.goto("/catalogue");
-    await page.getByLabel("Filter by symbol or address").fill("BRETT");
+    const rows = page.locator("ul li");
     // Deliberately not an exact count: two recorded Base tokens call
     // themselves BRETT, which is the point of the collision warning.
-    const rows = page.locator("ul li");
-    await expect(rows.first()).toContainText("BRETT");
+    await fillWhenReady(page, page.getByLabel("Filter by symbol or address"), "BRETT",
+      () => expect(rows.first()).toContainText("BRETT", { timeout: 1_000 }));
     expect(await rows.count()).toBeGreaterThanOrEqual(1);
   });
 
   test("flags a symbol that more than one recorded token claims", async ({ page }) => {
     await page.goto("/catalogue");
-    await page.getByLabel("Filter by symbol or address").fill("BRIAN");
     // Five separate contracts on Base call themselves BRIAN.
-    await expect(page.locator("ul li").first()).toContainText(/sharing this symbol/);
+    await fillWhenReady(page, page.getByLabel("Filter by symbol or address"), "BRIAN",
+      () => expect(page.locator("ul li").first()).toContainText(/sharing this symbol/, { timeout: 1_000 }));
   });
 
   test("a row opens that token's run", async ({ page }) => {
     await page.goto("/catalogue");
-    await page.getByLabel("Filter by symbol or address").fill("0x532f");
+    await fillWhenReady(page, page.getByLabel("Filter by symbol or address"), "0x532f",
+      () => expect(page.locator("ul li")).toHaveCount(1, { timeout: 1_000 }));
     await page.locator("ul li a").first().click();
     await expect(page).toHaveURL(/token=0x532f/i);
     await expect(page.getByText("DONE run complete")).toBeVisible();
