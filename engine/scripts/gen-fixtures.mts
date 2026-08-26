@@ -148,9 +148,37 @@ export const FIXTURES: Record<string, FrozenRun> = `;
   // FIXTURE_COUNT is its own export so a client component can show the
   // number without importing the runs themselves. Reading
   // Object.keys(FIXTURES) in a browser bundle shipped all of them to it.
+  // Symbols claimed by more than one address, recorded alongside the runs.
+  // Copycat tokens are a live scam on Base — the catalogue holds five separate
+  // contracts calling themselves BRIAN — and the verdicts differ between them,
+  // so a reader who picks by ticker can pick the one that fails.
+  const bySymbol = new Map<string, string[]>();
+  for (const [address, run] of Object.entries(runs)) {
+    const symbol = ((run as FrozenRun).scan.symbol || "").toUpperCase();
+    if (!symbol) continue;
+    bySymbol.set(symbol, [...(bySymbol.get(symbol) ?? []), address]);
+  }
+  const collisions = Object.fromEntries(
+    [...bySymbol].filter(([, addrs]) => addrs.length > 1).map(([sym, addrs]) => [sym, addrs.sort()]),
+  );
+
   const count = `
 
 export const FIXTURE_COUNT = ${Object.keys(runs).length};
+
+// Symbols that more than one recorded address claims. Small by nature, and
+// safe to send to the browser — unlike FIXTURES itself.
+export const SYMBOL_COLLISIONS: Record<string, string[]> = ${JSON.stringify(collisions, null, 2)};
+
+/** Other recorded addresses using this address's symbol. */
+export function impostorsOf(address: string): string[] {
+  const lower = String(address).toLowerCase();
+  for (const addrs of Object.values(SYMBOL_COLLISIONS)) {
+    if (addrs.includes(lower)) return addrs.filter((a) => a !== lower);
+  }
+  return [];
+}
+
 `;
   writeFileSync(OUT, banner + JSON.stringify(runs, null, 2) + ";" + count);
 }

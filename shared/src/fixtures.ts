@@ -21035,3 +21035,58 @@ export const FIXTURES: Record<string, FrozenRun> = {
 };
 
 export const FIXTURE_COUNT = 194;
+
+// Symbols that more than one recorded address claims. Small by nature, and
+// safe to send to the browser — unlike FIXTURES itself.
+export const SYMBOL_COLLISIONS: Record<string, string[]> = {
+  "PEPETO": [
+    "0x27740c050e3764a2cee00317b7ac68a52d11ab5f",
+    "0x986f8e548d553c970694196cc6b96ce3cab6c2a3"
+  ],
+  "DOS": [
+    "0x59891ef20aa01f24ab7b29ce5c2ebf9534ff0d58",
+    "0xdeb18e7b78ffd555d5e94ebe110e1ff2d778bd8b"
+  ],
+  "MOCHI": [
+    "0x17297b350d6d7ffc799899025bc68c987636edff",
+    "0xf6e932ca12afa26665dc4dde7e27be02a7c02e50"
+  ],
+  "CRASH": [
+    "0x74c7293f500133590275359b7f597b309bba8453",
+    "0x8a39c790921323fae233783934039b4975298453",
+    "0xd0eb51e0fc50395491b19c53fe1cc10eefd16b52"
+  ],
+  "BRETT": [
+    "0x532f27101965dd16442e59d40670faf5ebb142e4",
+    "0x5a663876680fc9a8fbca8c634573a370b08d8702"
+  ],
+  "COBIE": [
+    "0x41b057e98709d6da20b12e947a73a9f27f7ead7b",
+    "0x688623465a6d3d60958022d55c9fdc987640f0e3"
+  ],
+  "ALPE": [
+    "0x8fab908211812cfa52d34bf0efe066bd9d01f732",
+    "0x94d2d1c2a3e56a946fcfb2ec510312ae58875665"
+  ],
+  "BRIAN": [
+    "0x1a9f84e6503a3d758c0727f0a6f801b9807e05c8",
+    "0x2b71749c6bd181e572bbbf1945a0bd4f3a4fcba7",
+    "0x2e554a9a692fe4c10fab0cbb7a67c8c1070e4d55",
+    "0x7ca0100d60adcd859db0c4260a078e5d2ef558c7",
+    "0x9b88500c69cea66c329abd1c494319b197fb8453"
+  ],
+  "JESSE": [
+    "0x6658884a973f522833bf98b48ce6b23e4d4e8453",
+    "0xa50e26f8a1da5819667adcaf1595deb979181554"
+  ]
+};
+
+/** Other recorded addresses using this address's symbol. */
+export function impostorsOf(address: string): string[] {
+  const lower = String(address).toLowerCase();
+  for (const addrs of Object.values(SYMBOL_COLLISIONS)) {
+    if (addrs.includes(lower)) return addrs.filter((a) => a !== lower);
+  }
+  return [];
+}
+

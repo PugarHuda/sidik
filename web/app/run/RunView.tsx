@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Verdict } from "@sidik/shared";
 import { streamRunEvents, type RunEvent } from "@/lib/sse";
-import { listedTicker } from "@sidik/shared";
+import { impostorsOf, listedTicker } from "@sidik/shared";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -323,6 +323,20 @@ export default function RunView({ token }: { token: string }) {
               listing supports a PASS — and would be alarming next to a FAIL.
               It is never evidence: the verdict comes from the fork alone.
               Matched by hand, because exchange tickers collide. */}
+          {impostorsOf(token).length > 0 && (
+            <div className="mt-2 text-xs text-na">
+              {/* Copycat tokens are a live scam on Base, and their verdicts
+                  differ — one MOCHI fails its fee probe while the other
+                  passes. A reader who found this by ticker needs telling. */}
+              {impostorsOf(token).length} other recorded Base{" "}
+              {impostorsOf(token).length === 1 ? "token uses" : "tokens use"} this same symbol,
+              and they did not all behave the same way.{" "}
+              <a href="/catalogue" className="underline underline-offset-4 hover:text-fg">
+                Compare them
+              </a>
+              .
+            </div>
+          )}
           {listedTicker(token) && (
             <div className="mt-2 text-xs text-fg-dim">
               Also trades on BingX as{" "}

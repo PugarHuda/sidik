@@ -73,6 +73,17 @@ export default function Home() {
           </button>
         </form>
 
+        <div className="mt-10">
+          {/* The catalogue is the largest thing this project has, and until now
+              the only way to reach any of it was to already know an address. */}
+          <a
+            href="/catalogue"
+            className="font-mono text-sm text-accent underline-offset-4 hover:underline"
+          >
+            Browse all {FIXTURE_COUNT} recorded runs →
+          </a>
+        </div>
+
         <div className="mt-14">
           <div className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">
             Or try an example

@@ -193,3 +193,95 @@ test.describe("hardening", () => {
     expect(shipped).not.toContain("TRANSFER_FROM_FAILED");
   });
 });
+
+test.describe("catalogue", () => {
+  test("lists every recorded run, failures first", async ({ page }) => {
+    const errors = watchConsole(page);
+    await page.goto("/catalogue");
+
+    await expect(page.getByRole("heading", { name: /Every recorded run/ })).toBeVisible();
+    await expect(page.getByText(/\d+ of \d+ recorded runs/)).toBeVisible();
+    // A catalogue of proofs is worth browsing for what it caught, so the first
+    // row must not be a clean one.
+    const firstBadge = page.locator("ul li").first().locator("span").first();
+    await expect(firstBadge).toHaveText("FAIL");
+    expect(errors).toEqual([]);
+  });
+
+  test("filters down to a single class of finding", async ({ page }) => {
+    await page.goto("/catalogue");
+    const before = await page.locator("ul li").count();
+
+    await page.getByRole("button", { name: "Honeypots" }).click();
+    const after = await page.locator("ul li").count();
+    expect(after).toBeGreaterThan(0);
+    expect(after).toBeLessThan(before);
+    await expect(page.locator("ul li").first()).toContainText(/Honeypot/i);
+  });
+
+  test("searching by symbol narrows the list", async ({ page }) => {
+    await page.goto("/catalogue");
+    await page.getByLabel("Filter by symbol or address").fill("BRETT");
+    // Deliberately not an exact count: two recorded Base tokens call
+    // themselves BRETT, which is the point of the collision warning.
+    const rows = page.locator("ul li");
+    await expect(rows.first()).toContainText("BRETT");
+    expect(await rows.count()).toBeGreaterThanOrEqual(1);
+  });
+
+  test("flags a symbol that more than one recorded token claims", async ({ page }) => {
+    await page.goto("/catalogue");
+    await page.getByLabel("Filter by symbol or address").fill("BRIAN");
+    // Five separate contracts on Base call themselves BRIAN.
+    await expect(page.locator("ul li").first()).toContainText(/sharing this symbol/);
+  });
+
+  test("a row opens that token's run", async ({ page }) => {
+    await page.goto("/catalogue");
+    await page.getByLabel("Filter by symbol or address").fill("0x532f");
+    await page.locator("ul li a").first().click();
+    await expect(page).toHaveURL(/token=0x532f/i);
+    await expect(page.getByText("DONE run complete")).toBeVisible();
+  });
+
+  test("does not ship the recorded runs to the browser either", async ({ page }) => {
+    const scripts: string[] = [];
+    page.on("response", async (r) => {
+      if (r.url().includes("/_next/static/") && r.url().endsWith(".js")) {
+        scripts.push(await r.text().catch(() => ""));
+      }
+    });
+    await page.goto("/catalogue");
+    await page.waitForLoadState("networkidle");
+    // Rows carry a one-line finding; the full verdicts, rows and tx hashes
+    // must stay on the server.
+    expect(scripts.join("")).not.toContain("TRANSFER_FROM_FAILED");
+  });
+});
+
+test.describe("token API", () => {
+  test("returns a recorded run as JSON, with the block it describes", async ({ request }) => {
+    const res = await request.get(`/api/token/${BRB}`);
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.symbol).toBe("BRB");
+    expect(body.forkBlock).toBe("50200000");
+    expect(body.headline).toBe("FAIL");
+    expect(Array.isArray(body.verdicts)).toBe(true);
+    // Anyone consuming this must not link the hashes to an explorer.
+    expect(body.transactionsWereBroadcast).toBe(false);
+  });
+
+  test("404s an address with no recorded run rather than returning a clean bill", async ({ request }) => {
+    const res = await request.get(`/api/token/${UNCOVERED}`);
+    expect(res.status()).toBe(404);
+    const body = await res.json();
+    expect(body.error).toMatch(/No recorded run/);
+    expect(body.recordedAddresses).toBeGreaterThan(0);
+  });
+
+  test("400s a malformed address", async ({ request }) => {
+    const res = await request.get("/api/token/notanaddress");
+    expect(res.status()).toBe(400);
+  });
+});
