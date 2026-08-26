@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { createApp } from "../src/server.js";
 import type { RunEvent } from "../src/orchestrator.js";
 import type { Hex } from "@sidik/shared";
+import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "../src/concurrency.js";
 
 const VALID_TOKEN = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Hex; // 40 hex chars
 
@@ -11,11 +12,34 @@ async function* fakeRunner(_token: Hex): AsyncGenerator<RunEvent> {
 }
 
 describe("server", () => {
-  it("GET /health -> 200 {ok:true}", async () => {
+  it("GET /health reports liveness and how loaded the engine is", async () => {
     const app = createApp(fakeRunner);
     const res = await app.request("/health");
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    // A host that can only see "ok" cannot tell a healthy engine from one
+    // that is refusing every caller because it is saturated.
+    expect(body.maxConcurrentRuns).toBeGreaterThan(0);
+    expect(body.runsInFlight).toBe(0);
+  });
+
+  // Accepting unbounded runs means every one of them gets rate-limited forks,
+  // and a rate-limited fork reads as a finding about the token.
+  it("refuses a run once the in-flight cap is reached, and frees the slot after", async () => {
+    const app = createApp(fakeRunner);
+    const held: (() => void)[] = [];
+    for (let i = 0; i < MAX_CONCURRENT_RUNS; i++) held.push(acquireRunSlot()!);
+
+    const refused = await app.request(`/run?token=${VALID_TOKEN}`);
+    expect(refused.status).toBe(503);
+    expect((await refused.json()).retryable).toBe(true);
+
+    held.forEach((r) => r());
+    const accepted = await app.request(`/run?token=${VALID_TOKEN}`);
+    expect(accepted.status).toBe(200);
+    await accepted.text();
+    expect(runsInFlight()).toBe(0);
   });
 
   it("GET /run with no token -> 400, no stream", async () => {

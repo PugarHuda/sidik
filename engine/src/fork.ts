@@ -19,6 +19,7 @@ const FORK_GAS_LIMIT = 5_000_000n;
 // makes it take longer still — a tight budget turns a slow start into a
 // spurious failure mid-demo.
 const ANVIL_START_TIMEOUT_MS = 90_000;
+const PROBE_PING_TIMEOUT_MS = 2_000;
 
 async function spawnAnvil(rpc: string, block: bigint, port: number) {
   // ponytail: spawn("anvil", ...) resolves anvil.exe via PATH on Windows same as any
@@ -45,8 +46,12 @@ async function spawnAnvil(rpc: string, block: bigint, port: number) {
   while (performance.now() < deadline) {
     if (exited) break; // died before ever serving — retrying the fetch is pointless
     try {
+      // Bounded per attempt. Without this a socket that connects and then
+      // goes quiet blocks the loop indefinitely, and the start deadline below
+      // never gets a chance to fire.
       const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }) });
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
+        signal: AbortSignal.timeout(PROBE_PING_TIMEOUT_MS) });
       if (r.ok) return { proc, url };
     } catch { /* not up yet */ }
     await new Promise((res) => setTimeout(res, 250));

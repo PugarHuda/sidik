@@ -13,6 +13,10 @@ const BASE = process.env.BINGX_BASE_URL ?? "https://open-api.bingx.com";
 const INTERVAL = "1h";
 const HOUR_MS = 3_600_000;
 
+// Market data is a nicety; the fork proof is the product. If the venue is
+// slow the probe reports that it could not price, rather than stalling.
+const VENUE_TIMEOUT_MS = 8_000;
+
 export interface Candle {
   openTimeMs: number;
   closeTimeMs: number;
@@ -31,7 +35,13 @@ export async function candleAt(symbol: string, atUnixSeconds: number): Promise<C
     + `&interval=${INTERVAL}&startTime=${ms - 2 * HOUR_MS}&endTime=${ms + HOUR_MS}&limit=10`;
   let rows: unknown[];
   try {
-    const res = await fetch(url, { headers: { "user-agent": "sidik" } });
+    // Node's fetch has no default timeout: a venue that accepts the
+    // connection and then stops talking would hang this probe, and with it
+    // the whole run, forever.
+    const res = await fetch(url, {
+      headers: { "user-agent": "sidik" },
+      signal: AbortSignal.timeout(VENUE_TIMEOUT_MS),
+    });
     if (!res.ok) return undefined;
     const body = await res.json() as { data?: unknown[] };
     rows = body.data ?? [];

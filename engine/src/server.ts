@@ -5,6 +5,7 @@ import { streamSSE } from "hono/streaming";
 import { serve } from "@hono/node-server";
 import type { Hex } from "@sidik/shared";
 import { runSidik, type RunEvent } from "./orchestrator.js";
+import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "./concurrency.js";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -20,16 +21,37 @@ export function createApp(runner: Runner = runSidik) {
   const origin = process.env.WEB_ORIGIN ?? "*";
   app.use("*", cors({ origin }));
 
-  app.get("/health", (c) => c.json({ ok: true }));
+  app.get("/health", (c) => c.json({
+    ok: true,
+    runsInFlight: runsInFlight(),
+    maxConcurrentRuns: MAX_CONCURRENT_RUNS,
+  }));
 
   app.get("/run", (c) => {
     const token = c.req.query("token");
     if (!token || !TOKEN_RE.test(token)) {
       return c.json({ error: "token must be a 0x-prefixed 40-hex-char address" }, 400);
     }
+    // Refuse rather than degrade. Accepting an unbounded number of runs means
+    // every one of them gets rate-limited forks, and a rate-limited fork reads
+    // as a finding about the token instead of about the traffic.
+    const release = acquireRunSlot();
+    if (!release) {
+      return c.json({
+        error: `engine is busy: ${MAX_CONCURRENT_RUNS} runs already in flight`,
+        retryable: true,
+      }, 503);
+    }
+
     return streamSSE(c, async (stream) => {
-      for await (const event of runner(token as Hex)) {
-        await stream.writeSSE({ event: event.type, data: JSON.stringify(event) });
+      try {
+        for await (const event of runner(token as Hex)) {
+          await stream.writeSSE({ event: event.type, data: JSON.stringify(event) });
+        }
+      } finally {
+        // Also covers the client hanging up mid-run: without this the slot
+        // would stay taken and the engine would wedge itself shut.
+        release();
       }
     });
   });
