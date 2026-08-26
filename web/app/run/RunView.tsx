@@ -184,8 +184,14 @@ export default function RunView({ token }: { token: string }) {
   if (!tokenValid) {
     return (
       <div className="mx-auto flex max-w-xl flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-        <div className="font-mono text-xs uppercase tracking-widest text-fail">Invalid token</div>
-        <p className="text-fg-dim">&quot;{token || "(empty)"}&quot; isn&apos;t a 0x-prefixed 40-hex-char address.</p>
+        <div className="font-mono text-xs uppercase tracking-widest text-fail">Invalid address</div>
+        {/* Same sentence the API returns for the same condition. The client
+            short-circuits before calling it, so without this the product had
+            two different ways of saying one thing depending on how you
+            arrived. */}
+        <p className="text-fg-dim">
+          &quot;{token || "(empty)"}&quot; is not a Base address — expected 0x followed by 40 hex characters.
+        </p>
         <Link href="/" className="font-mono text-sm text-accent hover:underline">
           ← back to Sidik
         </Link>

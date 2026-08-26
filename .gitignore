@@ -8,3 +8,5 @@ dist
 out
 .vercel
 .playwright-mcp
+web/test-results
+web/playwright-report
