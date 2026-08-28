@@ -1,5 +1,6 @@
-import { createPublicClient, http, encodeFunctionData } from "viem";
+import { createPublicClient, encodeFunctionData } from "viem";
 import { base } from "viem/chains";
+import { forkTransport } from "../fork.js";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { logsClient } from "../rpc.js";
 import { amount } from "../format.js";
@@ -98,7 +99,7 @@ export const approvalDrainProbe: Probe = {
     // this probe run when that address wasn't recognized as an ERC-20 token —
     // so it IS the victim wallet.
     const victim = ctx.token;
-    const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
+    const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
 
     // ponytail: single-call window over the dedicated logs RPC (see rpc.ts).
     // Base mines every 2 seconds, so 9,000 blocks is FIVE HOURS and only very

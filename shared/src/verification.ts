@@ -890,8 +890,8 @@ export const VERIFIED_SOURCE: Record<string, Verification> = {
 export const VERIFICATION_STATS = {
   checked: 194,
   verified: 191,
-  failing: 47,
-  failingVerified: 46,
+  failing: 59,
+  failingVerified: 58,
 } as const;
 
 /**

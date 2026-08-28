@@ -1,5 +1,6 @@
-import { createPublicClient, createTestClient, encodeFunctionData, getAddress, http, parseAbi } from "viem";
+import { createPublicClient, createTestClient, encodeFunctionData, getAddress, parseAbi } from "viem";
 import { base } from "viem/chains";
+import { forkTransport } from "../fork.js";
 import type { ForkClient, Hex, Probe, ProbeCtx, RawResult, Verdict } from "@sidik/shared";
 import { ERC20_ABI } from "../abi.js";
 import { BURN_ADDRESSES, ZERO_ADDRESS } from "../base.js";
@@ -405,7 +406,7 @@ export const ownerTrapProbe: Probe = {
     await fork.setBalanceEth(ctx.testWallet, "10");
   },
   async execute(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
-    const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
+    const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
 
     // The code that RUNS, not the code at the address. A proxy's own bytecode
     // is a delegatecall stub with no switches in it; the implementation
@@ -551,7 +552,7 @@ export const ownerTrapProbe: Probe = {
     let upgradeSell: Awaited<ReturnType<typeof sellAll>> | undefined;
     if (canUpgrade && proxyAdmin && !openToAnyone) {
       await restore();
-      const test = createTestClient({ mode: "anvil", chain: base, transport: http(fork.rpcUrl) });
+      const test = createTestClient({ mode: "anvil", chain: base, transport: forkTransport(fork.rpcUrl) });
       await test.setCode({ address: STUB_ADDRESS, bytecode: REVERT_STUB });
       await fork.setBalanceEth(proxyAdmin, "10");
       await fork.impersonate(proxyAdmin);
@@ -564,7 +565,16 @@ export const ownerTrapProbe: Probe = {
       if (!tx.reverted) {
         upgraded = true;
         upgradeTxHash = tx.hash;
-        upgradeSell = await sellAll(fork, ctx);
+        try {
+          upgradeSell = await sellAll(fork, ctx);
+        } catch (e) {
+          // With every byte of code replaced, even balanceOf reverts, so the
+          // sell cannot be assembled — which is the finding, not a fault.
+          upgradeSell = {
+            ok: false, hash: "0x", received: "0", amount: "0", predicted: "0", reverted: true,
+            revertReason: `every call into the token reverts after the upgrade (${(e instanceof Error ? e.message : String(e)).split("\n")[0]})`,
+          };
+        }
       }
     }
 

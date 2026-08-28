@@ -35,9 +35,9 @@ forked copy of Base mainnet and shows you what actually happens.
   is real.
 
 **And reading the contract would not have caught these.** Of the 194 recorded
-addresses, 191 publish verified source code on Blockscout — and so do 46 of
-the 47 with a finding against them: every honeypot, every taxed token, every
-ruggable pool and every owner trap. "Check that the contract is verified" is the
+addresses, 191 publish verified source code on Blockscout — and so do 58 of
+the 59 with a finding against them: every honeypot, every taxed token, every
+ruggable pool, every owner trap and every upgradeable proxy. "Check that the contract is verified" is the
 standard advice, and across this catalogue it separates almost nothing. That
 number is measured, not asserted: see [Corroboration](#corroboration).
 
@@ -125,10 +125,10 @@ pnpm dev:engine
 # example runs instead of reaching an engine (see Deployment).
 pnpm dev:web
 
-# engine test suite (vitest) — 194 unit + 30 integration
+# engine test suite (vitest) — 242 unit + 30 integration
 pnpm test
 
-# browser suite (Playwright) — 533 tests across chromium, firefox, webkit,
+# browser suite (Playwright) — 613 tests across chromium, firefox, webkit,
 # and both mobile viewports, run against a production build. Includes an
 # axe-core accessibility audit of every page.
 pnpm e2e
@@ -184,10 +184,15 @@ what the token does today, but what one address can still decide to do to you
 after you have bought. It reads the owner-only switches straight out of the
 deployed bytecode — the PUSH4 constants a solc dispatcher compares against, so
 they are there whether or not the source was ever published — and then calls
-them. Thirty of the 194 recorded addresses carry at least one, and `mint` is
-the most common: where it exists, Sidik has the owner print supply and sell it
-into the same pool the holder has to exit through, and reports what the exit
-was worth before and after.
+them. 52 of the 194 recorded addresses carry something an owner can operate
+— a switch, or a proxy whose admin can replace the code outright — and 24 of
+those failed when it was operated. Sixteen are proxies: USDC, cbBTC and cbETH
+among them, where the recorded admin was made to point the proxy at a contract
+that reverts everything, and the sell that had just worked stopped working.
+That is not an accusation, it is what the contract permits, executed. Where
+`mint` exists, Sidik has the owner print supply and sell it into the same pool
+the holder has to exit through, and reports what the exit was worth before and
+after.
 
 Absence is reported as absence. A token carrying none of the switches Sidik
 knows how to operate gets `N/A` with the number it searched for, not a `PASS`
@@ -284,7 +289,7 @@ change one.
 
 **Verified source code.** `shared/src/verification.ts` records, per address,
 whether Blockscout holds published verified source for it — 191 of 194 do, as
-do 46 of the 47 with a finding against them. It is here because it answers the
+do 58 of the 59 with a finding against them. It is here because it answers the
 obvious objection to the whole project: no, reading the contract first would
 not have caught these.
 
@@ -316,28 +321,35 @@ own, say about each recorded address, and `SCANNER_STATS` counts how that
 lines up with what was executed. Both directions are listed, because a
 comparison that shows only the flattering half is not one:
 
-- Honeypots, against GoPlus (112 addresses where both answered): 107 agree.
-  Execution caught two GoPlus cleared — Anastasia and ROOTED. GoPlus flagged
+- Honeypots, against GoPlus (131 addresses where both answered): 125 agree.
+  Execution caught three GoPlus cleared — Anastasia, ROOTED, and TZ, whose
+  pool holds WETH but whose buy reverts at every size tried. GoPlus flagged
   three the fork sold: NVO, ANSEMCAT, CASHCAT.
-- Honeypots, against honeypot.is (177): 171 agree, and every disagreement is
+- Honeypots, against honeypot.is (179): 173 agree, and every disagreement is
   honeypot.is flagging a token the fork sold — DGAI, FOLD, COBIE, Alpe,
   KEYCAT, VLTX. The scanners describe the chain on the day they were asked
   and the verdicts describe block 50,200,000, so a token that changed in
   between would look exactly like a scanner being wrong. Execution settles
   that too: `pnpm --filter @sidik/engine recheck` forks **today's head** and
-  runs the sell again. On 2026-08-28, 8.1 days after the pin, COBIE, KEYCAT,
-  NVO and CASHCAT all still sold — so those flags were wrong that day, not
-  stale.
+  runs the sell again. On 2026-08-28, 8.6–8.8 days after the pin, every one
+  of the twelve disputed addresses was re-executed at that day's head (blocks
+  50,572,271 and 50,579,458): Anastasia and ROOTED still could not sell, TZ
+  still could not be bought, and the other nine still sold — so those flags
+  were wrong that day, not stale. The result is recorded per
+  address in `shared/src/rechecks.ts`, shown on the run page and served under
+  `corroboration.recheck` in the JSON.
   (COBIE is the token whose owner Sidik proved *could* stop the sell; they
   had not.)
 - Owner traps, against GoPlus's `transfer_pausable` / `is_blacklisted` /
-  `is_mintable` flags (19): 8 agree. GoPlus did not flag DEGEN or XYJ, whose
+  `is_mintable` flags (38): 9 agree. GoPlus did not flag DEGEN or XYJ, whose
   owners' `pause()` stopped the sell on the fork, nor PP, whose owner minted
-  ten billion tokens and sold them. It flagged eight whose switches are dead
-  — ownership renounced, the call reverted — BRETT among them. It flags that
-  the code exists; Sidik reports what pulling it did.
+  ten billion tokens and sold them — nor any of the sixteen proxies (USDC,
+  cbBTC, cbETH, USDbC among them) whose admin can replace every byte of code,
+  which Sidik did, and the sell stopped. It flagged nine whose switches are
+  dead — ownership renounced, the call reverted — BRETT among them. It flags
+  that the code exists; Sidik reports what pulling it did.
 - Buy tax, where the scanners are on their strongest ground: GoPlus's figure
-  matched the executed one on **146 of 146** addresses, within a percentage
+  matched the executed one on **164 of 164** addresses, within a percentage
   point. honeypot.is matched on 175 of 177 and missed the two it could not
   simulate — 7SiN and ROOTED, the fee-on-transfer tokens on V3, reported at
   0% where the fork measured 2.99% and 6.99%. A comparison that only showed

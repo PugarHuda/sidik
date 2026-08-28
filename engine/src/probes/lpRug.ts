@@ -1,5 +1,6 @@
-import { createPublicClient, encodeFunctionData, formatEther, http, parseAbi, parseAbiItem, toEventSelector } from "viem";
+import { createPublicClient, encodeFunctionData, formatEther, parseAbi, parseAbiItem, toEventSelector } from "viem";
 import { base } from "viem/chains";
+import { forkTransport } from "../fork.js";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe, ForkClient } from "@sidik/shared";
 import { logsClient } from "../rpc.js";
 import { log } from "../log.js";
@@ -163,7 +164,9 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   if (!raw.lpHolderFound || ownerLpPct < MIN_TESTABLE_LP_PCT) {
     return {
       probe: "lpRug", status: "NA",
-      title: `LP is not burned (${burned}) and its holder could not be identified`,
+      title: v3 && raw.lpHolderFound
+        ? `The largest V3 position found holds ${pct} of active liquidity — too little to test a rug`
+        : `LP is not burned (${burned}) and its holder could not be identified`,
       rows: [{ label: ROW_LABEL, claimed: CLAIMED,
         proven: raw.lpHolderFound
           ? `Only ${burned} of LP is burned; the largest holder found controls just ${pct}, too little to test a rug`
@@ -348,9 +351,16 @@ async function executeV3(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
   }
   let best: { tokenId: bigint; liquidity: bigint } | undefined;
   for (const tokenId of positions) {
-    const pos = await fork.read<readonly [bigint, Hex, Hex, Hex, number, number, number, bigint]>({
-      address: V3_NPM, abi: V3_NPM_ABI, functionName: "positions", args: [tokenId],
-    });
+    let pos: readonly [bigint, Hex, Hex, Hex, number, number, number, bigint];
+    try {
+      pos = await fork.read<readonly [bigint, Hex, Hex, Hex, number, number, number, bigint]>({
+        address: V3_NPM, abi: V3_NPM_ABI, functionName: "positions", args: [tokenId],
+      });
+    } catch {
+      // Minted and burned inside the window: the NFT is gone and positions()
+      // reverts with "Invalid token ID". Nothing to pull there.
+      continue;
+    }
     const [, , token0, token1, posFee, , , liquidity] = pos;
     const isThisPool = [token0.toLowerCase(), token1.toLowerCase()].includes(ctx.token.toLowerCase()) && posFee === fee;
     if (isThisPool && liquidity > 0n && (!best || liquidity > best.liquidity)) best = { tokenId, liquidity };
@@ -402,15 +412,22 @@ async function executeV3(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
 
 /** Token ids of positions minted into `pool` recently; undefined when the logs could not be read. */
 async function recentV3Positions(fork: ForkClient, pool: Hex, block: bigint): Promise<bigint[] | undefined> {
-  const fromBlock = block > LP_TRANSFER_LOOKBACK_BLOCKS ? block - LP_TRANSFER_LOOKBACK_BLOCKS : 0n;
-  let mints: { transactionHash: Hex }[];
-  try {
-    mints = await logsClient().getLogs({ address: pool, event: V3_MINT_EVENT, fromBlock, toBlock: block });
-  } catch (e) {
-    log.error({ event: "lpRug.v3MintLogsFailed", reason: e instanceof Error ? e.message : String(e) });
-    return undefined;
+  // The public logs RPC refuses a busy pool's full window ("response too
+  // large" on USDC/WETH), and a busy pool is exactly one with mints in a
+  // shorter window. Shrink until it answers; only a refusal at 100 blocks is
+  // a failure.
+  let mints: { transactionHash: Hex }[] | undefined;
+  for (const span of [LP_TRANSFER_LOOKBACK_BLOCKS, 2_000n, 500n, 100n]) {
+    const fromBlock = block > span ? block - span : 0n;
+    try {
+      mints = await logsClient().getLogs({ address: pool, event: V3_MINT_EVENT, fromBlock, toBlock: block });
+      break;
+    } catch (e) {
+      log.error({ event: "lpRug.v3MintLogsFailed", count: Number(span), reason: (e instanceof Error ? e.message : String(e)).slice(0, 200) });
+    }
   }
-  const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
+  if (!mints) return undefined;
+  const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
   const ids = new Set<bigint>();
   const hashes = [...new Set(mints.map((m) => m.transactionHash))].slice(-MAX_V3_MINT_RECEIPTS);
   for (const hash of hashes) {

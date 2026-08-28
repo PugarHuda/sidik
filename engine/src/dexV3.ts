@@ -1,5 +1,6 @@
-import { createPublicClient, http, encodeFunctionData } from "viem";
+import { createPublicClient, encodeFunctionData } from "viem";
 import { base } from "viem/chains";
+import { forkTransport } from "./fork.js";
 import type { ForkClient, Hex } from "@sidik/shared";
 import { UNISWAP_V3, WETH, ZERO_ADDRESS } from "./base.js";
 import { ERC20_ABI, V3_FACTORY_ABI, V3_QUOTER_ABI, V3_ROUTER_ABI } from "./abi.js";
@@ -70,7 +71,7 @@ export async function findV3Pool(
  */
 export async function quoteV3(fork: ForkClient, tokenIn: Hex, tokenOut: Hex, amountIn: bigint, fee: number): Promise<bigint> {
   if (amountIn === 0n) return 0n;
-  const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
+  const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
   try {
     const { result } = await pub.simulateContract({
       address: UNISWAP_V3.quoter, abi: V3_QUOTER_ABI, functionName: "quoteExactInputSingle",

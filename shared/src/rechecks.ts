@@ -88,6 +88,12 @@ export const RECHECKS: Record<string, Recheck> = {
     "checkedOn": "2026-08-28",
     "status": "FAIL",
     "title": "Cannot sell — the token skims 6.99% off every transfer, and Uniswap V3 rejects a token that arrives short"
+  },
+  "0x0480dfeb876221ad9ab90d4687efd6d5d6c839c2": {
+    "headBlock": "50579458",
+    "checkedOn": "2026-08-28",
+    "status": "FAIL",
+    "title": "Pool holds 3.2 WETH but the buy reverted (Execution reverted with reason: UniswapV2: TRANSFER_FAILED.)"
   }
 };
 

@@ -1,7 +1,7 @@
-import { createPublicClient, http, encodeFunctionData, decodeEventLog, parseAbi, parseAbiItem } from "viem";
+import { createPublicClient, encodeFunctionData, decodeEventLog, parseAbi, parseAbiItem } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, ProbeCtx, Hex } from "@sidik/shared";
-import { FORK_GAS_LIMIT, isRevertError } from "./fork.js";
+import { FORK_GAS_LIMIT, isRevertError, forkTransport } from "./fork.js";
 import { UNISWAP_V2, WETH } from "./base.js";
 import { ERC20_ABI, V2_ROUTER_ABI } from "./abi.js";
 import { REVERT_MAX, untrustedText } from "./untrusted.js";
@@ -232,7 +232,7 @@ async function v2ProceedsFromLogs(fork: ForkClient, pool: Hex, logs: { address: 
 // eth_call — post-revert state is unchanged, so it reproduces the same
 // revert with its reason attached, without needing debug_traceTransaction.
 async function deriveRevertReason(fork: ForkClient, args: { account: Hex; to: Hex; data: Hex; value?: bigint }): Promise<string | undefined> {
-  const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
+  const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
   try {
     await pub.call(args);
     return undefined; // call succeeded on replay — no revert to report

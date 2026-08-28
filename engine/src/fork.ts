@@ -27,6 +27,21 @@ function forkEndpoint(rpc: string): Promise<string> {
 // is enough to force broadcast-then-revert-on-chain.
 export const FORK_GAS_LIMIT = 5_000_000n;
 
+/**
+ * Every viem client that talks to an anvil fork goes through this.
+ *
+ * viem's http transport gives up after 10s and retries three times. A read
+ * that misses anvil's cache is an archive fetch through the proxy, and under
+ * a 429 burst the proxy's backoff alone runs past 20s — so under throttling
+ * every probe's reads failed with "took too long" after ~40s, which was
+ * recorded as the probe breaking. Two minutes matches what the fork itself
+ * is allowed to spend on one replay.
+ */
+const FORK_RPC_TIMEOUT_MS = 120_000;
+export function forkTransport(rpcUrl: string) {
+  return http(rpcUrl, { timeout: FORK_RPC_TIMEOUT_MS, retryCount: 2 });
+}
+
 // Forking a busy archive RPC can take a while, and a rate-limited provider
 // makes it take longer still — a tight budget turns a slow start into a
 // spurious failure mid-demo.
@@ -118,7 +133,7 @@ export async function openFork(block: bigint): Promise<OpenFork> {
   if (!rpc) throw new Error("BASE_ARCHIVE_RPC is not set");
 
   const { proc, url } = await spawnAnvilWithRetry(await forkEndpoint(rpc), block);
-  const transport = http(url);
+  const transport = forkTransport(url);
   const test = createTestClient({ mode: "anvil", chain: base, transport });
   // Plain client, no read batching. viem can coalesce same-tick reads through
   // Multicall3, and it was tried: the identical sequential code timed 7.1s,
@@ -171,7 +186,16 @@ export async function openFork(block: bigint): Promise<OpenFork> {
         // Only a genuine EVM revert (pre-broadcast, e.g. estimation still
         // failed some other way) counts as `reverted: true`. An infra/RPC
         // error must not masquerade as a revert — rethrow it.
-        if (!isRevertError(e)) throw e;
+        if (!isRevertError(e)) {
+          // A receipt that never arrives is a transaction anvil accepted and
+          // could not mine. Say which one: the hang is otherwise anonymous.
+          if (e instanceof Error && /Timed out while waiting for transaction/.test(e.message)) {
+            log.error({
+              event: "fork.receiptTimeout", token: to, reason: `from=${from} gas=${(gas ?? FORK_GAS_LIMIT).toString()} data=${(data ?? "0x").slice(0, 10)}`,
+            });
+          }
+          throw e;
+        }
         return { hash: "0x" as Hex, reverted: true, revertReason: shortRevert(e) };
       }
     },

@@ -1,5 +1,6 @@
-import { createPublicClient, formatUnits, http } from "viem";
+import { createPublicClient, formatUnits } from "viem";
 import { base } from "viem/chains";
+import { forkTransport } from "../fork.js";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { venueListings } from "@sidik/shared";
 import { buyBudget, buyExactEth } from "../dex.js";
@@ -128,7 +129,7 @@ export const crossVenueProbe: Probe = {
     // difference a spread.
     let at = 0;
     try {
-      const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
+      const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
       at = Number((await pub.getBlock({ blockNumber: ctx.block })).timestamp);
     } catch {
       return { asked, quotes: [], unavailable: "Could not read the forked block's timestamp to price against" };

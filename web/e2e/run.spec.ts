@@ -112,10 +112,16 @@ test.describe("a run that finds something", () => {
 });
 
 test.describe("a probe that cannot apply", () => {
-  test("says why LP-rug does not apply on V3 instead of dropping the card", async ({ page }) => {
+  // V3 liquidity is pulled through the position manager now; the card must
+  // carry a real answer for the pool's largest position, never "does not
+  // apply".
+  test("pulls a V3 position instead of declaring LP-rug inapplicable", async ({ page }) => {
     await runToCompletion(page, BRETT);
-    await expect(page.getByRole("heading", { name: /LP rug does not apply/ })).toBeVisible();
-    await expect(page.getByText(/NFT positions/).first()).toBeVisible();
+    const card = page.locator("[data-probe='lpRug']");
+    await expect(card).toHaveAttribute("data-applicable", "true");
+    await expect(card.getByText("DOES NOT APPLY")).toHaveCount(0);
+    await expect(card.getByText(/venue:\s*uniswap-v3/)).toBeVisible();
+    await expect(card.getByRole("heading")).not.toContainText(/does not apply/i);
   });
 
   test("does not let an inapplicable probe drag the headline down", async ({ page }) => {
@@ -362,9 +368,10 @@ test.describe("what the critique found and no assertion had", () => {
   });
 
   test("a probe that does not apply is never printed in red", async ({ page }) => {
-    await runToCompletion(page, "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed");
-    // lpRug does not apply on V3; its "proven" sentence must be neutral.
-    const proven = page.locator("[data-probe='lpRug'][data-applicable='false'] dd").last();
+    await runToCompletion(page, ANASTASIA);
+    // No owner switch exists in this bytecode, so ownerTrap does not apply;
+    // its "proven" sentence must be neutral.
+    const proven = page.locator("[data-probe='ownerTrap'][data-applicable='false'] dd").last();
     const color = await proven.evaluate((el) => getComputedStyle(el).color);
     expect(color).not.toMatch(/255, 107, 107/); // --fail
   });

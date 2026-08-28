@@ -1,5 +1,6 @@
-import { createPublicClient, http, getAddress } from "viem";
+import { createPublicClient, getAddress } from "viem";
 import { base } from "viem/chains";
+import { forkTransport } from "./fork.js";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
 import { logsClient } from "./rpc.js";
 import { findV3Pool } from "./dexV3.js";
@@ -40,7 +41,7 @@ const HOLDER_READ_CONCURRENCY = 8;
 export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
   // ponytail: `any` here, not the full viem PublicClient<Base> generic — see
   // approvalDrain.ts's priceUsd for the same call.
-  const pub: any = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
+  const pub: any = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
 
   let symbol = "";
   let decimals = 18;

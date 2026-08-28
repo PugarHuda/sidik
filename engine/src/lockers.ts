@@ -1,5 +1,6 @@
-import { createPublicClient, http, parseAbi } from "viem";
+import { createPublicClient, parseAbi } from "viem";
 import { base } from "viem/chains";
+import { forkTransport } from "./fork.js";
 import type { ForkClient, Hex } from "@sidik/shared";
 
 /**
@@ -45,7 +46,7 @@ export function classifyHolder(address: Hex, code: Hex | undefined): HolderKind 
 }
 
 export async function codeAt(fork: ForkClient, address: Hex): Promise<Hex | undefined> {
-  const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
+  const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
   return pub.getCode({ address });
 }
 

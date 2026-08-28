@@ -57,13 +57,23 @@ async function mkCtx(token: Hex, fork: Parameters<typeof prescan>[0]): Promise<P
     });
   }, TIMEOUT_MS);
 
-  it("says why LP-rug cannot apply on V3 instead of dropping the card", async () => {
+  // V3 liquidity is pullable through the position manager exactly as V2 LP
+  // is through the router, so the probe no longer declines on V3: it finds
+  // the largest recent position, classifies its owner and pulls it. What it
+  // must never do again is hand a V3 token an "applicable: false" that lifts
+  // its headline.
+  it("pulls a V3 position instead of declaring LP-rug inapplicable", async () => {
     await withFork(BASE_FORK_BLOCK, async (fork) => {
       const ctx = await mkCtx(BRETT, fork);
       expect(lpRugProbe.applicableWhen(ctx.scan)).toBe(true);
       const v = lpRugProbe.interpret(await lpRugProbe.execute(fork, ctx), ctx);
-      expect(v.status).toBe("NA");
-      expect(v.title).toMatch(/uniswap v3/i);
+      expect(v.applicable).not.toBe(false);
+      expect(v.title).not.toMatch(/does not apply/i);
+      expect(v.numbers.venue).toBe("uniswap-v3");
+      expect(["PASS", "FAIL", "NA"]).toContain(v.status);
+      // Whatever it found, it says what: a holder kind, a position, or the
+      // precise reason none could be pulled.
+      expect(v.rows[0]?.proven.length ?? 0).toBeGreaterThan(20);
     });
   }, TIMEOUT_MS);
 
