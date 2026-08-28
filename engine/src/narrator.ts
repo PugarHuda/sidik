@@ -5,11 +5,39 @@ import { contradictsVerdicts, templateNarration } from "@sidik/shared";
 
 const NUM = /\d[\d,]*(?:\.\d+)?/g;
 const HEX = /0x[0-9a-fA-F]+/g;
+/**
+ * A Solidity function signature as the verdicts quote them.
+ *
+ * These arrived with the owner-trap probe, which names the exact function it
+ * called — `mint(address,uint256)`, `setFees(uint256,uint256)`. Their
+ * argument types are full of digits that are not figures, and the digit scan
+ * cannot tell the difference: leaving them in widened the allowed set so that
+ * "256" became a number the model could then use to mean anything at all.
+ *
+ * So they are removed from both sides. Not rejected when unrecognised, only
+ * removed when recognised: a narration that happens to write "token(s)" must
+ * not be thrown away, and it carries no digits to launder either way.
+ */
+const SIG = /\b[A-Za-z_$][\w$]*\((?:[A-Za-z0-9_$[\]]+(?:\s*,\s*[A-Za-z0-9_$[\]]+)*)?\)/g;
 const norm = (s: string) => s.replace(/,/g, "");
+
+/** Signatures the verdicts themselves name, so prose may repeat them. */
+export function allowedSignatures(verdicts: Verdict[]): Set<string> {
+  const set = new Set<string>();
+  const eat = (s: string) => { for (const m of s.matchAll(SIG)) set.add(m[0]); };
+  for (const v of verdicts) {
+    Object.values(v.numbers).forEach(eat);
+    v.rows.forEach((r) => { eat(r.claimed); eat(r.proven); eat(r.label); });
+    if (v.reason) eat(v.reason);
+    if (v.title) eat(v.title);
+  }
+  return set;
+}
 
 export function allowedNumbers(verdicts: Verdict[]): Set<string> {
   const set = new Set<string>();
-  const eat = (s: string) => { for (const m of s.matchAll(NUM)) set.add(norm(m[0])); };
+  // Signatures out of the way first, so uint256 never contributes a 256.
+  const eat = (s: string) => { for (const m of s.replace(SIG, " ").matchAll(NUM)) set.add(norm(m[0])); };
   for (const v of verdicts) {
     Object.values(v.numbers).forEach(eat);
     v.rows.forEach((r) => { eat(r.claimed); eat(r.proven); eat(r.label); });
@@ -35,12 +63,22 @@ export function allowedHex(verdicts: Verdict[]): Set<string> {
   return set;
 }
 
-export function guardProse(prose: string, allowed: Set<string>, hex: Set<string> = new Set()): string {
+export function guardProse(
+  prose: string,
+  allowed: Set<string>,
+  hex: Set<string> = new Set(),
+  signatures: Set<string> = new Set(),
+): string {
   // Any hex literal must itself come from the run — an invented tx hash is a
   // far worse lie than an invented number. Verified ones are then taken out
   // of the way so their digits cannot be mistaken for figures.
   for (const m of prose.matchAll(HEX)) if (!hex.has(m[0].toLowerCase())) return "";
-  const rest = prose.replace(HEX, " ");
+  let rest = prose.replace(HEX, " ");
+  // Same treatment for a function signature the run actually named: quoting
+  // `mint(address,uint256)` is the evidence, and its argument types are not
+  // claims about quantity. An unrecognised one is left alone rather than
+  // rejected — it is ordinary prose, and its digits still get scanned.
+  rest = rest.replace(SIG, (m) => (signatures.has(m) ? " " : m));
   for (const m of rest.matchAll(NUM)) if (!allowed.has(norm(m[0]))) return ""; // hallucinated number
   return prose;
 }
@@ -48,6 +86,7 @@ export function guardProse(prose: string, allowed: Set<string>, hex: Set<string>
 export async function narrate(verdicts: Verdict[]): Promise<string> {
   const allowed = allowedNumbers(verdicts);
   const hex = allowedHex(verdicts);
+  const signatures = allowedSignatures(verdicts);
   let text: string;
   try {
     ({ text } = await generateText({
@@ -74,7 +113,7 @@ Data: ${JSON.stringify(verdicts)}`,
     return templateNarration(verdicts);
   }
 
-  const checked = guardProse(text, allowed, hex);
+  const checked = guardProse(text, allowed, hex, signatures);
   // Figures first, then the claim. guardProse proves every number and hash
   // came from the run; it says nothing about what the sentence asserts, and a
   // summary can get every figure right and still close by calling a token

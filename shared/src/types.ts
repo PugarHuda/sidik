@@ -36,7 +36,8 @@ export interface PreScan {
   venue?: "v2" | "v3";
   /** V3 only: the fee tier of the pool that was picked. */
   poolFee?: number;
-  owner?: Hex;                      // owner()/getOwner() if present
+  /** owner() if the contract exposes one. Nothing else is tried — see prescan.ts. */
+  owner?: Hex;
   topHolders: { address: Hex; balance: string }[];
 }
 
@@ -59,6 +60,33 @@ export interface ForkClient {
   read<T = unknown>(args: { address: Hex; abi: unknown; functionName: string; args?: unknown[] }): Promise<T>;
   // send from `from` (impersonated or funded); returns tx hash even if it reverts.
   send(args: { from: Hex; to: Hex; data?: Hex; value?: bigint }): Promise<{ hash: Hex; reverted: boolean; revertReason?: string }>;
+  /**
+   * Take a snapshot of the whole chain state.
+   *
+   * This is what lets one fork serve a whole run: each probe is given the same
+   * pristine post-fork state, so isolation no longer costs a process. It is
+   * also what makes the owner-trap probe's "the identical sell" a literal
+   * claim rather than a figure of speech.
+   */
+  /**
+   * Stop impersonating everything this fork was told to impersonate.
+   *
+   * Every probe stops its own, but only on the path where nothing went wrong.
+   * That was harmless while each probe got its own anvil process and took its
+   * leaks down with it; one fork now serves a whole run, and a snapshot
+   * restores chain state rather than node settings, so nothing else undoes an
+   * impersonation left behind by a probe that threw.
+   */
+  clearImpersonations(): Promise<void>;
+  snapshot(): Promise<string>;
+  /**
+   * Roll state back to `id`.
+   *
+   * anvil CONSUMES the id: reverting to it invalidates it and every snapshot
+   * taken after it, so a caller that wants to roll back twice must take a
+   * fresh snapshot each time.
+   */
+  revertTo(id: string): Promise<void>;
 }
 
 export interface Probe {

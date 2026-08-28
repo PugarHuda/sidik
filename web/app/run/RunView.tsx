@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { headlineOf, impostorsOf, listedTicker, type Verdict } from "@sidik/shared";
+import { headlineOf, impostorsOf, venueListings, type ScannerReadings, type Verdict, type Verification } from "@sidik/shared";
 import { streamRunEvents, type RunEvent } from "@/lib/sse";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
+
+// Venue ids as recorded in listings.ts, spelled the way each venue spells itself.
+const VENUE_NAME: Record<string, string> = { bingx: "BingX", gate: "Gate" };
 
 type Ev<T extends RunEvent["type"]> = Extract<RunEvent, { type: T }>;
 
@@ -19,8 +22,25 @@ const TONE = {
   NA: { text: "text-na", border: "border-na/40", bg: "bg-na/15" },
 } as const;
 
-function Badge({ status }: { status: Verdict["status"] }) {
+/**
+ * A probe whose mechanism does not exist for this token reads as N/A, which
+ * is indistinguishable from "we tried and could not tell".
+ *
+ * That distinction used to be invisible and cost little, because only one
+ * probe was ever inapplicable. With the owner-switch probe it is the common
+ * case — 161 of the recorded addresses carry no switch at all — so a clean
+ * token would show two N/A cards among six and read as poorly covered when
+ * every check that could apply had answered.
+ */
+function Badge({ status, applicable }: { status: Verdict["status"]; applicable?: boolean }) {
   const t = TONE[status];
+  if (applicable === false) {
+    return (
+      <span className="rounded-full border border-border px-3 py-1 font-mono text-xs font-semibold tracking-widest text-fg-dim">
+        DOES NOT APPLY
+      </span>
+    );
+  }
   return (
     <span
       className={`rounded-full border px-3 py-1 font-mono text-xs font-semibold tracking-widest ${t.text} ${t.border} ${t.bg}`}
@@ -57,7 +77,7 @@ function VerdictCard({ verdict }: { verdict: Verdict }) {
     <div className="animate-reveal overflow-hidden rounded-lg border border-border bg-card">
       <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
         <span className="font-mono text-xs text-fg-dim">{verdict.probe}</span>
-        <Badge status={verdict.status} />
+        <Badge status={verdict.status} applicable={verdict.applicable} />
       </div>
 
       <div className="px-5 py-4">
@@ -142,7 +162,84 @@ function VerdictCard({ verdict }: { verdict: Verdict }) {
   );
 }
 
-export default function RunView({ token }: { token: string }) {
+/**
+ * What two read-only scanners say about this address, beside what execution
+ * found. GoPlus is the check most wallets embed; honeypot.is runs a
+ * simulation of its own. Neither is evidence here and neither changes a
+ * verdict — this exists because "could a scanner not have told me this?" is
+ * the question a reader asks next, and the honest answer is per address:
+ * sometimes yes, sometimes no, and the disagreements run both ways.
+ *
+ * They describe the chain on the day they were asked, not the fork block
+ * every verdict describes. That gap is printed rather than papered over.
+ */
+function ScannerReadout({ token, readings, verdicts }: { token: string; readings: ScannerReadings; verdicts: Verdict[] }) {
+  const hp = verdicts.find((v) => v.probe === "honeypot");
+  const sidikHoneypot = hp?.status === "FAIL";
+  const g = readings.goplus;
+  const h = readings.honeypotIs;
+  const yes = (f: boolean | undefined) => (f === undefined ? "no answer" : f ? "yes" : "no");
+  const pct = (n: number | undefined) => (n === undefined ? "no answer" : `${n}%`);
+
+  // Only called a disagreement when the verdict in question actually ran.
+  const disagree: string[] = [];
+  if (hp && hp.status !== "NA") {
+    if (g?.isHoneypot !== undefined && g.isHoneypot !== sidikHoneypot) {
+      disagree.push(`GoPlus says ${g.isHoneypot ? "honeypot" : "not a honeypot"}; the fork ${sidikHoneypot ? "could not sell" : "sold"}`);
+    }
+    if (h && h.isHoneypot !== sidikHoneypot) {
+      disagree.push(`honeypot.is says ${h.isHoneypot ? "honeypot" : "not a honeypot"}; the fork ${sidikHoneypot ? "could not sell" : "sold"}`);
+    }
+  }
+
+  return (
+    <div className="mt-3 rounded-md border border-border bg-ink/60 px-3 py-2 text-xs text-fg-dim">
+      <div className="font-mono text-[11px] uppercase tracking-widest">
+        What read-only scanners say — asked {readings.askedOn}, about the chain that day, not block 50,200,000
+      </div>
+      <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2">
+        {g && (
+          <div>
+            <dt className="text-fg">GoPlus</dt>
+            <dd>
+              honeypot: <span className="text-fg">{yes(g.isHoneypot)}</span> · buy tax{" "}
+              <span className="text-fg">{pct(g.buyTaxPct)}</span> · sell tax{" "}
+              <span className="text-fg">{pct(g.sellTaxPct)}</span> · pausable{" "}
+              <span className="text-fg">{yes(g.transferPausable)}</span> · blacklist{" "}
+              <span className="text-fg">{yes(g.isBlacklisted)}</span> · mintable{" "}
+              <span className="text-fg">{yes(g.isMintable)}</span>
+            </dd>
+          </div>
+        )}
+        {h && (
+          <div>
+            <dt className="text-fg">honeypot.is</dt>
+            <dd>
+              honeypot: <span className="text-fg">{h.isHoneypot ? "yes" : "no"}</span> · risk{" "}
+              <span className="text-fg">{h.risk}</span> · buy tax{" "}
+              <span className="text-fg">{pct(h.buyTaxPct)}</span> · sell tax{" "}
+              <span className="text-fg">{pct(h.sellTaxPct)}</span>
+              {h.flags.length > 0 && <> · flags: <span className="text-fg">{h.flags.join(", ")}</span></>}
+            </dd>
+          </div>
+        )}
+      </dl>
+      {disagree.length > 0 && (
+        <p className="mt-2 text-na" data-scanner-disagreement>
+          Disagrees with what was executed: {disagree.join("; ")}.
+        </p>
+      )}
+      <p className="mt-2">
+        Context only. No scanner flag changes a verdict above.{" "}
+        <a href={`/api/token/${token}`} className="underline underline-offset-4 hover:text-fg">Same readings in the JSON.</a>
+      </p>
+    </div>
+  );
+}
+
+export default function RunView(
+  { token, source, scanners }: { token: string; source?: Verification | null; scanners?: ScannerReadings | null },
+) {
   const tokenValid = TOKEN_RE.test(token);
   const [events, setEvents] = useState<RunEvent[]>([]);
 
@@ -205,6 +302,7 @@ export default function RunView({ token }: { token: string }) {
   const verdicts = events.filter((e): e is Ev<"verdict"> => e.type === "verdict").map((e) => e.verdict);
   const narration = findLast("narration")?.text ?? null;
   const overall = headlineOf(verdicts);
+  const planned = findLast("plan")?.ids.length ?? 0;
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
@@ -224,7 +322,11 @@ export default function RunView({ token }: { token: string }) {
                 : "border-accent/40 bg-accent/15 text-accent"
           }`}
         >
-          {isError ? "ERROR" : isDone ? "DONE" : "SCANNING"}
+          {/* How far through, once the plan says how many there are. A run is
+              six probes now and each spends real seconds inside a fork; a bare
+              "SCANNING" gives a reader no way to tell a run that is working
+              from one that has stalled. */}
+          {isError ? "ERROR" : isDone ? "DONE" : planned ? `SCANNING ${verdicts.length}/${planned}` : "SCANNING"}
         </span>
       </div>
 
@@ -267,6 +369,32 @@ export default function RunView({ token }: { token: string }) {
         <div className="animate-reveal rounded-lg border border-fail/50 bg-fail/10 px-6 py-5">
           <div className="font-mono text-xs uppercase tracking-widest text-fail">Run failed</div>
           <p className="mt-1 text-sm text-fg">{errorEvent?.message}</p>
+          {/* An error that only says no was the whole of this page. Both routes
+              out of it are real and neither invents a verdict: the catalogue
+              may already hold this address, and the engine that probes new
+              ones is in the repo and runs on one anvil per token. */}
+          <div className="mt-3 flex flex-col gap-2 text-xs text-fg-dim">
+            <div>
+              <a
+                href={`/catalogue?q=${encodeURIComponent(token)}`}
+                className="text-accent underline underline-offset-4"
+              >
+                Search the catalogue for this address
+              </a>{" "}
+              — it may be recorded under a run this page could not reach.
+            </div>
+            <div>
+              Or probe it yourself. The engine is in the repository and forks Base once per run:
+              <code
+                tabIndex={0}
+                role="group"
+                aria-label="Command to probe this address locally"
+                className="mt-1 block overflow-x-auto whitespace-nowrap rounded border border-border bg-ink px-1.5 py-1 text-fg outline-none focus-visible:ring-1 focus-visible:ring-accent"
+              >
+                pnpm dev:engine &amp;&amp; curl &quot;localhost:8787/run?token={token}&quot;
+              </code>
+            </div>
+          </div>
         </div>
       )}
 
@@ -280,8 +408,22 @@ export default function RunView({ token }: { token: string }) {
 
       {narration && (
         <div className="animate-reveal rounded-lg border border-accent/30 bg-panel px-6 py-5">
-          <div className="mb-2 font-mono text-xs uppercase tracking-widest text-accent">Narration</div>
+          <div className="mb-2 font-mono text-xs uppercase tracking-widest text-accent">
+            Narration — written by a model, from the verdicts above
+          </div>
           <p className="text-base leading-7 text-fg">{narration}</p>
+          {/* This is the only prose on the page, so it is the paragraph a
+              reader is most likely to take as the product. Unlabelled, it
+              invites exactly the assumption this project exists to refute —
+              that a model decided any of it. Both guarantees named here are
+              real and enforced in engine/src/narrator.ts and
+              shared/src/narration.ts. */}
+          <p className="mt-3 text-xs leading-5 text-fg-dim">
+            Every figure and transaction hash in it is checked against the run before it is
+            shown, and a summary that contradicts a verdict is replaced by a deterministic one.
+            The verdicts themselves are decided by code reading what a transaction did — never
+            by the model.
+          </p>
         </div>
       )}
 
@@ -308,14 +450,45 @@ export default function RunView({ token }: { token: string }) {
             {verdicts.map((v, i) => (
               <span
                 key={`${v.probe}-${i}`}
-                className={`rounded-full border px-3 py-1 font-mono text-xs ${TONE[v.status].text} ${TONE[v.status].border} ${TONE[v.status].bg}`}
+                className={v.applicable === false
+                  ? "rounded-full border border-border px-3 py-1 font-mono text-xs text-fg-dim"
+                  : `rounded-full border px-3 py-1 font-mono text-xs ${TONE[v.status].text} ${TONE[v.status].border} ${TONE[v.status].bg}`}
               >
-                {v.probe}: {v.status}
+                {v.probe}: {v.applicable === false ? "n/a here" : v.status}
               </span>
             ))}
           </div>
           <div className="mt-4 text-xs text-fg-dim">
             Proven against a forked Base state — not simulated, not inferred from bytecode.
+          </div>
+          {/* The site serves recorded runs, and "these are real runs, not mock
+              data" is a claim a reader has no way to check. This is how they
+              check it: same command, same block, their own RPC. Printed here
+              rather than buried in the README because the claim is made here. */}
+          <div className="mt-2 text-xs text-fg-dim">
+            Do not take our word for it — re-run this address yourself. This forks Base at the
+            same block and tells you whether it gets the same verdict:
+            {/* The command is longer than a phone is wide, so it becomes a
+                scroll region — and a scroll region with no way in is
+                unreachable by keyboard or switch. Same group/label/tabIndex
+                treatment the live trace log needed for exactly this reason. */}
+            <code
+              tabIndex={0}
+              role="group"
+              aria-label="Command to reproduce this run"
+              className="mt-1 block overflow-x-auto whitespace-nowrap rounded border border-border bg-ink px-1.5 py-1 text-fg outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            >
+              pnpm --filter @sidik/engine reproduce {token}
+            </code>
+          </div>
+          <div className="mt-2 text-xs text-fg-dim">
+            Or read it as JSON:{" "}
+            <a
+              href={`/api/token/${token}`}
+              className="underline underline-offset-4 hover:text-fg"
+            >
+              /api/token/{formatAddr(token)}
+            </a>
           </div>
           {/* Corroboration, deliberately kept out of the verdict. A token you
               cannot sell cannot sustain a market on an independent venue, so a
@@ -336,13 +509,49 @@ export default function RunView({ token }: { token: string }) {
               .
             </div>
           )}
-          {listedTicker(token) && (
+          {venueListings(token).length > 0 && (
             <div className="mt-2 text-xs text-fg-dim">
-              Also trades on BingX as{" "}
-              <span className="text-fg">{listedTicker(token)}</span> — an independent venue.
+              Also trades on{" "}
+              {venueListings(token).map((l, i, all) => (
+                <span key={l.venue}>
+                  {i > 0 && (i === all.length - 1 ? " and " : ", ")}
+                  <span className="text-fg">{VENUE_NAME[l.venue]}</span> as{" "}
+                  <span className="text-fg">{l.ticker}</span>
+                </span>
+              ))}
+              {" "}— {venueListings(token).length === 1 ? "an independent venue" : "independent venues"}.
               Corroboration only; it is not part of the proof.
             </div>
           )}
+          {/* The advice everyone gives is "check that the contract is
+              verified". Across this catalogue that advice separates almost
+              nothing: 46 of the 47 addresses with a finding against them
+              publish verified source. Stated per token so a reader can see it
+              on the one in front of them rather than take the aggregate on
+              trust. Read from Blockscout, and no part of any verdict. */}
+          {source && (
+            <div className="mt-2 text-xs text-fg-dim">
+              {source.verified ? (
+                <>
+                  Source code is published and verified on{" "}
+                  <a
+                    href={`https://base.blockscout.com/address/${token}?tab=contract`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="underline underline-offset-4 hover:text-fg"
+                  >
+                    Blockscout
+                  </a>
+                  {source.name ? <> as <span className="text-fg">{source.name}</span></> : null}
+                  {source.compiler ? <> (solc {source.compiler})</> : null}. Anyone could read it
+                  before buying; every verdict above came from running it instead.
+                </>
+              ) : (
+                <>No verified source code is published for this address on Blockscout.</>
+              )}
+            </div>
+          )}
+          {scanners && <ScannerReadout token={token} readings={scanners} verdicts={verdicts} />}
         </div>
       )}
     </div>

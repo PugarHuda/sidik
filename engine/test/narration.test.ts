@@ -82,11 +82,22 @@ describe("every recorded run, served", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("still serves the model's own prose for all but the one that contradicted", () => {
+  it("still serves the model's own prose for almost every run", () => {
     // The guard has to be narrow enough to leave the catalogue intact. If a
     // future change makes it broad, this is what notices.
-    const replaced = Object.values(FIXTURES)
+    //
+    // A share rather than a count. The first version of this pinned the exact
+    // number, which was a fact about one recording: every re-record generates
+    // fresh prose, so the count moves for reasons that are not regressions,
+    // and a test that fails on a legitimate change teaches people to ignore
+    // it. What must not change is that this stays rare — the bare word "safe"
+    // appears in eleven FAIL narrations and nearly all of them are legitimate,
+    // quoting a row label or scoping the claim.
+    const runs = Object.values(FIXTURES);
+    const replaced = runs
       .filter((run) => safeNarration(run.narration, run.verdicts) !== run.narration).length;
-    expect(replaced).toBe(1);
+    expect(replaced / runs.length,
+      `${replaced} of ${runs.length} narrations were replaced; the guard is meant to be narrow`)
+      .toBeLessThanOrEqual(0.05);
   });
 });

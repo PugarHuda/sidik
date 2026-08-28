@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   catalogueRows, catalogueSummary, filterRows, isCatalogueFilter, paginate,
+  VERIFICATION_STATS,
 } from "@sidik/shared";
 import CatalogueControls from "./CatalogueControls";
 import CatalogueRows from "./CatalogueRows";
@@ -57,7 +58,9 @@ export default async function CataloguePage({
     ["honeypots", s.honeypots],
     ["hidden fees", s.taxed],
     ["LP rugs", s.lpRugs],
+    ["owner traps", s.ownerTraps],
     ["drainable wallets", s.drainableWallets],
+    ["scanners disagree", s.scannersDisagree],
   ];
 
   return (
@@ -73,8 +76,18 @@ export default async function CataloguePage({
         back, transferred it, and where an LP holder could be found, pulled the
         pool out from under it. Failures are listed first.
       </p>
+      {/* Kept next to the counts because it is the honest frame for them: the
+          usual way to vet a token would have cleared almost every one of the
+          ones below that failed. Source: Blockscout, per address, recorded in
+          shared/src/verification.ts. */}
+      <p className="mt-3 max-w-2xl text-sm text-fg-dim">
+        {VERIFICATION_STATS.failingVerified} of the {VERIFICATION_STATS.failing} runs with a
+        finding against them publish verified source code on Blockscout, as do{" "}
+        {VERIFICATION_STATS.verified} of all {VERIFICATION_STATS.checked}. Whatever was proven
+        below, it was proven about a contract anyone could already read.
+      </p>
 
-      <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {stats.map(([label, value]) => (
           <div key={label} className="rounded-lg border border-border bg-card px-4 py-3">
             <dt className="font-mono text-[11px] uppercase tracking-wider text-fg-dim">{label}</dt>
@@ -85,6 +98,26 @@ export default async function CataloguePage({
 
       <p className="mt-4 font-mono text-xs text-fg-dim">
         {s.onV3} trade on Uniswap V3 · {s.onV2} on V2
+      </p>
+
+      {/* The catalogue is structured data rendered as a page, and until now the
+          only way to consume it was to scrape that page. The link carries the
+          filter and search currently applied, so whatever a reader narrowed it
+          to is what they get. */}
+      <p className="mt-2 font-mono text-xs text-fg-dim">
+        <a
+          href={`/api/catalogue?${new URLSearchParams({
+            ...(filter !== "all" ? { filter } : {}),
+            ...(query ? { q: query } : {}),
+          })}`}
+          className="underline underline-offset-4 hover:text-fg"
+        >
+          this view as JSON
+        </a>
+        {" · "}
+        <a href="/llms.txt" className="underline underline-offset-4 hover:text-fg">
+          what an agent needs to know before using it
+        </a>
       </p>
 
       <div className="mt-10">

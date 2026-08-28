@@ -1,5 +1,7 @@
 import type { NextRequest } from "next/server";
-import { FIXTURES, FIXTURE_BLOCK, headlineOf, listedTicker, recordedRun, safeNarration } from "@sidik/shared";
+import {
+  FIXTURES, FIXTURE_BLOCK, headlineOf, recordedRun, safeNarration, scannersOf, venueListings, verificationOf,
+} from "@sidik/shared";
 
 // The runs store the block as a string because the engine turns it into a
 // BigInt; a JSON consumer should not inherit that. Left as a string, comparing
@@ -56,7 +58,20 @@ export async function GET(
     headline: headlineOf(run.verdicts),
     verdicts: run.verdicts,
     narration: safeNarration(run.narration, run.verdicts),
-    alsoListedOn: listedTicker(address) ? { bingx: listedTicker(address) } : null,
+    // Corroboration, kept in its own object so nothing here can be mistaken
+    // for part of a verdict. BingX pairs were matched by hand; Gate pairs were
+    // matched against the contract address Gate itself publishes.
+    corroboration: {
+      alsoTradesOn: venueListings(address),
+      // Blockscout's answer for this address. Across the catalogue this is
+      // the number that matters: almost every token with a finding against it
+      // publishes source anyone could have read first.
+      sourceVerified: verificationOf(address)?.verified ?? null,
+      // Two read-only scanners' readings for the same address, recorded on
+      // the date inside. They describe the chain that day, not the fork
+      // block above, and nothing in them changes a verdict.
+      scanners: scannersOf(address) ?? null,
+    },
     // Said plainly so nobody links these hashes to an explorer and finds
     // nothing: they were mined on a fork and never broadcast.
     transactionsWereBroadcast: false,

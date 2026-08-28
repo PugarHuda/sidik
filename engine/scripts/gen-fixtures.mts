@@ -22,6 +22,7 @@ import { EXAMPLES } from "@sidik/shared";
 import type { Hex, PreScan, Verdict } from "@sidik/shared";
 import { isProbeFailure, runSidik } from "../src/orchestrator.js";
 import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
+import { PROBES } from "../src/probes/registry.js";
 
 const CATALOG_SIZE = Number(process.env.SIDIK_CATALOG ?? "0");
 // ~70 days of Base blocks. The factory holds over 3M pairs, so enumerating it
@@ -278,6 +279,30 @@ async function discover(limit: number): Promise<{ address: Hex; label: string }[
 }
 
 /** One run, or undefined if it broke rather than reached a verdict. */
+/**
+ * The host has stopped being able to start anvil at all.
+ *
+ * Windows refuses new process creation with 0xC0000142 (STATUS_DLL_INIT_FAILED
+ * — desktop-heap exhaustion) once a session has churned through enough of
+ * them, and every token after that point fails identically. The generator used
+ * to treat that exactly like "this token had nothing to say" and march through
+ * the rest of the queue in a couple of minutes, skipping everything: a sweep
+ * that looked like it ran and recorded nothing.
+ */
+function isHostExhausted(reason: string | undefined): boolean {
+  return Boolean(reason && /anvil failed to start/i.test(reason));
+}
+
+/** Exit code a wrapper watches for, so a fresh process picks up where this one stopped. */
+const EXIT_HOST_EXHAUSTED = 75;
+
+// Consecutive anvil-start failures. Not a threshold for "flaky": once the host
+// stops creating processes it does not recover inside this process, so a few
+// in a row means every remaining token would be skipped for a reason that has
+// nothing to do with the token.
+let hostFailures = 0;
+const HOST_FAILURES_BEFORE_STOP = 3;
+
 async function record(token: Hex, mustBeToken = true): Promise<FrozenRun | undefined> {
   let scan: PreScan | undefined;
   let ids: string[] = [];
@@ -310,8 +335,10 @@ async function record(token: Hex, mustBeToken = true): Promise<FrozenRun | undef
   const broken = verdicts.find(isProbeFailure);
   if (failed || !scan || broken) {
     process.stderr.write(`SKIPPED (${(failed ?? broken?.title ?? "no prescan").slice(0, 70)})\n`);
+    if (isHostExhausted(failed)) hostFailures++; else hostFailures = 0;
     return undefined;
   }
+  hostFailures = 0;
   return { scan, ids, verdicts, narration };
 }
 
@@ -321,19 +348,84 @@ const runs = loadExisting();
 const already = Object.keys(runs).length;
 if (already) process.stderr.write(`resuming: ${already} already recorded at block ${BASE_FORK_BLOCK}\n`);
 
+/**
+ * Whether a recorded run was produced by the probe set that exists today.
+ *
+ * A catalogue has to be ONE probe set's output. Adding a probe and recording
+ * it only for new tokens would leave a page where some rows were asked a
+ * question and others silently were not, which is indistinguishable from the
+ * question having been asked and answered.
+ *
+ * Expressed as "what is missing" rather than "re-record everything" because
+ * 194 tokens is roughly a thousand anvil forks and Windows kills process
+ * creation long before that (0xC0000142). A sweep therefore gets interrupted
+ * several times, and a blanket re-record would start over each time and never
+ * converge. This lets each restart pick up only what is still stale.
+ */
+function upToDate(run: FrozenRun): boolean {
+  // Probes added since the file was last written.
+  for (const id of ["ownerTrap"]) {
+    const probe = PROBES.find((p) => p.id === id);
+    if (probe && probe.applicableWhen(run.scan) && !run.verdicts.some((v) => v.probe === id)) return false;
+  }
+  // crossVenue now asks more than one venue and records which were asked. An
+  // old verdict has no venuesAsked, and mixing the two shapes on one page
+  // would show some tokens a second opinion and others not.
+  const cross = run.verdicts.find((v) => v.probe === "crossVenue");
+  if (cross && !cross.numbers.venuesAsked) return false;
+  // "Anyone can call X" was reachable from a sell that measured nothing: a
+  // zero baseline made the proceeds comparison read as a total collapse, so
+  // the contract got accused on the strength of a measurement that never
+  // happened. Any run still carrying that verdict predates the guard and has
+  // to be produced again before it can be believed.
+  const trap = run.verdicts.find((v) => v.probe === "ownerTrap");
+  if (trap && trap.title.startsWith("Anyone can call")) return false;
+  // NOT a rule for lpRug's "No holder position to measure the pull against".
+  // It was one, once: the holder sample behind that answer comes from a free
+  // public getLogs endpoint whose refusals used to be indistinguishable from
+  // an empty result. The endpoint is retried now and every run carrying that
+  // NA was re-asked on 2026-08-27 -- six of seven came back the same, which
+  // is the genuine answer for a token nobody moved in the window. A rule
+  // keyed on the title cannot tell those apart, so it would re-record the
+  // same six tokens on every pass forever.
+  // A reverted sell used to be the end of the honeypot probe. It now retries
+  // a tenth of the position (a cap is not a block) and measures whether the
+  // token skims transfers (which is what makes a Uniswap V3 sell revert with
+  // IIA). A FAIL recorded before that carries neither answer.
+  const hp = run.verdicts.find((v) => v.probe === "honeypot");
+  if (hp && hp.status === "FAIL" && hp.numbers.partialSell === undefined
+      && !hp.title.includes("pays almost nothing")) return false;
+  return true;
+}
+
+const RERECORD = process.env.SIDIK_RERECORD === "1";
+const stale = RERECORD ? Object.keys(runs).filter((a) => !upToDate(runs[a]!)) : [];
+if (RERECORD) {
+  process.stderr.write(`${stale.length} of ${already} recorded run(s) are stale and will be re-recorded\n`);
+}
+
 const targets: { address: Hex; label: string; mustBeToken?: boolean }[] = [
   ...EXAMPLES.map((e) => ({ address: e.address, label: e.label, mustBeToken: e.kind !== "wallet" })),
   ...SEED.map((address) => ({ address, label: "seed" })),
+  // Re-record targets carry the scan that was recorded for them, so a wallet
+  // stays a wallet rather than being rejected as "not a token".
+  ...stale.map((a) => ({
+    address: runs[a]!.scan.token,
+    label: "re-record",
+    mustBeToken: runs[a]!.scan.isErc20,
+  })),
 ];
 if (CATALOG_SIZE > 0) {
   process.stderr.write(`discovering the ${CATALOG_SIZE} most liquid Uniswap V2 tokens on Base...\n`);
   targets.push(...await discover(CATALOG_SIZE));
 }
 
+const staleSet = new Set(stale);
 const seen = new Set<string>();
 const queue = targets.filter((t) => {
   const k = t.address.toLowerCase();
-  if (seen.has(k) || runs[k]) return false;
+  if (seen.has(k)) return false;
+  if (runs[k] && !staleSet.has(k)) return false;
   seen.add(k);
   return true;
 });
@@ -351,6 +443,21 @@ for (const t of queue) {
   if (i > 1) await new Promise((r) => setTimeout(r, BREATHE_MS));
   process.stderr.write(`[${i}/${queue.length}] ${t.label} ${t.address} ... `);
   const run = await record(t.address, t.mustBeToken ?? true);
+  if (hostFailures >= HOST_FAILURES_BEFORE_STOP) {
+    write(runs);
+    process.stderr.write(
+      `
+STOPPING at ${i}/${queue.length}: anvil has failed to start ${hostFailures} times in a row.
+`
+      + `This is the host, not the tokens — Windows stops creating processes (0xC0000142) after a
+`
+      + `few hundred forks. Everything recorded so far is written. Run the same command again in a
+`
+      + `fresh process and it will resume from here.
+`,
+    );
+    process.exit(EXIT_HOST_EXHAUSTED);
+  }
   if (!run) continue;
   runs[t.address.toLowerCase()] = run;
   write(runs); // after every token, so an interrupted run keeps its progress

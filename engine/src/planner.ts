@@ -50,8 +50,23 @@ Do not invent probes or numbers.`,
   } catch {
     return allApplicable(scan);
   }
-  // safety net: if the model returned nothing usable, run everything applicable.
-  return picked.length ? picked : allApplicable(scan);
+  // The model orders; it does not select. Anything applicable it left out is
+  // appended rather than dropped.
+  //
+  // The comment above has always said the plan is an ordering hint, but the
+  // code returned the model's list verbatim, so a probe it forgot simply never
+  // ran. With five probes it never forgot one. With six it did — and a run
+  // recorded that way is a page where one question was silently not asked,
+  // which a reader cannot tell apart from the question having been asked and
+  // answered. Across a catalogue it is worse: some rows checked, some not, no
+  // way to see which.
+  return orderedByPlan(picked, scan);
+}
+
+/** The model's order first, then every applicable probe it did not mention. */
+export function orderedByPlan(picked: string[], scan: PreScan): string[] {
+  const chosen = new Set(picked);
+  return [...picked, ...allApplicable(scan).filter((id) => !chosen.has(id))];
 }
 
 const PlanSchema = z.object({ probes: z.array(z.string()) });

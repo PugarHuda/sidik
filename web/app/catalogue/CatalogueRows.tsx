@@ -25,7 +25,17 @@ export default function CatalogueRows({ rows }: { rows: CatalogueRow[] }) {
   return (
     <ul className="flex flex-col gap-2">
       {rows.map((r) => (
-        <li key={r.address}>
+        // Which probes failed, as data. The finding text beside it is a
+        // verdict title, and titles are prose that gets rewritten as probes
+        // learn to say more — "Honeypot — …" became "Cannot sell — the token
+        // skims 2.99% …" on the day the probe learned to tell those apart.
+        // Anything that needs to know what a row IS reads this, not the
+        // sentence.
+        <li
+          key={r.address}
+          data-failing={r.probes.filter((p) => p.status === "FAIL").map((p) => p.id).join(" ") || undefined}
+          data-scanner-disagrees={r.scannerDisagrees ? "" : undefined}
+        >
           <Link
             href={`/run?token=${r.address}`}
             className="flex flex-col gap-2 rounded-lg border border-border bg-card px-4 py-3 transition hover:border-accent/50 sm:flex-row sm:items-center"
@@ -48,6 +58,14 @@ export default function CatalogueRows({ rows }: { rows: CatalogueRow[] }) {
                 title="Other recorded Base tokens use this same symbol, and their verdicts are not the same"
               >
                 +{r.sharesSymbolWith} sharing this symbol
+              </span>
+            )}
+            {r.scannerDisagrees && (
+              <span
+                className="w-fit rounded border border-accent/40 bg-accent/10 px-2 py-0.5 font-mono text-[11px] text-accent"
+                title={r.scannerDisagrees}
+              >
+                scanner disagrees
               </span>
             )}
             <span className="text-sm text-fg-dim sm:ml-2 sm:flex-1">{r.finding}</span>

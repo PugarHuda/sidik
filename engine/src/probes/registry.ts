@@ -4,5 +4,6 @@ import { hiddenFeeProbe } from "./hiddenFee.js";
 import { approvalDrainProbe } from "./approvalDrain.js";
 import { lpRugProbe } from "./lpRug.js";
 import { crossVenueProbe } from "./crossVenue.js";
+import { ownerTrapProbe } from "./ownerTrap.js";
 
-export const PROBES: Probe[] = [honeypotProbe, hiddenFeeProbe, approvalDrainProbe, lpRugProbe, crossVenueProbe];
+export const PROBES: Probe[] = [honeypotProbe, hiddenFeeProbe, approvalDrainProbe, lpRugProbe, crossVenueProbe, ownerTrapProbe];

@@ -102,3 +102,21 @@ jobs:
         env:
           BASE_ARCHIVE_RPC: ${{ secrets.BASE_ARCHIVE_RPC }}
         run: pnpm run test:integration
+
+      # The site serves recorded runs, so the claim that they are real runs is
+      # only worth what re-running them is worth. This re-executes a spread of
+      # the catalogue against a fresh fork and fails if any published verdict
+      # does not come back. A sample rather than all 194: the point is that the
+      # recording reproduces, and the full sweep is an hour of RPC.
+      #
+      # If this goes red, read the diff before assuming a code regression. The
+      # holder sample behind lpRug comes from a free public getLogs endpoint,
+      # and one refusal used to be indistinguishable from an empty result --
+      # measured at one token in 122 before that call was retried. A verdict
+      # that moves at a pinned block is exactly what this step is for, whether
+      # the cause is the code or the network.
+      - name: Reproduce a sample of the published catalogue
+        if: steps.rpc.outputs.present == 'true'
+        env:
+          BASE_ARCHIVE_RPC: ${{ secrets.BASE_ARCHIVE_RPC }}
+        run: pnpm --filter @sidik/engine reproduce --sample 5

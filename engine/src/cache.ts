@@ -50,9 +50,10 @@ export function cacheSize(): { seeded: number; live: number } {
 // are seeded into the same cache a live run writes to, so serving one takes
 // the replay path that is already covered by tests.
 //
-// The point is judge-time survival: every live run spawns a fork per probe,
-// and the archive RPC answers 429 under concurrent forking. Anyone clicking
-// an example button gets an answer without touching the network.
+// The point is judge-time survival: every live run spawns an anvil fork and
+// replays Base archive state through a rate-limited RPC, and two of those at
+// once is enough to start seeing 429s. Anyone clicking an example button gets
+// an answer without touching the network.
 //
 // Keyed by the fork block they were produced at, so bumping BASE_FORK_BLOCK
 // makes them miss rather than serve stale proof about the current pin.

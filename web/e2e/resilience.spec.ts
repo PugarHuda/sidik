@@ -92,6 +92,20 @@ test.describe("network failure", () => {
     // Never a verdict, and never a headline, for an address never probed.
     await expect(page.getByText("DONE run complete")).toBeHidden();
   });
+
+  // An error that only says no was the whole of this page. Both ways out of it
+  // have to be real, and neither may imply a verdict.
+  test("offers the two real routes out, and still no verdict", async ({ page }) => {
+    await page.goto(`/run?token=${NOT_RECORDED}`);
+    const search = page.getByRole("link", { name: /Search the catalogue for this address/i });
+    await expect(search).toHaveAttribute("href", `/catalogue?q=${NOT_RECORDED}`);
+    await expect(page.getByText(/probe it yourself/i)).toBeVisible();
+    await expect(page.getByLabel("Command to probe this address locally")).toBeVisible();
+    // Nothing on this page may read as an outcome about the token.
+    for (const word of ["PASS", "FAIL"]) {
+      await expect(page.getByText(new RegExp(`\\b${word}\\b`))).toHaveCount(0);
+    }
+  });
 });
 
 test.describe("impatient readers", () => {

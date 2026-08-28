@@ -7,6 +7,17 @@ import {
 import { base } from "viem/chains";
 import type { ForkClient, Hex } from "@sidik/shared";
 import { REVERT_MAX, untrustedText } from "./untrusted.js";
+import { startForkProxy, type ForkProxy } from "./forkProxy.js";
+
+// One proxy per engine process, started the first time a fork is opened and
+// kept for every fork after it. See forkProxy.ts for why anvil is not handed
+// the archive RPC directly: the gateway answers anvil's nodeInfo probe with
+// HTTP 400 and anvil refuses to fork at all.
+let proxy: Promise<ForkProxy> | undefined;
+function forkEndpoint(rpc: string): Promise<string> {
+  proxy ??= startForkProxy(rpc);
+  return proxy.then((p) => p.url);
+}
 
 // ponytail: fixed high gas cap for fork-only sends. Without an explicit gas
 // limit, viem runs eth_estimateGas first, which itself fails on an ordinary
@@ -19,6 +30,7 @@ const FORK_GAS_LIMIT = 5_000_000n;
 // makes it take longer still — a tight budget turns a slow start into a
 // spurious failure mid-demo.
 const ANVIL_START_TIMEOUT_MS = 90_000;
+const RECEIPT_TIMEOUT_MS = 600_000;
 const PROBE_PING_TIMEOUT_MS = 2_000;
 
 async function spawnAnvil(rpc: string, block: bigint, port: number) {
@@ -87,11 +99,24 @@ async function spawnAnvilWithRetry(rpc: string, block: bigint) {
   throw last;
 }
 
-export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promise<T>): Promise<T> {
+export interface OpenFork {
+  fork: ForkClient;
+  /** Tears the anvil process down. Safe to call more than once. */
+  close(): void;
+}
+
+/**
+ * One anvil, held open until the caller closes it.
+ *
+ * Exists because a run is an async generator: it has to yield an event after
+ * every probe, and a value cannot be yielded from inside withFork's callback.
+ * Opening the fork explicitly lets one process serve a whole run.
+ */
+export async function openFork(block: bigint): Promise<OpenFork> {
   const rpc = process.env.BASE_ARCHIVE_RPC;
   if (!rpc) throw new Error("BASE_ARCHIVE_RPC is not set");
 
-  const { proc, url } = await spawnAnvilWithRetry(rpc, block);
+  const { proc, url } = await spawnAnvilWithRetry(await forkEndpoint(rpc), block);
   const transport = http(url);
   const test = createTestClient({ mode: "anvil", chain: base, transport });
   // Plain client, no read batching. viem can coalesce same-tick reads through
@@ -102,10 +127,21 @@ export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promi
   // that can see past the RPC.
   const pub = createPublicClient({ chain: base, transport });
 
+  // Tracked so a probe that throws mid-impersonation cannot leave the account
+  // impersonated for whatever runs next on this same fork.
+  const impersonated = new Set<Hex>();
+
   const fork: ForkClient = {
     rpcUrl: url,
-    impersonate: (a) => test.impersonateAccount({ address: a }),
-    stopImpersonate: (a) => test.stopImpersonatingAccount({ address: a }),
+    async impersonate(a) { await test.impersonateAccount({ address: a }); impersonated.add(a); },
+    async stopImpersonate(a) { await test.stopImpersonatingAccount({ address: a }); impersonated.delete(a); },
+    async clearImpersonations() {
+      for (const a of [...impersonated]) {
+        // One that will not stop must not prevent the rest from stopping.
+        try { await test.stopImpersonatingAccount({ address: a }); } catch { /* nothing left to do */ }
+        impersonated.delete(a);
+      }
+    },
     setBalanceEth: (a, eth) => test.setBalance({ address: a, value: parseEther(eth) }),
     read: (args) => pub.readContract(args as any) as any,
     async send({ from, to, data, value }) {
@@ -115,7 +151,13 @@ export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promi
         const hash = await wallet.sendTransaction({
           to, data, value, account: from, chain: base, gas: FORK_GAS_LIMIT,
         } as any);
-        const rcpt = await pub.waitForTransactionReceipt({ hash });
+        // anvil mines the moment it has the state, so this wait is really a
+        // wait for archive reads through a throttled gateway. viem gives up
+        // after 180s by default, and a V3 sell against a deep pool exceeded
+        // that twice on 2026-08-28 while anvil was still fetching — the
+        // receipt then arrived, to nobody. Ten minutes is the ceiling anvil's
+        // own fork replay is given, so the wait matches it.
+        const rcpt = await pub.waitForTransactionReceipt({ hash, timeout: RECEIPT_TIMEOUT_MS });
         // revertReason isn't on the receipt itself; leave undefined here.
         // dex.ts recovers it by replaying the call (deriveRevertReason).
         return { hash, reverted: rcpt.status === "reverted" };
@@ -127,10 +169,26 @@ export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promi
         return { hash: "0x" as Hex, reverted: true, revertReason: shortRevert(e) };
       }
     },
+    snapshot: () => test.snapshot(),
+    revertTo: async (id) => { await test.revert({ id: id as Hex }); },
   };
 
+  let closed = false;
+  return {
+    fork,
+    close() {
+      if (closed) return;
+      closed = true;
+      proc.kill();
+    },
+  };
+}
+
+/** One anvil for one operation. Kept for callers that do not need to yield. */
+export async function withFork<T>(block: bigint, fn: (fork: ForkClient) => Promise<T>): Promise<T> {
+  const { fork, close } = await openFork(block);
   try { return await fn(fork); }
-  finally { proc.kill(); }
+  finally { close(); }
 }
 
 function shortRevert(e: any): string {

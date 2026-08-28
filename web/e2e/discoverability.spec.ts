@@ -91,8 +91,9 @@ test.describe("catalogue filter state", () => {
       .toHaveAttribute("aria-pressed", "true");
     const rows = await page.locator("ul li").count();
     expect(rows).toBeGreaterThan(0);
-    // Every row on this page must actually be a honeypot finding.
-    await expect(page.locator("ul li").first()).toContainText(/Honeypot/i);
+    // Every row on this page must actually be a honeypot finding — checked
+    // on the row's data, not on its title, which is prose.
+    await expect(page.locator("ul li:not([data-failing~='honeypot'])")).toHaveCount(0);
   });
 
   test("the back button steps back through filter states", async ({ page }) => {
@@ -146,7 +147,7 @@ test.describe("without JavaScript", () => {
     const rows = await page.locator("ul li").count();
     expect(rows).toBeGreaterThan(0);
     expect(rows).toBeLessThan(50);
-    await expect(page.locator("ul li").first()).toContainText(/Honeypot/i);
+    await expect(page.locator("ul li:not([data-failing~='honeypot'])")).toHaveCount(0);
   });
 
   test("a run page still states what was proven", async ({ page }) => {

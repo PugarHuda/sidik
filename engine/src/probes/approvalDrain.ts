@@ -100,9 +100,11 @@ export const approvalDrainProbe: Probe = {
     const victim = ctx.token;
     const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
 
-    // ponytail: single-call window over the dedicated logs RPC (see rpc.ts) —
-    // ~1.7h of Base blocks, so only RECENT approvals are found. Widen with a
-    // chunked scan if a demo needs deeper history; the endpoint allows it.
+    // ponytail: single-call window over the dedicated logs RPC (see rpc.ts).
+    // Base mines every 2 seconds, so 9,000 blocks is FIVE HOURS and only very
+    // recent approvals are found. (This comment said 1.7h, which was true of
+    // the 3,000-block window it replaced.) Widen with a chunked scan if a demo
+    // needs deeper history; the endpoint allows it.
     const fromBlock = ctx.block > APPROVAL_LOOKBACK_BLOCKS ? ctx.block - APPROVAL_LOOKBACK_BLOCKS : 0n;
     const logs = await logsClient().getLogs({ event: APPROVAL_EVENT, args: { owner: victim }, fromBlock, toBlock: ctx.block });
 

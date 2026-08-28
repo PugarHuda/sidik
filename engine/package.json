@@ -8,8 +8,13 @@
     "fixtures": "tsx --env-file-if-exists=.env scripts/gen-fixtures.mts",
     "listings": "tsx --env-file-if-exists=.env scripts/gen-listings.mts",
     "test:unit": "vitest run --exclude '**/*.integration.test.ts'",
-    "test:integration": "vitest run **/*.integration.test.ts",
-    "coverage": "vitest run --coverage --exclude '**/*.integration.test.ts'"
+    "test:integration": "vitest run integration",
+    "coverage": "vitest run --coverage --exclude '**/*.integration.test.ts'",
+    "verification": "tsx --env-file-if-exists=.env scripts/gen-verification.mts",
+    "reproduce": "tsx --env-file-if-exists=.env scripts/reproduce.mts",
+    "counts": "tsx scripts/counts.mts",
+    "scanners": "tsx --env-file-if-exists=.env scripts/gen-scanners.mts",
+    "recheck": "tsx --env-file-if-exists=.env scripts/recheck.mts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^1.0.48",

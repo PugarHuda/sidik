@@ -203,6 +203,11 @@ test.describe("hardening", () => {
       // derived from must not come along. This title is in 182 of the 194
       // recorded runs, so it cannot be absent by luck.
       expect(shipped).not.toContain("Not a honeypot — buy and sell both succeed");
+      // Same rule for the verification map. It is one record per recorded
+      // address, and the pages that use it show exactly one — /run gets its
+      // answer as a prop from the server for this reason.
+      expect(shipped).not.toContain("VERIFIED_SOURCE");
+      expect(shipped).not.toContain("+commit.");
     });
   }
 });
@@ -229,7 +234,9 @@ test.describe("catalogue", () => {
     const after = await page.locator("ul li").count();
     expect(after).toBeGreaterThan(0);
     expect(after).toBeLessThan(before);
-    await expect(page.locator("ul li").first()).toContainText(/Honeypot/i);
+    // Every row, and by what it is rather than by what its title says: the
+    // title is a sentence the probe rewrites as it learns to say more.
+    await expect(page.locator("ul li:not([data-failing~='honeypot'])")).toHaveCount(0);
   });
 
   test("searching by symbol narrows the list", async ({ page }) => {

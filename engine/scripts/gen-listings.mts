@@ -1,28 +1,36 @@
-// Records which catalogue tokens also trade on BingX, into
+// Records which catalogue tokens also trade on an independent venue, into
 // shared/src/listings.ts.
 //
 //   pnpm --filter @sidik/engine listings
 //
 // Why this exists: a token you cannot sell cannot sustain a working market on
-// an independent venue. A listing is therefore real corroboration of a PASS —
-// and, if a token Sidik proves is a honeypot ever turns up listed, a finding
-// worth shouting about. It is corroboration, never proof: Sidik's verdicts
-// come from the fork and nowhere else.
+// a venue that has nothing to do with its pool. A listing is therefore real
+// corroboration of a PASS — and, if a token Sidik proves is a honeypot ever
+// turns up listed, a finding worth shouting about. It is corroboration, never
+// proof: Sidik's verdicts come from the fork and nowhere else.
 //
-// Matching is by HAND, not by ticker. Exchange symbols collide constantly —
-// the catalogue and BingX share tickers like DOS, MON, SYS, HYPER and BSV
-// that are certainly different assets — and claiming "this Base token is
-// listed" about a different coin with the same three letters is exactly the
-// kind of false claim this project exists to argue against. Only pairs
-// verified as the same asset appear below.
+// TWO VENUES, MATCHED TWO DIFFERENT WAYS, and the difference is the point:
+//
+//   BingX publishes tickers and no contract addresses, so those pairs are
+//   matched BY HAND. Exchange symbols collide constantly — this catalogue
+//   shares DOS, MON, SYS, HYPER and BSV with unrelated coins — and claiming
+//   "this Base token is listed" about a different coin with the same three
+//   letters is exactly the false claim this project exists to argue against.
+//
+//   Gate publishes the contract address behind every ticker, per chain. Those
+//   pairs are matched BY ADDRESS against the catalogue, so the exchange
+//   itself is asserting the pairing and no hand judgement is involved. Where
+//   both venues cover the same address, Gate's answer is used to audit the
+//   hand-matched BingX ticker, and a disagreement is printed rather than
+//   quietly resolved.
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import type { Hex } from "@sidik/shared";
+import { FIXTURES, type Hex } from "@sidik/shared";
+import { BINGX_SYMBOLS } from "../src/bingx.js";
+import { baseListings } from "../src/gate.js";
 
-const BINGX_SYMBOLS = "https://open-api.bingx.com/openApi/spot/v1/common/symbols";
-
-// address -> the ticker that is unambiguously this same asset.
-const VERIFIED: [Hex, string][] = [
+// address -> the BingX ticker that is unambiguously this same asset.
+const BY_HAND: [Hex, string][] = [
   ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", "USDC"],
   ["0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb", "DAI"],
   ["0x940181a94A35A4569E4529A3CDfB74e38FD98631", "AERO"],
@@ -38,39 +46,106 @@ const VERIFIED: [Hex, string][] = [
 const res = await fetch(BINGX_SYMBOLS, { headers: { "user-agent": "sidik" } });
 if (!res.ok) throw new Error(`BingX returned ${res.status}`);
 const body = await res.json() as { data?: { symbols?: { symbol: string }[] } };
-const listed = new Set(
+const bingxListed = new Set(
   (body.data?.symbols ?? []).map((s) => s.symbol.split("-")[0]!.toUpperCase()),
 );
-process.stderr.write(`BingX lists ${listed.size} spot assets\n`);
+process.stderr.write(`BingX lists ${bingxListed.size} spot assets\n`);
 
-const confirmed: [Hex, string][] = [];
-for (const [address, ticker] of VERIFIED) {
-  const ok = listed.has(ticker.toUpperCase());
+const bingx: [Hex, string][] = [];
+for (const [address, ticker] of BY_HAND) {
+  const ok = bingxListed.has(ticker.toUpperCase());
   process.stderr.write(`  ${ticker.padEnd(9)} ${ok ? "listed" : "not listed"}\n`);
-  if (ok) confirmed.push([address, ticker]);
+  if (ok) bingx.push([address, ticker]);
 }
+
+const gateByAddress = await baseListings();
+process.stderr.write(`\nGate publishes ${gateByAddress.size} Base contract addresses\n`);
+
+const gate: [Hex, string][] = [];
+for (const address of Object.keys(FIXTURES)) {
+  const entry = gateByAddress.get(address.toLowerCase());
+  if (!entry) continue;
+  const symbol = FIXTURES[address]!.scan.symbol || "?";
+  // Delisted or trade-disabled means Gate is not quoting it, so "also trades
+  // on Gate" would be false. Recorded in the log because the fact that a
+  // catalogue token has been dropped by an exchange is worth seeing.
+  if (entry.delisted || entry.tradeDisabled) {
+    process.stderr.write(`  ${symbol.padEnd(12)} ${entry.currency.padEnd(9)} not quoted (delisted/disabled)\n`);
+    continue;
+  }
+  process.stderr.write(`  ${symbol.padEnd(12)} ${entry.currency.padEnd(9)} matched by contract address\n`);
+  gate.push([FIXTURES[address]!.scan.token, entry.currency]);
+}
+
+// Audit the hand-matched side against the venue that publishes addresses.
+let agreed = 0;
+let disagreed = 0;
+for (const [address, ticker] of bingx) {
+  const entry = gateByAddress.get(address.toLowerCase());
+  if (!entry) continue;
+  if (entry.currency.toUpperCase() === ticker.toUpperCase()) { agreed++; continue; }
+  disagreed++;
+  process.stderr.write(
+    `  DISAGREEMENT: ${address} is "${ticker}" by hand but "${entry.currency}" per Gate\n`,
+  );
+}
+process.stderr.write(
+  `\nGate confirms ${agreed} of the ${bingx.length} hand-matched BingX tickers by contract address`
+  + `${disagreed ? `, and contradicts ${disagreed}` : ""}\n`,
+);
+if (disagreed) throw new Error("a hand-matched ticker disagrees with the address the exchange publishes");
 
 const out = fileURLToPath(new URL("../../shared/src/listings.ts", import.meta.url));
+const asMap = (pairs: [Hex, string][]) =>
+  JSON.stringify(Object.fromEntries(pairs.map(([a, t]) => [a.toLowerCase(), t])), null, 2);
+
 writeFileSync(out, `// GENERATED by engine/scripts/gen-listings.mts — do not edit by hand.
-// Catalogue tokens confirmed to also trade on BingX, matched by hand rather
-// than by ticker because exchange symbols collide. Corroboration only: a
-// token you cannot sell cannot sustain a market on an independent venue.
-// Verdicts still come from the fork and nowhere else.
+// Catalogue tokens confirmed to also trade on an independent venue.
+// Corroboration only: a token you cannot sell cannot sustain a market
+// somewhere else. Verdicts still come from the fork and nowhere else.
+//
+// BingX publishes no contract addresses, so those pairs are matched by hand.
+// Gate publishes one per ticker per chain, so those are matched by address —
+// the exchange itself asserts the pairing. Where both cover an address, the
+// generator checks that they agree and refuses to write a file where they do
+// not.
 import type { Hex } from "./types";
 
-export const LISTED_ON_BINGX: Record<string, string> = ${
-  JSON.stringify(Object.fromEntries(confirmed.map(([a, t]) => [a.toLowerCase(), t])), null, 2)
-};
+export const LISTED_ON_BINGX: Record<string, string> = ${asMap(bingx)};
 
-export function listedTicker(address: Hex | string): string | undefined {
+export const LISTED_ON_GATE: Record<string, string> = ${asMap(gate)};
+
+function lookup(map: Record<string, string>, address: Hex | string): string | undefined {
   // Object.hasOwn, not a bare index. A plain object literal inherits from
-  // Object.prototype, so LISTED_ON_BINGX["constructor"] returns a function
-  // rather than undefined — as do __proto__, toString, valueOf and
-  // hasOwnProperty. Every caller today passes a regex-validated address, so
-  // this is not reachable; it becomes reachable the moment one does not, and
-  // the caller would get a function where it expected a ticker.
+  // Object.prototype, so map["constructor"] returns a function rather than
+  // undefined — as do __proto__, toString, valueOf and hasOwnProperty. Every
+  // caller today passes a regex-validated address, so this is not reachable;
+  // it becomes reachable the moment one does not, and the caller would get a
+  // function where it expected a ticker.
   const key = String(address).toLowerCase();
-  return Object.hasOwn(LISTED_ON_BINGX, key) ? LISTED_ON_BINGX[key] : undefined;
+  return Object.hasOwn(map, key) ? map[key] : undefined;
+}
+
+/** The BingX ticker for this address, if it has one. */
+export function listedTicker(address: Hex | string): string | undefined {
+  return lookup(LISTED_ON_BINGX, address);
+}
+
+export interface VenueListing {
+  venue: "bingx" | "gate";
+  ticker: string;
+}
+
+/** Every venue known to quote this address, in the order the probe asks them. */
+export function venueListings(address: Hex | string): VenueListing[] {
+  const out: VenueListing[] = [];
+  const b = lookup(LISTED_ON_BINGX, address);
+  if (b) out.push({ venue: "bingx", ticker: b });
+  const g = lookup(LISTED_ON_GATE, address);
+  if (g) out.push({ venue: "gate", ticker: g });
+  return out;
 }
 `);
-process.stderr.write(`\nwrote ${confirmed.length} confirmed listing(s) -> ${out}\n`);
+process.stderr.write(
+  `\nwrote ${bingx.length} BingX + ${gate.length} Gate listing(s) -> ${out}\n`,
+);

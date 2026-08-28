@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { EXAMPLES, FIXTURE_COUNT } from "@sidik/shared";
+import { EXAMPLES, FIXTURE_COUNT, VERIFICATION_STATS } from "@sidik/shared";
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -11,6 +11,7 @@ const KIND_DOT: Record<string, string> = {
   honeypot: "bg-fail",
   highfee: "bg-na",
   wallet: "bg-fail",
+  ownertrap: "bg-fail",
 };
 
 export default function Home() {
@@ -53,6 +54,20 @@ export default function Home() {
           against a forked chain and recorded what each one actually did — the
           buy that worked, the sell that reverted, the fee nobody documented.
           Pick one below, or paste an address to see whether it is covered.
+        </p>
+
+        {/* The number that says why executing beats reading. Counted from
+            Blockscout across the same catalogue, frozen into a constant at
+            generation time — see engine/scripts/gen-verification.mts. */}
+        <p className="mt-5 max-w-xl border-l-2 border-accent/50 pl-4 text-sm leading-6 text-fg-dim">
+          <span className="text-fg">
+            {VERIFICATION_STATS.verified} of those {VERIFICATION_STATS.checked} publish verified
+            source code
+          </span>{" "}
+          — and so do {VERIFICATION_STATS.failingVerified} of the{" "}
+          {VERIFICATION_STATS.failing} that failed a probe. &ldquo;Check that the contract is
+          verified&rdquo; is the standard advice, and across this catalogue it separates almost
+          nothing.
         </p>
 
         <form

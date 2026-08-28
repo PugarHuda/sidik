@@ -3,7 +3,7 @@ import type { Hex } from "./types";
 export interface ExampleToken {
   label: string;
   address: Hex;
-  kind: "safe" | "honeypot" | "highfee" | "wallet";
+  kind: "safe" | "honeypot" | "highfee" | "wallet" | "ownertrap";
 }
 
 // Lives in shared because engine and web must agree on it: web renders these
@@ -29,8 +29,8 @@ export const EXAMPLES: ExampleToken[] = [
   // testing transfer() by itself is not enough — that test hands this token a
   // clean PASS. (0xB357E2546e51fa6f2383e768A7d022d5777Ba152 is a second,
   // identically-taxed token if this one's pool moves.) Its LP is 99.98%
-  // burned, so it is also the one example where all three probes return a
-  // definite verdict rather than an NA.
+  // burned, so honeypot, hiddenFee and lpRug all return a definite verdict on
+  // it rather than an NA — the trade probes have nothing to decline.
   { label: "BRB (3% buy tax)", address: "0x0e86eFe5Ba52336c2173AD69EE726e054619e0d8", kind: "highfee" },
   // A real Base wallet carrying a live token approval. Paste a wallet rather
   // than a token and Sidik probes the approval instead: it impersonates the
@@ -39,4 +39,17 @@ export const EXAMPLES: ExampleToken[] = [
   // the owner still holds. Nothing happens to the real wallet; the whole
   // thing lives and dies inside the fork.
   { label: "Wallet with a live approval", address: "0x89f48b0067F42F3a8b233a6dc9DcD4101AA0EA1C", kind: "wallet" },
+  // DEGEN — and this one is the argument for the whole owner-switch probe.
+  // It is a top-tier, widely held Base token, and it passes every trade test
+  // Sidik has: the buy lands, the sell lands, there is no hidden fee, and the
+  // pool prices it like the wider market. Then the probe impersonates its
+  // owner (0x704Ec5C1…), calls pause(), and makes the identical sell again —
+  // and it reverts. Recorded at block 50,200,000: 0.9801 WETH before, a
+  // revert after.
+  //
+  // Nothing here says DEGEN's owner will do that. It says the holder's exit
+  // is that owner's to decide, which is a fact about the contract and not a
+  // prediction about the people. No amount of reading the source establishes
+  // which way it goes; executing it establishes that the switch works.
+  { label: "DEGEN (owner can stop your sell)", address: "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed", kind: "ownertrap" },
 ];

@@ -43,5 +43,14 @@ export const BURN_ADDRESSES: Hex[] = [
 
 export const ZERO_ADDRESS: Hex = "0x0000000000000000000000000000000000000000";
 
+/**
+ * Where probes send a token when they need to watch a transfer land. A real
+ * mainnet address that already holds dust in plenty of tokens (USDC among
+ * them), which is why every probe measures the recipient's DELTA and never
+ * its balance — counting the dust as "received" once produced a negative fee
+ * and a false FAIL on a bluechip.
+ */
+export const PROBE_RECIPIENT: Hex = "0x000000000000000000000000000000000000bEEF";
+
 /** anvil's first dev account: the only kind of sender it will sign for. */
 export const ANVIL_ACCOUNT_0: Hex = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";

@@ -7,6 +7,7 @@ import { ANVIL_ACCOUNT_0, UNISWAP_V2, WETH, ZERO_ADDRESS } from "./base.js";
 import { ERC20_ABI, OWNER_ABI, TRANSFER_EVENT, V2_FACTORY_ABI } from "./abi.js";
 import { SYMBOL_MAX, untrustedText } from "./untrusted.js";
 import { mapLimit } from "./pool.js";
+import { log } from "./log.js";
 
 // balanceOf is probed with the wallet the probes will actually trade from,
 // NOT the zero address. Plenty of real tokens revert on the zero address —
@@ -15,13 +16,16 @@ import { mapLimit } from "./pool.js";
 // Asking about the address that matters also makes a failure here meaningful.
 const BALANCE_PROBE: Hex = ANVIL_ACCOUNT_0;
 
-// ponytail: same window as approvalDrain's APPROVAL_LOOKBACK_BLOCKS. ~1.7h of
-// Base blocks — a recent-activity sample, not a true top-holders index. Served
-// by the dedicated logs RPC (see rpc.ts), which handles this range fine.
-// 9k blocks — the logs RPC caps a single eth_getLogs at 10k, so this takes
-// the window right up to what one request allows. At 3k the holder sample
-// came back empty for 56% of the catalogue, which is what starved lpRug's
-// candidate search and left it saying NA more often than not.
+// ponytail: same window as approvalDrain's APPROVAL_LOOKBACK_BLOCKS. Base
+// mines every 2 seconds, so 9,000 blocks is five hours — a recent-activity
+// sample, not a true top-holders index. (The "~1.7h" this used to say was
+// left over from the 3,000-block window, and survived the change sitting two
+// lines above the number that contradicted it.)
+//
+// 9k and not more: the logs RPC caps a single eth_getLogs at 10k, so this
+// takes the window right up to what one request allows. At 3k the holder
+// sample came back empty for 56% of the catalogue, which is what starved
+// lpRug's candidate search and left it saying NA more often than not.
 const TOP_HOLDERS_LOOKBACK_BLOCKS = 9_000n;
 const TOP_HOLDERS_SAMPLE_N = 10;
 
@@ -80,6 +84,13 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
     }
   } catch { /* no V3 pool — keep whatever V2 gave us */ }
 
+  // owner() only, and that was checked rather than assumed. The owner-switch
+  // probe reads this to decide who to impersonate, so a missed owner would
+  // hand a token a PASS it did not earn. Every address in the catalogue was
+  // scanned for getOwner(), admin(), getAdmin(), authority(), governance() and
+  // operator(): not one exposes any of them. The tokens with no owner here
+  // genuinely have no owner function, which the probe reports as NA rather
+  // than as safety.
   let owner: Hex | undefined;
   try {
     owner = await fork.read<Hex>({ address: token, abi: OWNER_ABI, functionName: "owner" });
@@ -125,8 +136,20 @@ async function sampleTopHolders(fork: ForkClient, pub: any, token: Hex): Promise
       .sort((a, b) => (b.balance > a.balance ? 1 : b.balance < a.balance ? -1 : 0))
       .slice(0, TOP_HOLDERS_SAMPLE_N)
       .map((b) => ({ address: b.address, balance: b.balance.toString() }));
-  } catch {
-    // No logs / provider hiccup — an empty sample is a valid (if thin) result.
+  } catch (e) {
+    // An empty sample is a valid result -- a token nobody moved in the window
+    // genuinely has no recent holders. A FAILED sample is not the same thing,
+    // and this returned the same empty array for both, silently.
+    //
+    // lpRug values the position it rugs through this sample, so a refused
+    // getLogs made it report "no holder position to measure the pull against"
+    // about a pool whose LP owner it had already identified and could have
+    // pulled. Logged at error level for the same reason probe.failed is: from
+    // the outside, an infrastructure failure and a finding look identical.
+    log.error({
+      event: "prescan.holderSampleFailed", token,
+      reason: e instanceof Error ? e.message : String(e),
+    });
     return [];
   }
 }

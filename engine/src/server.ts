@@ -9,6 +9,7 @@ import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "./concurrency
 import { cacheSize } from "./cache.js";
 import { BASE_FORK_BLOCK } from "./forkBlock.js";
 import { log } from "./log.js";
+import { forkProxyStats } from "./forkProxy.js";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -34,6 +35,10 @@ export function createApp(runner: Runner = runSidik) {
     forkBlock: BASE_FORK_BLOCK.toString(),
     cache: cacheSize(),
     archiveRpc: process.env.BASE_ARCHIVE_RPC ? "configured" : "missing",
+    // Requests anvil made through the fork proxy, and how many the gateway
+    // throttled. A rising `throttled` is the difference between an engine
+    // that is slow and an engine that is being rate-limited.
+    forkProxy: forkProxyStats(),
     uptimeSeconds: Math.round(process.uptime()),
   }));
 

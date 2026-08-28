@@ -3,10 +3,11 @@ import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { buyBudget, buyExactEth, sellAll } from "../dex.js";
 import { amount } from "../format.js";
 import { ERC20_ABI } from "../abi.js";
+import { PROBE_RECIPIENT } from "../base.js";
 
 // ponytail: distinct from testWallet, never needs to hold anything real — a
 // fixed burn-ish EOA on the fork is enough to measure the transfer delta.
-const RECIPIENT: Hex = "0x000000000000000000000000000000000000bEEF";
+const RECIPIENT: Hex = PROBE_RECIPIENT;
 
 // getAmountsOut is exact constant-product arithmetic, so a genuine no-tax
 // token lands within rounding of it. This floor only exists so dust never

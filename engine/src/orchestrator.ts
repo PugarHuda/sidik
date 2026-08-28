@@ -1,6 +1,6 @@
 import type { Hex, PreScan, Verdict, Probe, ForkClient, ProbeCtx, EngineEvent } from "@sidik/shared";
 import { headlineOf } from "@sidik/shared";
-import { withFork } from "./fork.js";
+import { openFork } from "./fork.js";
 import { prescan as realPrescan } from "./prescan.js";
 import { planProbes as realPlanProbes } from "./planner.js";
 import { narrate as realNarrate } from "./narrator.js";
@@ -28,7 +28,7 @@ interface CachedRun {
 const TEST_WALLET: Hex = ANVIL_ACCOUNT_0;
 
 export interface Deps {
-  withFork: typeof withFork;
+  openFork: typeof openFork;
   prescan: (fork: ForkClient, token: Hex) => Promise<PreScan>;
   planProbes: (scan: PreScan) => Promise<string[]>;
   narrate: (verdicts: Verdict[]) => Promise<string>;
@@ -39,7 +39,7 @@ export interface Deps {
 }
 
 const defaultDeps: Deps = {
-  withFork,
+  openFork,
   prescan: realPrescan,
   planProbes: realPlanProbes,
   narrate: realNarrate,
@@ -52,6 +52,7 @@ const defaultDeps: Deps = {
 export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGenerator<RunEvent> {
   const d: Deps = { ...defaultDeps, ...deps };
   const started = performance.now();
+  let opened: Awaited<ReturnType<typeof openFork>> | undefined;
   try {
     const cached = d.getCached<CachedRun>(token, d.block);
     if (cached) {
@@ -64,7 +65,17 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
       return;
     }
 
-    const scan = await d.withFork(d.block, (fork) => d.prescan(fork, token));
+    // ONE fork for the whole run. It used to be one per probe -- seven anvil
+    // processes for a six-probe token -- which is simple and isolated but pays
+    // a fork-and-replay of Base archive state every time, and on a loaded
+    // machine is what makes process creation fail outright (Windows
+    // 0xC0000142). Isolation now comes from a snapshot taken before each probe
+    // and rolled back after it, which gives every probe the same pristine
+    // state a fresh process did.
+    opened = await d.openFork(d.block);
+    const fork = opened.fork;
+
+    const scan = await d.prescan(fork, token);
     yield { type: "prescan", scan };
 
     const ids = await d.planProbes(scan);
@@ -77,7 +88,7 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
     const verdicts: Verdict[] = [];
     for (const id of ids) {
       yield { type: "probe:start", id };
-      const verdict = await runProbe(d, token, scan, id);
+      const verdict = await runProbe(d, fork, token, scan, id);
       verdicts.push(verdict);
       yield { type: "verdict", verdict };
     }
@@ -95,22 +106,33 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
     const message = e instanceof Error ? e.message : String(e);
     log.error({ event: "run.failed", token, ms: since(started), reason: message });
     yield { type: "error", message };
+  } finally {
+    // Including the cached path, which never opened one, and a consumer that
+    // stops reading the stream half way: without this the anvil process would
+    // outlive the run and the next one would compete with it for memory.
+    opened?.close();
   }
 }
 
-// ponytail: one fresh fork per probe — simple + isolated (no cross-probe
-// state leakage); pool/reuse forks if per-run latency becomes a problem.
-async function runProbe(d: Deps, token: Hex, scan: PreScan, id: string): Promise<Verdict> {
+/**
+ * One probe, on the shared fork, against pristine state.
+ *
+ * The snapshot is taken before the probe and rolled back after it, so nothing
+ * a probe does -- a buy, an impersonated rug pull, an owner minting ten times
+ * the supply -- can reach the next one. anvil consumes a snapshot id when it
+ * reverts to it, so the caller takes a fresh one for every probe.
+ */
+async function runProbe(d: Deps, fork: ForkClient, token: Hex, scan: PreScan, id: string): Promise<Verdict> {
   const probe = PROBES.find((p) => p.id === id) as Probe | undefined;
   if (!probe) return naVerdict(id, `probe ${id} could not run — unknown probe id`);
   const started = performance.now();
+  let snapshot: string | undefined;
   try {
-    const verdict = await d.withFork(d.block, async (fork) => {
-      const ctx: ProbeCtx = { token, scan, testWallet: d.testWallet, block: d.block };
-      await probe.setup(fork, ctx);
-      const raw = await probe.execute(fork, ctx);
-      return probe.interpret(raw, ctx);
-    });
+    snapshot = await fork.snapshot();
+    const ctx: ProbeCtx = { token, scan, testWallet: d.testWallet, block: d.block };
+    await probe.setup(fork, ctx);
+    const raw = await probe.execute(fork, ctx);
+    const verdict = probe.interpret(raw, ctx);
     log.info({ event: "probe.done", token, probe: id, status: verdict.status, ms: since(started) });
     return verdict;
   } catch (e) {
@@ -120,6 +142,21 @@ async function runProbe(d: Deps, token: Hex, scan: PreScan, id: string): Promise
     // the page. Without this line there was no way to tell them apart at all.
     log.error({ event: "probe.failed", token, probe: id, ms: since(started), reason: msg });
     return naVerdict(id, `probe ${id} could not run — ${msg}`);
+  } finally {
+    // Node settings are not chain state, so the rollback below does not undo
+    // an impersonation a probe left behind.
+    try { await fork.clearImpersonations(); }
+    catch { /* the rollback still matters more than this does */ }
+    // Rolled back even when the probe threw. A probe that failed halfway has
+    // left the chain in whatever state it got to, and handing that to the next
+    // probe would produce a finding about this run rather than about the token.
+    if (snapshot) {
+      try { await fork.revertTo(snapshot); }
+      catch (e) {
+        log.error({ event: "probe.revertFailed", token, probe: id,
+          reason: e instanceof Error ? e.message : String(e) });
+      }
+    }
   }
 }
 

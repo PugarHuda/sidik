@@ -18,6 +18,7 @@ const row = (over: Partial<CatalogueRow> = {}): CatalogueRow => ({
   venue: "v2",
   probes: [{ id: "honeypot", status: "PASS", applicable: true }],
   headline: "PASS",
+  scannerDisagrees: null,
   finding: "Not a honeypot",
   listedAs: null,
   sharesSymbolWith: 0,
@@ -193,5 +194,28 @@ describe("paginate", () => {
     }
     expect(seen).toHaveLength(194);
     expect(new Set(seen).size).toBe(194);
+  });
+});
+
+describe("the scanner-disagreement filter", () => {
+  // Rows where a read-only scanner and the fork parted ways are the ones the
+  // thesis is about, so they get their own filter. It keys on the row's own
+  // field, never on prose.
+  it("keeps only rows carrying a disagreement", () => {
+    const rows = [
+      row({ address: "0x0000000000000000000000000000000000000001", scannerDisagrees: "GoPlus says not a honeypot; the fork could not sell" }),
+      row({ address: "0x0000000000000000000000000000000000000002", scannerDisagrees: null }),
+    ];
+    expect(filterRows(rows, { filter: "scannerDisagrees", query: "" }).map((r) => r.address))
+      .toEqual(["0x0000000000000000000000000000000000000001"]);
+  });
+
+  it("is a filter the page offers, and is counted in the summary", () => {
+    expect(CATALOGUE_FILTERS.some((f) => f.id === "scannerDisagrees")).toBe(true);
+    const rows = catalogueRows();
+    expect(catalogueSummary(rows).scannersDisagree).toBe(rows.filter((r) => r.scannerDisagrees).length);
+    // Anastasia: GoPlus cleared a token whose sell reverts on the fork.
+    const anastasia = rows.find((r) => r.address === "0x48f617e5b1b214a90800348d7944bbc0e9290fbb");
+    expect(anastasia?.scannerDisagrees).toMatch(/GoPlus says not a honeypot/);
   });
 });

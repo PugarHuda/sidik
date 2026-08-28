@@ -1,6 +1,7 @@
 import { FIXTURES, impostorsOf, type FrozenRun } from "./fixtures";
 import { headlineOf } from "./headline";
 import { listedTicker } from "./listings";
+import { scannersOf } from "./scanners";
 import type { ProbeStatus } from "./types";
 
 /**
@@ -24,6 +25,27 @@ export interface CatalogueRow {
   listedAs: string | null;
   /** Other recorded addresses using this same symbol. */
   sharesSymbolWith: number;
+  /**
+   * One line naming a read-only scanner whose honeypot call differs from
+   * what the fork did, or null. Only where both sides answered: a scanner
+   * with no reading is not a disagreement, and neither is a probe that could
+   * not run. Context, never a verdict — but the rows where execution and
+   * inference part ways are the ones worth browsing.
+   */
+  scannerDisagrees: string | null;
+}
+
+function scannerDisagreement(address: string, verdicts: { probe: string; status: ProbeStatus }[]): string | null {
+  const hp = verdicts.find((v) => v.probe === "honeypot");
+  if (!hp || hp.status === "NA") return null;
+  const s = scannersOf(address);
+  if (!s) return null;
+  const sidik = hp.status === "FAIL";
+  const who: string[] = [];
+  if (s.goplus?.isHoneypot !== undefined && s.goplus.isHoneypot !== sidik) who.push("GoPlus");
+  if (s.honeypotIs && s.honeypotIs.isHoneypot !== sidik) who.push("honeypot.is");
+  if (!who.length) return null;
+  return `${who.join(" and ")} ${who.length > 1 ? "say" : "says"} ${sidik ? "not a honeypot; the fork could not sell" : "honeypot; the fork sold"}`;
 }
 
 export function catalogueRows(): CatalogueRow[] {
@@ -44,6 +66,7 @@ export function catalogueRows(): CatalogueRow[] {
       finding,
       listedAs: listedTicker(address) ?? null,
       sharesSymbolWith: impostorsOf(address).length,
+      scannerDisagrees: scannerDisagreement(address, run.verdicts),
     };
   });
 
@@ -76,6 +99,8 @@ export const CATALOGUE_FILTERS = [
   { id: "honeypot", label: "Honeypots" },
   { id: "hiddenFee", label: "Hidden fees" },
   { id: "lpRug", label: "LP rugs" },
+  { id: "ownerTrap", label: "Owner traps" },
+  { id: "scannerDisagrees", label: "Scanners disagree" },
 ] as const;
 
 export type CatalogueFilter = (typeof CATALOGUE_FILTERS)[number]["id"];
@@ -100,7 +125,8 @@ export function filterRows(
   const q = query.trim().toLowerCase();
   return rows.filter((r) => {
     if (filter === "failing" && r.headline !== "FAIL") return false;
-    if (filter !== "all" && filter !== "failing"
+    if (filter === "scannerDisagrees" && !r.scannerDisagrees) return false;
+    if (filter !== "all" && filter !== "failing" && filter !== "scannerDisagrees"
       && !r.probes.some((p) => p.id === filter && p.status === "FAIL")) return false;
     if (!q) return true;
     return r.symbol.toLowerCase().includes(q) || r.address.toLowerCase().includes(q);
@@ -170,7 +196,9 @@ export function catalogueSummary(rows: CatalogueRow[]) {
     honeypots: count("honeypot"),
     taxed: count("hiddenFee"),
     lpRugs: count("lpRug"),
+    ownerTraps: count("ownerTrap"),
     drainableWallets: count("approvalDrain"),
+    scannersDisagree: rows.filter((r) => r.scannerDisagrees).length,
     onV3: rows.filter((r) => r.venue === "v3").length,
     onV2: rows.filter((r) => r.venue === "v2").length,
   };

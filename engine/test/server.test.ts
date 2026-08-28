@@ -22,6 +22,11 @@ describe("server", () => {
     // that is refusing every caller because it is saturated.
     expect(body.maxConcurrentRuns).toBeGreaterThan(0);
     expect(body.runsInFlight).toBe(0);
+    // The fork proxy's counters: a rising `throttled` is what tells a slow
+    // engine from a rate-limited one, and it has to be readable remotely.
+    for (const k of ["requests", "throttled", "upstreamErrors", "unreachable"]) {
+      expect(typeof body.forkProxy[k], k).toBe("number");
+    }
     // Which block its answers describe, and how many it can already serve
     // without touching the network — both needed to tell a working engine
     // from one that started but has nothing behind it.

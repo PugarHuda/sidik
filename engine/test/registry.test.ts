@@ -8,7 +8,7 @@ describe("registry", () => {
   // invalidates 194 stored verdicts, so the list is pinned here on purpose.
   it("exposes exactly the probes the recorded runs were keyed by", () => {
     expect(PROBES.map((p) => p.id)).toEqual([
-      "honeypot", "hiddenFee", "approvalDrain", "lpRug", "crossVenue",
+      "honeypot", "hiddenFee", "approvalDrain", "lpRug", "crossVenue", "ownerTrap",
     ]);
   });
 
