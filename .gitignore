@@ -10,3 +10,10 @@ out
 .playwright-mcp
 web/test-results
 web/playwright-report
+
+# Impeccable skill install (tooling, not project); web/DESIGN.md, PRODUCT.md and web/.impeccable are committed
+.claude/
+.github/skills/
+.github/agents/
+.github/hooks/
+/.impeccable/

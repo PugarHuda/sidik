@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { headlineOf, impostorsOf, venueListings, type ScannerReadings, type Verdict, type Verification } from "@sidik/shared";
+import { useEffect, useId, useState } from "react";
+import {
+  EXAMPLES, FIXTURE_BLOCK, headlineOf, impostorsOf, venueListings,
+  type ScannerReadings, type Verdict, type Verification,
+} from "@sidik/shared";
 import { streamRunEvents, type RunEvent } from "@/lib/sse";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
@@ -16,11 +19,35 @@ function formatAddr(a: string) {
   return a.length > 12 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a;
 }
 
+/**
+ * Full addresses in prose, shortened for the screen.
+ *
+ * The narration is a model's sentence and it prints whatever the run carried,
+ * including a 42-character owner address. That one word measured 416px in a
+ * 292px column, widened the whole document to 465px at a 390px viewport, and
+ * shrank every tap target on the page by 16%. The full address is already in
+ * the verdict's chips and in the JSON; the sentence needs only the handle.
+ */
+function shortenAddresses(text: string): string {
+  return text.replace(/0x[0-9a-fA-F]{40}/g, (a) => formatAddr(a));
+}
+
 const TONE = {
   PASS: { text: "text-pass", border: "border-pass/40", bg: "bg-pass/15" },
   FAIL: { text: "text-fail", border: "border-fail/40", bg: "bg-fail/15" },
   NA: { text: "text-na", border: "border-na/40", bg: "bg-na/15" },
 } as const;
+
+// The order a case file reads in: what was found, then what held, then what
+// could not be answered, then what never applied. The engine emits probes in
+// the planner's order, which on DEGEN put a PASS first and the FAIL second —
+// a reader who stopped at the first card left with the wrong answer.
+const CARD_ORDER: Record<string, number> = { FAIL: 0, PASS: 1, NA: 2 };
+function byImportance(a: Verdict, b: Verdict): number {
+  const ra = a.applicable === false ? 3 : CARD_ORDER[a.status] ?? 2;
+  const rb = b.applicable === false ? 3 : CARD_ORDER[b.status] ?? 2;
+  return ra - rb;
+}
 
 /**
  * A probe whose mechanism does not exist for this token reads as N/A, which
@@ -32,19 +59,20 @@ const TONE = {
  * token would show two N/A cards among six and read as poorly covered when
  * every check that could apply had answered.
  */
-function Badge({ status, applicable }: { status: Verdict["status"]; applicable?: boolean }) {
+function Badge({ status, applicable, size = "sm" }: { status: Verdict["status"]; applicable?: boolean; size?: "sm" | "lg" }) {
   const t = TONE[status];
+  const dims = size === "lg"
+    ? "px-5 py-2 text-2xl tracking-[0.15em]"
+    : "px-3 py-1 text-xs tracking-widest";
   if (applicable === false) {
     return (
-      <span className="rounded-full border border-border px-3 py-1 font-mono text-xs font-semibold tracking-widest text-fg-dim">
+      <span className={`rounded-full border border-border font-mono font-semibold text-fg-dim ${dims}`}>
         DOES NOT APPLY
       </span>
     );
   }
   return (
-    <span
-      className={`rounded-full border px-3 py-1 font-mono text-xs font-semibold tracking-widest ${t.text} ${t.border} ${t.bg}`}
-    >
+    <span className={`rounded-full border font-mono font-semibold ${dims} ${t.text} ${t.border} ${t.bg}`}>
       {status}
     </span>
   );
@@ -73,16 +101,24 @@ function logLine(e: RunEvent): string {
 
 function VerdictCard({ verdict }: { verdict: Verdict }) {
   const [open, setOpen] = useState(false);
+  const rawId = useId();
+  const inapplicable = verdict.applicable === false;
   return (
-    <div className="animate-reveal overflow-hidden rounded-lg border border-border bg-card">
+    <div
+      data-probe={verdict.probe}
+      data-applicable={inapplicable ? "false" : "true"}
+      className="animate-reveal overflow-hidden rounded-lg border border-border bg-card"
+    >
       <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
         <span className="font-mono text-xs text-fg-dim">{verdict.probe}</span>
+        {/* A bare "FAIL" read aloud has no subject; the probe name is the subject. */}
+        <span className="sr-only">{verdict.probe} verdict: </span>
         <Badge status={verdict.status} applicable={verdict.applicable} />
       </div>
 
       <div className="px-5 py-4">
-        <h3 className="text-lg font-semibold text-fg">{verdict.title}</h3>
-        {verdict.reason && <p className="mt-1 text-sm text-fg-dim">{verdict.reason}</p>}
+        <h3 className="wrap-anywhere text-lg font-semibold text-fg">{verdict.title}</h3>
+        {verdict.reason && <p className="wrap-anywhere mt-1 text-sm text-fg-dim">{verdict.reason}</p>}
       </div>
 
       <div className="grid grid-cols-1 divide-y divide-border border-t border-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
@@ -112,7 +148,12 @@ function VerdictCard({ verdict }: { verdict: Verdict }) {
             {verdict.rows.map((r, i) => (
               <div key={i}>
                 <dt className="text-xs text-fg-dim">{r.label}</dt>
-                <dd className={`text-sm font-medium ${r.ok ? "text-pass" : "text-fail"}`}>{r.proven}</dd>
+                {/* Neutral when the probe does not apply. A red sentence on a
+                    card stamped DOES NOT APPLY is the exact misreading that
+                    stamp was invented to prevent. */}
+                <dd className={`wrap-anywhere text-sm font-medium ${inapplicable ? "text-fg" : r.ok ? "text-pass" : "text-fail"}`}>
+                  {r.proven}
+                </dd>
               </div>
             ))}
           </dl>
@@ -122,7 +163,7 @@ function VerdictCard({ verdict }: { verdict: Verdict }) {
       {Object.keys(verdict.numbers).length > 0 && (
         <div className="flex flex-wrap gap-2 border-t border-border px-5 py-3">
           {Object.entries(verdict.numbers).map(([k, v]) => (
-            <span key={k} className="rounded border border-border bg-ink px-2 py-1 font-mono text-xs text-fg-dim">
+            <span key={k} className="wrap-anywhere rounded border border-border bg-ink px-2 py-1 font-mono text-xs text-fg-dim">
               {k}: <span className="text-fg">{v}</span>
             </span>
           ))}
@@ -149,12 +190,16 @@ function VerdictCard({ verdict }: { verdict: Verdict }) {
 
       <button
         onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls={rawId}
         className="w-full border-t border-border px-5 py-3 text-left font-mono text-xs text-fg-dim transition hover:text-fg"
       >
-        {open ? "▾ hide raw verdict data" : "▸ show raw verdict data"}
+        <span aria-hidden="true">{open ? "▾ " : "▸ "}</span>
+        {open ? "Hide" : "Show"} raw verdict data
+        <span className="sr-only"> for {verdict.probe}</span>
       </button>
       {open && (
-        <pre className="overflow-x-auto border-t border-border bg-ink px-5 py-4 font-mono text-xs text-fg-dim">
+        <pre id={rawId} className="overflow-x-auto border-t border-border bg-ink px-5 py-4 font-mono text-xs text-fg-dim">
           {JSON.stringify(verdict, null, 2)}
         </pre>
       )}
@@ -194,9 +239,12 @@ function ScannerReadout({ token, readings, verdicts }: { token: string; readings
 
   return (
     <div className="mt-3 rounded-md border border-border bg-ink/60 px-3 py-2 text-xs text-fg-dim">
-      <div className="font-mono text-[11px] uppercase tracking-widest">
-        What read-only scanners say — asked {readings.askedOn}, about the chain that day, not block 50,200,000
-      </div>
+      <p className="text-fg">
+        What read-only scanners say.{" "}
+        <span className="text-fg-dim">
+          Asked {readings.askedOn}, about the chain that day — not block {Number(FIXTURE_BLOCK).toLocaleString("en-US")}.
+        </span>
+      </p>
       <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-1 sm:grid-cols-2">
         {g && (
           <div>
@@ -237,6 +285,15 @@ function ScannerReadout({ token, readings, verdicts }: { token: string; readings
   );
 }
 
+/** The verdict word as it should be read: what it means for the person holding the token. */
+function consequenceOf(verdicts: Verdict[], overall: Verdict["status"]): string {
+  const failing = verdicts.filter((v) => v.status === "FAIL");
+  if (failing.length === 1) return failing[0]!.title;
+  if (failing.length > 1) return `${failing.length} probes found something: ${failing.map((v) => v.title).join(" · ")}`;
+  if (overall === "PASS") return "Bought, sold, transferred and pulled against a fork of Base — every probe that could apply passed.";
+  return "Not every probe could answer. Read the cards below before deciding anything.";
+}
+
 export default function RunView(
   { token, source, scanners }: { token: string; source?: Verification | null; scanners?: ScannerReadings | null },
 ) {
@@ -273,7 +330,7 @@ export default function RunView(
             short-circuits before calling it, so without this the product had
             two different ways of saying one thing depending on how you
             arrived. */}
-        <p className="text-fg-dim">
+        <p className="wrap-anywhere text-fg-dim">
           &quot;{token || "(empty)"}&quot; is not a Base address — expected 0x followed by 40 hex characters.
         </p>
         <Link href="/" className="font-mono text-sm text-accent hover:underline">
@@ -300,47 +357,181 @@ export default function RunView(
 
   const prescan = findLast("prescan")?.scan ?? null;
   const verdicts = events.filter((e): e is Ev<"verdict"> => e.type === "verdict").map((e) => e.verdict);
+  const ordered = [...verdicts].sort(byImportance);
   const narration = findLast("narration")?.text ?? null;
   const overall = headlineOf(verdicts);
   const planned = findLast("plan")?.ids.length ?? 0;
+  const txCount = verdicts.reduce((n, v) => n + v.txHashes.length, 0);
+  const block = Number(replay?.block ?? FIXTURE_BLOCK).toLocaleString("en-US");
+  const symbol = prescan?.symbol || null;
+
+  // Once the run is done the pill IS the verdict. It used to say DONE in
+  // Cleared Green on a run whose verdict was FAIL — the top of the page
+  // contradicting the bottom, in the colour that means "fine".
+  const pill = isError
+    ? { text: "ERROR", cls: `${TONE.FAIL.text} ${TONE.FAIL.border} ${TONE.FAIL.bg}` }
+    : isDone && verdicts.length
+      ? { text: overall, cls: `${TONE[overall].text} ${TONE[overall].border} ${TONE[overall].bg}` }
+      : { text: planned ? `SCANNING ${verdicts.length}/${planned}` : "SCANNING", cls: "border-accent/40 bg-accent/15 text-accent" };
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
-      <div className="flex flex-col gap-2 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-10 sm:py-12">
+      <header className="flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
           <Link href="/" className="font-mono text-xs tracking-[0.3em] text-accent">
             SIDIK
           </Link>
-          <div className="mt-1 font-mono text-lg text-fg">{formatAddr(token)}</div>
+          <h1 className="mt-2 flex flex-wrap items-baseline gap-x-3 font-mono">
+            {symbol && <span className="text-2xl font-semibold text-fg">{symbol}</span>}
+            {/* The token is real and on Base, unlike the fork transactions —
+                so this is the one link here that leads somewhere. */}
+            <a
+              href={`https://basescan.org/address/${token}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-base text-fg-dim hover:text-accent hover:underline"
+            >
+              {formatAddr(token)} ↗
+            </a>
+          </h1>
         </div>
         <span
-          className={`w-fit rounded-full border px-3 py-1 font-mono text-xs font-semibold tracking-widest ${
-            isError
-              ? `${TONE.FAIL.text} ${TONE.FAIL.border} ${TONE.FAIL.bg}`
-              : isDone
-                ? `${TONE.PASS.text} ${TONE.PASS.border} ${TONE.PASS.bg}`
-                : "border-accent/40 bg-accent/15 text-accent"
-          }`}
+          role="status"
+          aria-live="polite"
+          className={`w-fit rounded-full border px-3 py-1 font-mono text-xs font-semibold tracking-widest ${pill.cls}`}
         >
-          {/* How far through, once the plan says how many there are. A run is
-              six probes now and each spends real seconds inside a fork; a bare
-              "SCANNING" gives a reader no way to tell a run that is working
-              from one that has stalled. */}
-          {isError ? "ERROR" : isDone ? "DONE" : planned ? `SCANNING ${verdicts.length}/${planned}` : "SCANNING"}
+          {pill.text}
         </span>
-      </div>
+      </header>
 
       {replay && (
-        <div className="animate-reveal rounded-md border border-na/50 bg-na/10 px-4 py-2.5 text-center font-mono text-xs font-semibold uppercase tracking-widest text-na">
+        // Informational, so neutral. It used to be a three-line uppercase
+        // amber banner — the NA colour, shouting, above the verdict.
+        <p className="-mt-4 font-mono text-xs text-fg-dim">
+          <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-na align-middle" aria-hidden="true" />
           Recorded run — real fork proof from block {replay.block}, replayed with no live engine
+        </p>
+      )}
+
+      {isDone && verdicts.length > 0 && (
+        <section
+          aria-labelledby="verdict-heading"
+          data-overall-verdict={overall}
+          className={`animate-reveal rounded-xl border-2 bg-card p-6 ${TONE[overall].border}`}
+        >
+          <h2 id="verdict-heading" className="font-mono text-xs tracking-[0.3em] text-accent">SIDIK · VERDICT</h2>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <Badge status={overall} size="lg" />
+            <span className="font-mono text-xl font-semibold text-fg">{symbol ?? formatAddr(token)}</span>
+          </div>
+          <p className="wrap-anywhere mt-4 text-lg leading-7 text-fg">{consequenceOf(verdicts, overall)}</p>
+          <p className="mt-2 font-mono text-xs text-fg-dim">
+            Proven at block {block} — {txCount} fork {txCount === 1 ? "transaction" : "transactions"}, none broadcast.
+            Not simulated, not inferred from bytecode.
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-2" aria-label="Verdict per probe">
+            {ordered.map((v, i) => (
+              <li
+                key={`${v.probe}-${i}`}
+                className={v.applicable === false
+                  ? "rounded-full border border-border px-3 py-1 font-mono text-xs text-fg-dim"
+                  : `rounded-full border px-3 py-1 font-mono text-xs ${TONE[v.status].text} ${TONE[v.status].border} ${TONE[v.status].bg}`}
+              >
+                {v.probe}: {v.applicable === false ? "n/a here" : v.status}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {isError && (
+        <div className="animate-reveal rounded-lg border border-fail/50 bg-fail/10 px-6 py-5">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-fail">Run failed</h2>
+          {/* Two sentences: the plain one first, the exact one second. The
+              API's message is precise and is what the tests and the JSON
+              carry; a person on a phone needs the first sentence. */}
+          <p className="mt-2 text-base text-fg">
+            Sidik has not traded this token yet. It only shows results for addresses it actually bought and sold on a fork.
+          </p>
+          <p className="wrap-anywhere mt-1 text-sm text-fg-dim">{errorEvent?.message}</p>
+          <div className="mt-4">
+            <div className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">Open a recorded run instead</div>
+            <div className="flex flex-wrap gap-2">
+              {EXAMPLES.map((ex) => (
+                <Link
+                  key={ex.address}
+                  href={`/run?token=${ex.address}`}
+                  className="rounded-md border border-border bg-card px-3 py-2 text-sm text-fg transition hover:border-accent/60"
+                >
+                  {ex.label}
+                </Link>
+              ))}
+              <Link
+                href="/catalogue"
+                className="rounded-md border border-border px-3 py-2 font-mono text-sm text-accent transition hover:border-accent/60"
+              >
+                Browse every recorded run →
+              </Link>
+            </div>
+          </div>
+          {/* The engine that probes new addresses is in the repository. Kept,
+              because it is real; folded, because it is for a developer at a
+              keyboard and this block is read on phones. */}
+          <details className="mt-4 text-xs text-fg-dim">
+            <summary className="cursor-pointer font-mono hover:text-fg">Probe it yourself (developers)</summary>
+            <p className="mt-2">The engine forks Base once per run:</p>
+            <code
+              tabIndex={0}
+              role="group"
+              aria-label="Command to probe this address locally"
+              className="mt-1 block overflow-x-auto whitespace-nowrap rounded border border-border bg-ink px-1.5 py-1 text-fg outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            >
+              pnpm dev:engine &amp;&amp; curl &quot;localhost:8787/run?token={token}&quot;
+            </code>
+          </details>
         </div>
       )}
 
-      <div className="rounded-md border border-border bg-panel p-4 font-mono text-sm">
-        <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-widest text-fg-dim">
-          {isRunning && <span className="h-2 w-2 rounded-full bg-accent animate-recording" />}
+      {verdicts.length > 0 && (
+        <section aria-labelledby="exhibits-heading" className="flex flex-col gap-6">
+          <h2 id="exhibits-heading" className="font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">
+            Exhibits — one card per probe{isRunning ? ", arriving as they run" : ""}
+          </h2>
+          {(isDone ? ordered : verdicts).map((v, i) => (
+            <VerdictCard key={`${v.probe}-${i}`} verdict={v} />
+          ))}
+        </section>
+      )}
+
+      {narration && (
+        <section aria-labelledby="narration-heading" className="animate-reveal rounded-lg border border-accent/30 bg-panel px-6 py-5">
+          <h2 id="narration-heading" className="mb-2 font-mono text-xs uppercase tracking-widest text-accent">
+            Narration — written by a model, from the verdicts above
+          </h2>
+          <p className="wrap-anywhere text-base leading-7 text-fg">{shortenAddresses(narration)}</p>
+          {/* This is the only prose on the page, so it is the paragraph a
+              reader is most likely to take as the product. Unlabelled, it
+              invites exactly the assumption this project exists to refute —
+              that a model decided any of it. Both guarantees named here are
+              real and enforced in engine/src/narrator.ts and
+              shared/src/narration.ts. */}
+          <p className="mt-3 text-xs leading-5 text-fg-dim">
+            Every figure and transaction hash in it is checked against the run before it is
+            shown, and a summary that contradicts a verdict is replaced by a deterministic one.
+            The verdicts themselves are decided by code reading what a transaction did — never
+            by the model.
+          </p>
+        </section>
+      )}
+
+      <section aria-labelledby="trace-heading" className="rounded-md border border-border bg-panel p-4 font-mono text-sm">
+        <h2 id="trace-heading" className="mb-2 flex items-center gap-2 text-xs uppercase tracking-widest text-fg-dim">
+          {isRunning && <span className="h-2 w-2 rounded-full bg-accent animate-recording" aria-hidden="true" />}
           live trace
-        </div>
+          {traceEvents.length > 0 && (
+            <span className="ml-auto normal-case tracking-normal">{traceEvents.length} lines{traceEvents.length > 10 ? " · scrolls" : ""}</span>
+          )}
+        </h2>
         {/* Focusable on purpose. At desktop width the trace fits and this is
             an ordinary block; at phone width it overflows and becomes a
             scroll region, which a keyboard or switch user then cannot reach
@@ -357,146 +548,51 @@ export default function RunView(
           {traceEvents.map((e, i) => (
             <div
               key={i}
-              className={`animate-reveal ${e.type === "error" ? "text-fail" : "text-fg-dim"}`}
+              className={`wrap-anywhere animate-reveal ${e.type === "error" ? "text-fail" : "text-fg-dim"}`}
             >
               {logLine(e)}
             </div>
           ))}
         </div>
-      </div>
-
-      {isError && (
-        <div className="animate-reveal rounded-lg border border-fail/50 bg-fail/10 px-6 py-5">
-          <div className="font-mono text-xs uppercase tracking-widest text-fail">Run failed</div>
-          <p className="mt-1 text-sm text-fg">{errorEvent?.message}</p>
-          {/* An error that only says no was the whole of this page. Both routes
-              out of it are real and neither invents a verdict: the catalogue
-              may already hold this address, and the engine that probes new
-              ones is in the repo and runs on one anvil per token. */}
-          <div className="mt-3 flex flex-col gap-2 text-xs text-fg-dim">
-            <div>
-              <a
-                href={`/catalogue?q=${encodeURIComponent(token)}`}
-                className="text-accent underline underline-offset-4"
-              >
-                Search the catalogue for this address
-              </a>{" "}
-              — it may be recorded under a run this page could not reach.
-            </div>
-            <div>
-              Or probe it yourself. The engine is in the repository and forks Base once per run:
-              <code
-                tabIndex={0}
-                role="group"
-                aria-label="Command to probe this address locally"
-                className="mt-1 block overflow-x-auto whitespace-nowrap rounded border border-border bg-ink px-1.5 py-1 text-fg outline-none focus-visible:ring-1 focus-visible:ring-accent"
-              >
-                pnpm dev:engine &amp;&amp; curl &quot;localhost:8787/run?token={token}&quot;
-              </code>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {verdicts.length > 0 && (
-        <div className="flex flex-col gap-6">
-          {verdicts.map((v, i) => (
-            <VerdictCard key={`${v.probe}-${i}`} verdict={v} />
-          ))}
-        </div>
-      )}
-
-      {narration && (
-        <div className="animate-reveal rounded-lg border border-accent/30 bg-panel px-6 py-5">
-          <div className="mb-2 font-mono text-xs uppercase tracking-widest text-accent">
-            Narration — written by a model, from the verdicts above
-          </div>
-          <p className="text-base leading-7 text-fg">{narration}</p>
-          {/* This is the only prose on the page, so it is the paragraph a
-              reader is most likely to take as the product. Unlabelled, it
-              invites exactly the assumption this project exists to refute —
-              that a model decided any of it. Both guarantees named here are
-              real and enforced in engine/src/narrator.ts and
-              shared/src/narration.ts. */}
-          <p className="mt-3 text-xs leading-5 text-fg-dim">
-            Every figure and transaction hash in it is checked against the run before it is
-            shown, and a summary that contradicts a verdict is replaced by a deterministic one.
-            The verdicts themselves are decided by code reading what a transaction did — never
-            by the model.
-          </p>
-        </div>
-      )}
+      </section>
 
       {isDone && verdicts.length > 0 && (
-        <div className={`animate-reveal rounded-xl border-2 p-6 ${TONE[overall].border} bg-card`}>
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-xs tracking-[0.3em] text-accent">SIDIK · VERDICT</span>
-            <Badge status={overall} />
-          </div>
-          <div className="mt-3 font-mono text-2xl font-semibold text-fg">
-            {prescan?.symbol ?? "TOKEN"}{" "}
-            {/* The token is real and on Base, unlike the fork transactions —
-                so this is the one link here that leads somewhere. */}
-            <a
-              href={`https://basescan.org/address/${token}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-base font-normal text-fg-dim hover:text-accent hover:underline"
-            >
-              {formatAddr(token)} ↗
-            </a>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {verdicts.map((v, i) => (
-              <span
-                key={`${v.probe}-${i}`}
-                className={v.applicable === false
-                  ? "rounded-full border border-border px-3 py-1 font-mono text-xs text-fg-dim"
-                  : `rounded-full border px-3 py-1 font-mono text-xs ${TONE[v.status].text} ${TONE[v.status].border} ${TONE[v.status].bg}`}
-              >
-                {v.probe}: {v.applicable === false ? "n/a here" : v.status}
-              </span>
-            ))}
-          </div>
-          <div className="mt-4 text-xs text-fg-dim">
-            Proven against a forked Base state — not simulated, not inferred from bytecode.
-          </div>
+        <section aria-labelledby="check-heading" className="rounded-lg border border-border bg-card px-5 py-4 text-xs text-fg-dim">
+          <h2 id="check-heading" className="font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">Check it yourself</h2>
           {/* The site serves recorded runs, and "these are real runs, not mock
               data" is a claim a reader has no way to check. This is how they
               check it: same command, same block, their own RPC. Printed here
               rather than buried in the README because the claim is made here. */}
-          <div className="mt-2 text-xs text-fg-dim">
+          <p className="mt-2">
             Do not take our word for it — re-run this address yourself. This forks Base at the
             same block and tells you whether it gets the same verdict:
-            {/* The command is longer than a phone is wide, so it becomes a
-                scroll region — and a scroll region with no way in is
-                unreachable by keyboard or switch. Same group/label/tabIndex
-                treatment the live trace log needed for exactly this reason. */}
-            <code
-              tabIndex={0}
-              role="group"
-              aria-label="Command to reproduce this run"
-              className="mt-1 block overflow-x-auto whitespace-nowrap rounded border border-border bg-ink px-1.5 py-1 text-fg outline-none focus-visible:ring-1 focus-visible:ring-accent"
-            >
-              pnpm --filter @sidik/engine reproduce {token}
-            </code>
-          </div>
-          <div className="mt-2 text-xs text-fg-dim">
+          </p>
+          {/* The command is longer than a phone is wide, so it becomes a
+              scroll region — and a scroll region with no way in is
+              unreachable by keyboard or switch. Same group/label/tabIndex
+              treatment the live trace log needed for exactly this reason. */}
+          <code
+            tabIndex={0}
+            role="group"
+            aria-label="Command to reproduce this run"
+            className="mt-1 block overflow-x-auto whitespace-nowrap rounded border border-border bg-ink px-1.5 py-1 text-fg outline-none focus-visible:ring-1 focus-visible:ring-accent"
+          >
+            pnpm --filter @sidik/engine reproduce {token}
+          </code>
+          <p className="mt-2">
             Or read it as JSON:{" "}
-            <a
-              href={`/api/token/${token}`}
-              className="underline underline-offset-4 hover:text-fg"
-            >
+            <a href={`/api/token/${token}`} className="underline underline-offset-4 hover:text-fg">
               /api/token/{formatAddr(token)}
             </a>
-          </div>
-          {/* Corroboration, deliberately kept out of the verdict. A token you
+          </p>
+
+          {/* Corroboration, deliberately outside the verdict. A token you
               cannot sell cannot sustain a market on an independent venue, so a
               listing supports a PASS — and would be alarming next to a FAIL.
-              It is never evidence: the verdict comes from the fork alone.
-              Matched by hand, because exchange tickers collide. */}
+              It is never evidence: the verdict comes from the fork alone. */}
+          <h2 className="mt-5 font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">Context, never evidence</h2>
           {impostorsOf(token).length > 0 && (
-            <div className="mt-2 text-xs text-na">
+            <p className="mt-2 text-na">
               {/* Copycat tokens are a live scam on Base, and their verdicts
                   differ — one MOCHI fails its fee probe while the other
                   passes. A reader who found this by ticker needs telling. */}
@@ -507,10 +603,10 @@ export default function RunView(
                 Compare them
               </a>
               .
-            </div>
+            </p>
           )}
           {venueListings(token).length > 0 && (
-            <div className="mt-2 text-xs text-fg-dim">
+            <p className="mt-2">
               Also trades on{" "}
               {venueListings(token).map((l, i, all) => (
                 <span key={l.venue}>
@@ -520,8 +616,8 @@ export default function RunView(
                 </span>
               ))}
               {" "}— {venueListings(token).length === 1 ? "an independent venue" : "independent venues"}.
-              Corroboration only; it is not part of the proof.
-            </div>
+              Context only; it is not part of the proof.
+            </p>
           )}
           {/* The advice everyone gives is "check that the contract is
               verified". Across this catalogue that advice separates almost
@@ -530,7 +626,7 @@ export default function RunView(
               on the one in front of them rather than take the aggregate on
               trust. Read from Blockscout, and no part of any verdict. */}
           {source && (
-            <div className="mt-2 text-xs text-fg-dim">
+            <p className="mt-2">
               {source.verified ? (
                 <>
                   Source code is published and verified on{" "}
@@ -549,10 +645,10 @@ export default function RunView(
               ) : (
                 <>No verified source code is published for this address on Blockscout.</>
               )}
-            </div>
+            </p>
           )}
           {scanners && <ScannerReadout token={token} readings={scanners} verdicts={verdicts} />}
-        </div>
+        </section>
       )}
     </div>
   );

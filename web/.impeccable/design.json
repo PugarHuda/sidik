@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-28T08:00:00Z",
+  "title": "Design System: Sidik",
+  "extensions": {
+    "colorMeta": {
+      "evidence-blue": { "role": "primary", "displayName": "Evidence Blue", "canonical": "#8aa4ff", "tonalRamp": ["#0c1230", "#1a2660", "#2b3d90", "#4a63c8", "#6c8cff", "#8aa4ff", "#b3c3ff", "#e1e8ff"] },
+      "cleared-green": { "role": "secondary", "displayName": "Cleared Green", "canonical": "#34d399", "tonalRamp": ["#052e1f", "#0b5a3c", "#118458", "#1ba872", "#34d399", "#5fe0b0", "#9cedcf", "#d8f8ec"] },
+      "reverted-red": { "role": "secondary", "displayName": "Reverted Red", "canonical": "#ff6b6b", "tonalRamp": ["#3a0d0d", "#6e1b1b", "#a12a2a", "#d54444", "#ff6b6b", "#ff8f8f", "#ffb8b8", "#ffe1e1"] },
+      "unanswered-amber": { "role": "secondary", "displayName": "Unanswered Amber", "canonical": "#f5a623", "tonalRamp": ["#3d2703", "#6e4708", "#a3690e", "#d18a15", "#f5a623", "#f8bb55", "#fbd48f", "#fdeccb"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#0a0c0e", "tonalRamp": ["#0a0c0e", "#14171c", "#1b1f26", "#2a2f38", "#4a5160", "#6f7788", "#9aa3b2", "#e7eaee"] },
+      "panel": { "role": "neutral", "displayName": "Panel", "canonical": "#14171c", "tonalRamp": ["#0a0c0e", "#14171c", "#1b1f26", "#2a2f38", "#4a5160", "#6f7788", "#9aa3b2", "#e7eaee"] },
+      "card": { "role": "neutral", "displayName": "Card", "canonical": "#1b1f26", "tonalRamp": ["#0a0c0e", "#14171c", "#1b1f26", "#2a2f38", "#4a5160", "#6f7788", "#9aa3b2", "#e7eaee"] },
+      "rule": { "role": "neutral", "displayName": "Rule", "canonical": "#2a2f38", "tonalRamp": ["#0a0c0e", "#14171c", "#1b1f26", "#2a2f38", "#4a5160", "#6f7788", "#9aa3b2", "#e7eaee"] },
+      "foreground": { "role": "neutral", "displayName": "Foreground", "canonical": "#e7eaee", "tonalRamp": ["#0a0c0e", "#14171c", "#1b1f26", "#2a2f38", "#4a5160", "#6f7788", "#9aa3b2", "#e7eaee"] },
+      "foreground-dim": { "role": "neutral", "displayName": "Foreground Dim", "canonical": "#9aa3b2", "tonalRamp": ["#0a0c0e", "#14171c", "#1b1f26", "#2a2f38", "#4a5160", "#6f7788", "#9aa3b2", "#e7eaee"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The landing headline only; mono, tight, stamped." },
+      "headline": { "displayName": "Headline", "purpose": "Page titles in mono." },
+      "title": { "displayName": "Title", "purpose": "A verdict card's finding, in Inter: the one line a buyer reads." },
+      "body": { "displayName": "Body", "purpose": "Narration and explanatory prose, Inter, ~65ch." },
+      "label": { "displayName": "Label", "purpose": "Tracked uppercase mono for section labels, badges, chips, trace lines, addresses." },
+      "wordmark": { "displayName": "Wordmark", "purpose": "SIDIK, tracked 0.3em, Evidence Blue, the home link on every page." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "reveal", "value": "reveal 0.35s ease-out both (opacity 0→1, translateY 6px→0)", "purpose": "A verdict card or trace line arriving. Once, on mount." },
+      { "name": "recording-pulse", "value": "recording-pulse 1.4s ease-in-out infinite (opacity 1→0.35→1)", "purpose": "The dot beside LIVE TRACE while a run is in flight." },
+      { "name": "transition", "value": "150ms ease", "purpose": "Border and text colour changes on hover; Tailwind's default `transition`." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one call to action: run the trace. Mono label, Evidence Blue on Ink.",
+      "html": "<button class=\"ds-btn-primary\">Run trace →</button>",
+      "css": ".ds-btn-primary { background: var(--accent, #8aa4ff); color: var(--ink, #0a0c0e); font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.875rem; font-weight: 600; padding: 12px 24px; border: 0; border-radius: 6px; cursor: pointer; transition: filter 150ms ease; } .ds-btn-primary:hover { filter: brightness(1.1); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--accent, #8aa4ff); } .ds-btn-primary:disabled { opacity: 0.35; cursor: not-allowed; filter: none; }"
+    },
+    {
+      "name": "Example Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A one-click example token: a kind dot, the label, an arrow that leans in on hover.",
+      "html": "<button class=\"ds-btn-example\"><span class=\"ds-dot ds-dot-fail\"></span>Anastasia (honeypot)<span class=\"ds-arrow\">→</span></button>",
+      "css": ".ds-btn-example { display: inline-flex; align-items: center; gap: 8px; background: var(--card, #1b1f26); color: var(--fg, #e7eaee); font-family: Inter, Arial, sans-serif; font-size: 0.875rem; padding: 10px 16px; border: 1px solid var(--border, #2a2f38); border-radius: 6px; cursor: pointer; transition: border-color 150ms ease; } .ds-btn-example:hover { border-color: rgba(138,164,255,0.6); } .ds-btn-example:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--accent, #8aa4ff); } .ds-dot { width: 8px; height: 8px; border-radius: 9999px; } .ds-dot-fail { background: var(--fail, #ff6b6b); } .ds-arrow { color: var(--fg-dim, #9aa3b2); transition: transform 150ms ease, color 150ms ease; } .ds-btn-example:hover .ds-arrow { transform: translateX(2px); color: var(--accent, #8aa4ff); }"
+    },
+    {
+      "name": "Address Input",
+      "kind": "input",
+      "refersTo": "input-address",
+      "description": "Where a buyer pastes the token. Mono, Panel-toned, Evidence Blue on focus, Reverted Red with a sentence when malformed.",
+      "html": "<input class=\"ds-input-address\" placeholder=\"0x…\" spellcheck=\"false\" autocomplete=\"off\" />",
+      "css": ".ds-input-address { width: 100%; background: var(--panel, #14171c); color: var(--fg, #e7eaee); font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.875rem; padding: 12px 16px; border: 1px solid var(--border, #2a2f38); border-radius: 6px; outline: none; transition: border-color 150ms ease, box-shadow 150ms ease; } .ds-input-address::placeholder { color: rgba(154,163,178,0.6); } .ds-input-address:focus { border-color: var(--accent, #8aa4ff); box-shadow: 0 0 0 1px var(--accent, #8aa4ff); } .ds-input-address[aria-invalid='true'] { border-color: rgba(255,107,107,0.6); } .ds-input-address[aria-invalid='true']:focus { box-shadow: 0 0 0 1px var(--fail, #ff6b6b); }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "filter-chip",
+      "description": "A catalogue filter. A real link with aria-pressed; the selected one turns Evidence Blue.",
+      "html": "<a class=\"ds-chip\" role=\"button\" aria-pressed=\"false\" href=\"#\">Hidden fees</a> <a class=\"ds-chip\" role=\"button\" aria-pressed=\"true\" href=\"#\">Honeypots</a>",
+      "css": ".ds-chip { display: inline-block; font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.75rem; color: var(--fg-dim, #9aa3b2); padding: 6px 12px; border: 1px solid var(--border, #2a2f38); border-radius: 6px; text-decoration: none; transition: color 150ms ease, border-color 150ms ease; } .ds-chip:hover { color: var(--fg, #e7eaee); } .ds-chip[aria-pressed='true'] { color: var(--accent, #8aa4ff); border-color: var(--accent, #8aa4ff); background: rgba(138,164,255,0.1); } .ds-chip:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--accent, #8aa4ff); }"
+    },
+    {
+      "name": "Verdict Badge",
+      "kind": "custom",
+      "refersTo": "verdict-badge",
+      "description": "The word inside its colour: PASS, FAIL, NA — and a neutral DOES NOT APPLY for a probe whose mechanism is absent.",
+      "html": "<span class=\"ds-badge ds-badge-fail\">FAIL</span> <span class=\"ds-badge ds-badge-pass\">PASS</span> <span class=\"ds-badge ds-badge-na\">NA</span> <span class=\"ds-badge ds-badge-inapplicable\">DOES NOT APPLY</span>",
+      "css": ".ds-badge { display: inline-block; font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; padding: 4px 12px; border: 1px solid; border-radius: 9999px; } .ds-badge-fail { color: var(--fail, #ff6b6b); border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.15); } .ds-badge-pass { color: var(--pass, #34d399); border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.15); } .ds-badge-na { color: var(--na, #f5a623); border-color: rgba(245,166,35,0.4); background: rgba(245,166,35,0.15); } .ds-badge-inapplicable { color: var(--fg-dim, #9aa3b2); border-color: var(--border, #2a2f38); background: transparent; }"
+    },
+    {
+      "name": "Verdict Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "One probe's finding: header row, the finding as Title, assumed vs proven, measured numbers as chips.",
+      "html": "<article class=\"ds-card\"><header class=\"ds-card-head\"><span class=\"ds-card-probe\">honeypot</span><span class=\"ds-badge ds-badge-fail\">FAIL</span></header><h3 class=\"ds-card-title\">Honeypot — you can buy but cannot sell</h3><div class=\"ds-card-cols\"><div><div class=\"ds-card-label\">What a buyer assumes</div><div class=\"ds-card-row\">Freely tradable</div></div><div><div class=\"ds-card-label\">Proven in fork</div><div class=\"ds-card-row ds-card-row-bad\">Sell reverted</div></div></div><div class=\"ds-card-chips\"><span class=\"ds-chip-num\">boughtAmount: <b>27,887.07 Anastasia</b></span></div></article>",
+      "css": ".ds-card { background: var(--card, #1b1f26); color: var(--fg, #e7eaee); border: 1px solid var(--border, #2a2f38); border-radius: 8px; overflow: hidden; font-family: Inter, Arial, sans-serif; } .ds-card-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--border, #2a2f38); } .ds-card-probe { font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.75rem; color: var(--fg-dim, #9aa3b2); } .ds-card-title { font-size: 1.125rem; font-weight: 600; line-height: 1.4; margin: 0; padding: 16px 20px; } .ds-card-cols { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border, #2a2f38); } .ds-card-cols > div { padding: 16px 20px; } .ds-card-cols > div + div { border-left: 1px solid var(--border, #2a2f38); } .ds-card-label { font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-dim, #9aa3b2); margin-bottom: 12px; } .ds-card-row { font-size: 0.875rem; } .ds-card-row-bad { color: var(--fail, #ff6b6b); font-weight: 500; } .ds-card-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--border, #2a2f38); } .ds-chip-num { font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.75rem; color: var(--fg-dim, #9aa3b2); background: var(--ink, #0a0c0e); border: 1px solid var(--border, #2a2f38); border-radius: 4px; padding: 4px 8px; } .ds-chip-num b { color: var(--fg, #e7eaee); font-weight: 400; } .ds-badge { display: inline-block; font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; padding: 4px 12px; border: 1px solid; border-radius: 9999px; } .ds-badge-fail { color: var(--fail, #ff6b6b); border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.15); }"
+    },
+    {
+      "name": "Wordmark",
+      "kind": "nav",
+      "refersTo": "wordmark",
+      "description": "SIDIK, tracked 0.3em in Evidence Blue with its dot; the home link on every page.",
+      "html": "<a class=\"ds-wordmark\" href=\"#\"><span class=\"ds-wordmark-dot\"></span>SIDIK</a>",
+      "css": ".ds-wordmark { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 0.875rem; letter-spacing: 0.3em; color: var(--accent, #8aa4ff); text-decoration: none; } .ds-wordmark-dot { width: 6px; height: 6px; border-radius: 9999px; background: var(--accent, #8aa4ff); } .ds-wordmark:focus-visible { outline: none; box-shadow: 0 0 0 1px var(--accent, #8aa4ff); border-radius: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Case File",
+    "overview": "Sidik is an investigation, and its pages are the file that comes out of one. Everything on screen is an exhibit: a transaction that was mined, a revert string that came back, a number that was counted. The visual system exists to make that evidentiary character legible at a glance — a buyer on a phone reads one stamped verdict and knows whether the exit works; a judge reads the same page and can follow every figure back to the run that produced it. Nothing is decorated, because decoration is the one thing a case file never contains.\n\nThe surface is near-black ink with a faint blue cast, layered in three tones (ink, panel, card) and ruled with 1px lines rather than shadows: a flat dossier under a desk lamp, not a stack of floating cards. Labels, addresses, hashes and figures are set in IBM Plex Mono, tracked out like a stamp; prose is Inter, because a person reads it. Three colours carry meaning and only meaning — Cleared Green, Reverted Red, Unanswered Amber — and one accent, Evidence Blue, marks what the reader can act on. The fingerprint watermark behind the landing page is the single piece of imagery, and it is the product's name.\n\nMotion is a verdict arriving. Cards reveal once, upward, in 350ms; a recording dot breathes while a run is in flight; nothing else moves.",
+    "keyCharacteristics": [
+      "Dark, flat, three-tone surfaces ruled with 1px lines; depth is tonal, never cast",
+      "Mono for evidence (labels, addresses, hashes, figures), sans for reading",
+      "Four meaning-carrying colours, each always paired with its word",
+      "One signature: the fingerprint-ridge watermark on the landing page",
+      "Motion only as state: reveal on arrival, pulse while recording"
+    ],
+    "rules": [
+      { "name": "The Word Rule", "body": "A colour never carries a status alone. Every PASS, FAIL and NA is a word inside its colour; every red border has a sentence beside it.", "section": "colors" },
+      { "name": "The One Accent Rule", "body": "Evidence Blue appears on what can be acted on or must be noticed, and nowhere else. Backgrounds, dividers and decoration never take it.", "section": "colors" },
+      { "name": "The Composited Contrast Rule", "body": "Contrast is measured on the surface a colour actually renders on — a badge's tinted background, not the page — and a test reads the tokens off the live page and re-measures them.", "section": "colors" },
+      { "name": "The Evidence Rule", "body": "If it was measured, it is set in mono. If it is being explained, it is set in Inter.", "section": "typography" },
+      { "name": "The Tracked Stamp Rule", "body": "Uppercase mono labels are tracked between 0.1em and 0.3em; nothing uppercase is ever set tight.", "section": "typography" },
+      { "name": "The Flat Dossier Rule", "body": "Surfaces are flat at rest and stay flat under interaction. Hover changes a border or a text colour, never a shadow or a lift.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do set every measured thing in IBM Plex Mono and every explanation in Inter.",
+      "Do put the word inside the colour: FAIL in Reverted Red, never a red dot alone.",
+      "Do keep depth tonal: ink → panel → card, 1px Rule borders, no shadows.",
+      "Do measure contrast on the composited surface a colour renders on, and keep the test that re-measures the live tokens.",
+      "Do make every overflowing region focusable (tabIndex=0, role=\"group\", a name) and give it the Evidence Blue focus ring.",
+      "Do render an unavailable control as nothing, not as dimmed text.",
+      "Do keep motion to arrival (reveal) and progress (pulse), and switch both off under prefers-reduced-motion."
+    ],
+    "donts": [
+      "Don't link a fork transaction hash to a block explorer; show it as text with the \"never broadcast\" note.",
+      "Don't label the left column \"Claimed\" — it is \"What a buyer assumes\".",
+      "Don't put corroboration (scanners, venues, verification) inside a verdict card's evidence; it sits below the summary in Foreground Dim, dated, with \"not part of the proof\".",
+      "Don't use gradient text, glass or blur effects, coloured side borders thicker than 1px, or any shadow.",
+      "Don't use Evidence Blue on anything that cannot be acted on or is not being pointed at.",
+      "Don't set uppercase labels tight; track them 0.1em–0.3em.",
+      "Don't ship a status colour below 4.5:1 on the badge background it actually sits on."
+    ]
+  }
+}

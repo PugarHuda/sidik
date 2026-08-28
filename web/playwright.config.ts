@@ -32,7 +32,7 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"]],
   use: {
-    baseURL: externalTarget ?? "http://127.0.0.1:3210",
+    baseURL: externalTarget ?? "http://127.0.0.1:3947",
     trace: "retain-on-failure",
   },
   // Both browsers here used to be Chromium — "desktop" and "Pixel 7" share an
@@ -57,8 +57,12 @@ export default defineConfig({
         // reuseExistingServer picks up, passed 353/353 with the same
         // application code. The application was never the problem; the
         // process tree was.
-        command: "node node_modules/next/dist/bin/next start -p 3210",
-        url: "http://127.0.0.1:3210",
+        command: "node node_modules/next/dist/bin/next start -p 3947",
+        url: "http://127.0.0.1:3947",
+        // 3947 rather than 3210: with reuseExistingServer on, the suite once
+        // attached to another project's Next server that happened to be
+        // listening on 3210 and ran 206 tests against a page in the wrong
+        // fonts — every one failed, none for a reason in this repository.
         reuseExistingServer: true,
         stdout: "pipe",
         stderr: "pipe",

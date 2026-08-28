@@ -100,8 +100,25 @@ export const CATALOGUE_FILTERS = [
   { id: "hiddenFee", label: "Hidden fees" },
   { id: "lpRug", label: "LP rugs" },
   { id: "ownerTrap", label: "Owner traps" },
+  { id: "approvalDrain", label: "Drainable wallets" },
   { id: "scannerDisagrees", label: "Scanners disagree" },
 ] as const;
+
+/**
+ * How many rows each filter keeps, for the tiles that ARE the filters.
+ *
+ * The catalogue used to show eight stat tiles and, 80px below them, seven
+ * filter chips for nearly the same sets under different names — "Something
+ * failed" above, "Anything failed" below. Fifteen controls for eight
+ * decisions, and the tiles, which looked like the obvious thing to tap, did
+ * nothing. Counting through filterRows keeps the number on a tile identical
+ * to the number of rows it shows.
+ */
+export function filterCounts(rows: CatalogueRow[]): Record<CatalogueFilter, number> {
+  const out = {} as Record<CatalogueFilter, number>;
+  for (const f of CATALOGUE_FILTERS) out[f.id] = filterRows(rows, { filter: f.id, query: "" }).length;
+  return out;
+}
 
 export type CatalogueFilter = (typeof CATALOGUE_FILTERS)[number]["id"];
 

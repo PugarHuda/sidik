@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { fillWhenReady, SEARCH_SETTLE_MS } from "./helpers";
+import { fillWhenReady, filterTile, SEARCH_SETTLE_MS } from "./helpers";
 
 /**
  * What happens when things go wrong or the reader does something impatient.
@@ -95,11 +95,15 @@ test.describe("network failure", () => {
 
   // An error that only says no was the whole of this page. Both ways out of it
   // have to be real, and neither may imply a verdict.
-  test("offers the two real routes out, and still no verdict", async ({ page }) => {
+  test("offers real routes out, and still no verdict", async ({ page }) => {
     await page.goto(`/run?token=${NOT_RECORDED}`);
-    const search = page.getByRole("link", { name: /Search the catalogue for this address/i });
-    await expect(search).toHaveAttribute("href", `/catalogue?q=${NOT_RECORDED}`);
-    await expect(page.getByText(/probe it yourself/i)).toBeVisible();
+    // A plain sentence first, then the exact one; then recorded runs to open
+    // instead of a catalogue search that could only ever return nothing.
+    await expect(page.getByText(/Sidik has not traded this token yet/)).toBeVisible();
+    await expect(page.getByRole("link", { name: /Browse every recorded run/ })).toHaveAttribute("href", "/catalogue");
+    await expect(page.getByRole("link", { name: /Anastasia/ })).toBeVisible();
+    // The developer route is real and folded, not gone.
+    await page.getByText(/Probe it yourself/i).click();
     await expect(page.getByLabel("Command to probe this address locally")).toBeVisible();
     // Nothing on this page may read as an outcome about the token.
     for (const word of ["PASS", "FAIL"]) {
@@ -200,12 +204,12 @@ test.describe("catalogue edge cases", () => {
     const counter = page.getByText(/of \d+ recorded runs$/);
     const count = async () => Number((await counter.textContent())!.match(/^(\d+)/)![1]);
 
-    const honeypotsButton = page.getByRole("button", { name: "Honeypots" });
+    const honeypotsButton = filterTile(page, "Honeypots");
     await expect(honeypotsButton).toBeVisible();
     await honeypotsButton.click();
     // aria-pressed flipping is the signal that React handled the click, not
     // just that the DOM received one.
-    await expect(honeypotsButton).toHaveAttribute("aria-pressed", "true");
+    await expect(honeypotsButton).toHaveAttribute("aria-current", "page");
     const filtered = await count();
     expect(filtered).toBeGreaterThan(0);
 
@@ -213,7 +217,7 @@ test.describe("catalogue edge cases", () => {
     // Every address starts with 0x, so the search cannot widen the filter —
     // if the two did not compose, this would jump back to all 194.
     await expect.poll(count).toBe(filtered);
-    await expect(honeypotsButton).toHaveAttribute("aria-pressed", "true");
+    await expect(honeypotsButton).toHaveAttribute("aria-current", "page");
   });
 });
 

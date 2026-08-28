@@ -40,18 +40,23 @@ export async function fillWhenReady(
 }
 
 /**
- * Click a control and keep clicking until it reports the state change.
+ * Click a filter tile and keep clicking until it reports the state change.
  *
- * `aria-pressed` is the check rather than a row count: it flips only when
- * React has handled the event, so it distinguishes "the DOM got a click" from
- * "the application got a click".
+ * The filters are links carrying their own count ("Honeypots 4"), so the
+ * name is matched by prefix. `aria-current="page"` is the check rather than
+ * a row count: it is set by the server render of the new URL, so it
+ * distinguishes "the DOM got a click" from "the navigation happened".
  */
+export function filterTile(page: Page, name: string) {
+  return page.getByRole("link", { name: new RegExp(`^${name}\\b`) });
+}
+
 export async function clickFilter(page: Page, name: string): Promise<void> {
-  const button = page.getByRole("button", { name, exact: true });
-  await expect(button).toBeVisible();
+  const tile = filterTile(page, name);
+  await expect(tile).toBeVisible();
   await expect(async () => {
-    await button.click();
-    await expect(button).toHaveAttribute("aria-pressed", "true", { timeout: 1_000 });
+    await tile.click();
+    await expect(tile).toHaveAttribute("aria-current", "page", { timeout: 1_000 });
   }).toPass({ timeout: READY_TIMEOUT });
 }
 

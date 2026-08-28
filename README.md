@@ -125,10 +125,10 @@ pnpm dev:engine
 # example runs instead of reaching an engine (see Deployment).
 pnpm dev:web
 
-# engine test suite (vitest) — 192 unit + 30 integration
+# engine test suite (vitest) — 194 unit + 30 integration
 pnpm test
 
-# browser suite (Playwright) — 483 tests across chromium, firefox, webkit,
+# browser suite (Playwright) — 533 tests across chromium, firefox, webkit,
 # and both mobile viewports, run against a production build. Includes an
 # axe-core accessibility audit of every page.
 pnpm e2e

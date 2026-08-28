@@ -96,7 +96,7 @@ test.describe("a run that finds something", () => {
 
   test("expands the raw verdict data behind a verdict", async ({ page }) => {
     await runToCompletion(page, ANASTASIA);
-    const toggle = page.getByRole("button", { name: /show raw verdict data/ }).first();
+    const toggle = page.getByRole("button", { name: /show raw verdict data/i }).first();
     await toggle.click();
     await expect(page.getByText(/"probe": "honeypot"/)).toBeVisible();
   });
@@ -104,8 +104,10 @@ test.describe("a run that finds something", () => {
   test("reports a tax on both sides of the pool, not just the buy", async ({ page }) => {
     await runToCompletion(page, BRB);
     await expect(page.getByRole("heading", { name: /Hidden fees/ })).toBeVisible();
-    await expect(page.getByText(/on buy/)).toBeVisible();
-    await expect(page.getByText(/on sell/)).toBeVisible();
+    // The finding is now quoted twice on purpose: once in the verdict strip
+    // at the top, once on its card.
+    await expect(page.getByText(/on buy/).first()).toBeVisible();
+    await expect(page.getByText(/on sell/).first()).toBeVisible();
   });
 });
 
@@ -120,14 +122,13 @@ test.describe("a probe that cannot apply", () => {
     await runToCompletion(page, BRETT);
     // Three probes pass and only the inapplicable one is NA, so the summary
     // must not read as though nothing could be determined.
-    const badge = page.locator("text=SIDIK · VERDICT").locator("xpath=following-sibling::*[1]");
-    await expect(badge).toHaveText("PASS");
+    await expect(page.locator("[data-overall-verdict]")).toHaveAttribute("data-overall-verdict", "PASS");
   });
 
   test("corroborates against BingX without presenting it as proof", async ({ page }) => {
     await runToCompletion(page, BRETT);
     await expect(page.getByText(/Also trades on BingX as BRETT/)).toBeVisible();
-    await expect(page.getByText(/not part of the proof/)).toBeVisible();
+    await expect(page.getByText(/not part of the proof/).first()).toBeVisible();
   });
 });
 
@@ -253,7 +254,7 @@ test.describe("catalogue", () => {
     await page.goto("/catalogue");
     // Five separate contracts on Base call themselves BRIAN.
     await fillWhenReady(page, page.getByLabel("Filter by symbol or address"), "BRIAN",
-      () => expect(page.locator("ul li").first()).toContainText(/sharing this symbol/, { timeout: SEARCH_SETTLE_MS }));
+      () => expect(page.locator("ul li").first()).toContainText(/other tokens use this symbol/, { timeout: SEARCH_SETTLE_MS }));
   });
 
   test("a row opens that token's run", async ({ page }) => {
@@ -297,5 +298,74 @@ test.describe("token API", () => {
   test("400s a malformed address", async ({ request }) => {
     const res = await request.get("/api/token/notanaddress");
     expect(res.status()).toBe(400);
+  });
+});
+
+test.describe("what the critique found and no assertion had", () => {
+  // The fingerprint watermark's mask sat on the container holding the whole
+  // landing page. At phone width the last three example buttons rendered at
+  // 0% and the address input at ~30% — and every visibility test passed,
+  // because a masked-to-nothing element is still "visible" to the DOM.
+  test("the landing page's controls are actually painted at phone width", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    const last = page.getByRole("button", { name: /DEGEN/ });
+    await last.scrollIntoViewIfNeeded();
+    // Sample the button's own pixels: a masked element is transparent, and a
+    // transparent pixel over the page background is the page background.
+    const painted = await last.evaluate(async (el) => {
+      const r = el.getBoundingClientRect();
+      const css = getComputedStyle(el);
+      // The mask, if any, would be on an ancestor; check none applies.
+      let node: Element | null = el;
+      while (node) {
+        const m = getComputedStyle(node);
+        const mask = m.maskImage || (m as unknown as { webkitMaskImage?: string }).webkitMaskImage || "none";
+        if (mask !== "none") return { masked: true, w: r.width, h: r.height, border: css.borderColor };
+        node = node.parentElement;
+      }
+      return { masked: false, w: r.width, h: r.height, border: css.borderColor };
+    });
+    expect(painted.masked, "an ancestor still masks the controls").toBe(false);
+    expect(painted.w).toBeGreaterThan(100);
+  });
+
+  // The narration printed a full owner address inline; that one word widened
+  // the document to 465px at 390 and shrank every tap target by 16%.
+  for (const [name, token] of [["DEGEN", "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed"], ["Anastasia", ANASTASIA], ["BRB", BRB]] as const) {
+    test(`the run page for ${name} never scrolls sideways on a phone`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await runToCompletion(page, token);
+      const widths = await page.evaluate(() => ({
+        doc: document.documentElement.scrollWidth,
+        viewport: document.documentElement.clientWidth,
+      }));
+      expect(widths.doc, "document wider than the viewport").toBeLessThanOrEqual(widths.viewport);
+    });
+  }
+
+  // A case file opens with the finding. The verdict strip sits above the
+  // cards, the pill in the header is the verdict word, and on a FAIL run
+  // the first card is the failing one.
+  test("a finished run leads with its verdict, not with the first probe that ran", async ({ page }) => {
+    await runToCompletion(page, "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed");
+    await expect(page.getByRole("status")).toHaveText("FAIL");
+    const strip = page.locator("[data-overall-verdict]");
+    await expect(strip).toHaveAttribute("data-overall-verdict", "FAIL");
+    await expect(strip).toContainText(/pulled pause\(\) and the sell stopped working/);
+    // DOM order: strip before every card.
+    const stripTop = await strip.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+    const firstCard = page.locator("h3").first();
+    const cardTop = await firstCard.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+    expect(stripTop).toBeLessThan(cardTop);
+    await expect(firstCard).toContainText(/pause\(\)/);
+  });
+
+  test("a probe that does not apply is never printed in red", async ({ page }) => {
+    await runToCompletion(page, "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed");
+    // lpRug does not apply on V3; its "proven" sentence must be neutral.
+    const proven = page.locator("[data-probe='lpRug'][data-applicable='false'] dd").last();
+    const color = await proven.evaluate((el) => getComputedStyle(el).color);
+    expect(color).not.toMatch(/255, 107, 107/); // --fail
   });
 });

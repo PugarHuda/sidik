@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
-  catalogueRows, catalogueSummary, filterRows, isCatalogueFilter, paginate,
-  VERIFICATION_STATS,
+  CATALOGUE_FILTERS, catalogueRows, catalogueSummary, filterCounts, filterRows,
+  isCatalogueFilter, paginate, VERIFICATION_STATS,
 } from "@sidik/shared";
 import CatalogueControls from "./CatalogueControls";
 import CatalogueRows from "./CatalogueRows";
@@ -51,31 +51,65 @@ export default async function CataloguePage({
   // server's gzip stream — measurably, and fatally under a full test run.
   const page = paginate(matching, Number(one(params.page)) || 1);
   const s = catalogueSummary(rows);
+  const counts = filterCounts(rows);
+  const current = CATALOGUE_FILTERS.find((f) => f.id === filter)!;
 
-  const stats: [string, number][] = [
-    ["recorded runs", s.total],
-    ["something failed", s.failing],
-    ["honeypots", s.honeypots],
-    ["hidden fees", s.taxed],
-    ["LP rugs", s.lpRugs],
-    ["owner traps", s.ownerTraps],
-    ["drainable wallets", s.drainableWallets],
-    ["scanners disagree", s.scannersDisagree],
-  ];
+  const href = (id: string) => {
+    const p = new URLSearchParams();
+    if (id !== "all") p.set("filter", id);
+    if (query) p.set("q", query);
+    const qs = p.toString();
+    return qs ? `/catalogue?${qs}` : "/catalogue";
+  };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-16">
+    <div className="mx-auto w-full max-w-5xl px-6 py-12 sm:py-16">
       <Link href="/" className="font-mono text-sm tracking-[0.3em] text-accent">SIDIK</Link>
 
+      {/* The heading follows the filter. It used to read "Every recorded run"
+          over a list of eleven, with the only sign of the filter a count two
+          screens down. */}
       <h1 className="mt-6 font-mono text-3xl font-semibold tracking-tight text-fg">
-        Every recorded run
+        {filter === "all" ? "Every recorded run" : current.label}
       </h1>
       <p className="mt-3 max-w-2xl text-fg-dim">
-        Each of these was executed, not assessed: Sidik forked Base at block
-        50,200,000, bought the token with a funded test wallet, tried to sell it
-        back, transferred it, and where an LP holder could be found, pulled the
-        pool out from under it. Failures are listed first.
+        {filter === "all"
+          ? <>Each of these was executed, not assessed: Sidik forked Base at block 50,200,000, bought the token with a funded test wallet, tried to sell it back, transferred it, and where an LP holder could be found, pulled the pool out from under it. Failures are listed first.</>
+          : <>{matching.length} of {rows.length} recorded runs. Each was executed against a fork of Base at block 50,200,000; failures are listed first.</>}
       </p>
+
+      {/* The tiles ARE the filters. Each is a link carrying its own count, so
+          the number on it is always the number of rows it shows; the selected
+          one carries aria-current. One set of controls where there used to be
+          eight tiles that could not be tapped above seven chips that could. */}
+      <nav aria-label="Filter recorded runs" className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {CATALOGUE_FILTERS.map((f) => {
+          const selected = f.id === filter;
+          return (
+            <Link
+              key={f.id}
+              href={href(f.id)}
+              aria-current={selected ? "page" : undefined}
+              data-filter-tile={f.id}
+              className={`block rounded-lg border px-4 py-3 transition ${
+                selected
+                  ? "border-accent bg-accent/10 text-accent"
+                  : "border-border bg-card text-fg hover:border-accent/50"
+              }`}
+            >
+              <span className={`block font-mono text-[11px] uppercase tracking-wider ${selected ? "text-accent" : "text-fg-dim"}`}>
+                {f.label}
+              </span>
+              <span className="mt-1 block font-mono text-2xl tabular-nums">{counts[f.id]}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <p className="mt-4 font-mono text-xs text-fg-dim">
+        {s.onV3} trade on Uniswap V3 · {s.onV2} on V2 · {s.total - s.onV3 - s.onV2} on neither
+      </p>
+
       {/* Kept next to the counts because it is the honest frame for them: the
           usual way to vet a token would have cleared almost every one of the
           ones below that failed. Source: Blockscout, per address, recorded in
@@ -85,19 +119,6 @@ export default async function CataloguePage({
         finding against them publish verified source code on Blockscout, as do{" "}
         {VERIFICATION_STATS.verified} of all {VERIFICATION_STATS.checked}. Whatever was proven
         below, it was proven about a contract anyone could already read.
-      </p>
-
-      <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {stats.map(([label, value]) => (
-          <div key={label} className="rounded-lg border border-border bg-card px-4 py-3">
-            <dt className="font-mono text-[11px] uppercase tracking-wider text-fg-dim">{label}</dt>
-            <dd className="mt-1 font-mono text-2xl text-fg">{value}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <p className="mt-4 font-mono text-xs text-fg-dim">
-        {s.onV3} trade on Uniswap V3 · {s.onV2} on V2
       </p>
 
       {/* The catalogue is structured data rendered as a page, and until now the
@@ -120,7 +141,7 @@ export default async function CataloguePage({
         </a>
       </p>
 
-      <div className="mt-10">
+      <div className="mt-8">
         <CatalogueControls
           filter={filter}
           query={query}

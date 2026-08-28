@@ -11,6 +11,11 @@ const TONE: Record<string, string> = {
  * Server-rendered. Nothing here is interactive, so none of this row data
  * needs to cross into the browser as component props — which is what it used
  * to do, on top of already being sent as HTML.
+ *
+ * Two lines per row, by design: the verdict, the symbol and the finding on
+ * the first; venue, listing, address and any caveat on the second, in the
+ * smallest label size. On a phone the old single flex line broke into seven
+ * stacked fragments and the row-as-a-line gestalt was gone.
  */
 export default function CatalogueRows({ rows }: { rows: CatalogueRow[] }) {
   if (rows.length === 0) {
@@ -38,40 +43,35 @@ export default function CatalogueRows({ rows }: { rows: CatalogueRow[] }) {
         >
           <Link
             href={`/run?token=${r.address}`}
-            className="flex flex-col gap-2 rounded-lg border border-border bg-card px-4 py-3 transition hover:border-accent/50 sm:flex-row sm:items-center"
+            className="flex flex-col gap-1.5 rounded-lg border border-border bg-card px-4 py-3 transition hover:border-accent/50"
           >
-            <span className={`w-fit rounded border px-2 py-0.5 font-mono text-xs ${TONE[r.headline]}`}>
-              {r.headline}
-            </span>
-            <span className="font-mono text-sm text-fg">{r.symbol}</span>
-            {r.venue && (
-              <span className="font-mono text-[11px] uppercase tracking-wider text-fg-dim">
-                {r.venue}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className={`rounded border px-2 py-0.5 font-mono text-xs ${TONE[r.headline]}`}>
+                {r.headline}
               </span>
-            )}
-            {r.listedAs && (
-              <span className="font-mono text-[11px] text-fg-dim">BingX</span>
-            )}
-            {r.sharesSymbolWith > 0 && (
-              <span
-                className="w-fit rounded border border-na/40 bg-na/10 px-2 py-0.5 font-mono text-[11px] text-na"
-                title="Other recorded Base tokens use this same symbol, and their verdicts are not the same"
-              >
-                +{r.sharesSymbolWith} sharing this symbol
-              </span>
-            )}
-            {r.scannerDisagrees && (
-              <span
-                className="w-fit rounded border border-accent/40 bg-accent/10 px-2 py-0.5 font-mono text-[11px] text-accent"
-                title={r.scannerDisagrees}
-              >
-                scanner disagrees
-              </span>
-            )}
-            <span className="text-sm text-fg-dim sm:ml-2 sm:flex-1">{r.finding}</span>
-            <span className="font-mono text-[11px] text-fg-dim">
-              {r.address.slice(0, 6)}…{r.address.slice(-4)}
-            </span>
+              <span className="font-mono text-sm text-fg">{r.symbol}</span>
+              <span className="text-sm text-fg-dim sm:flex-1">{r.finding}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-fg-dim">
+              {r.venue && <span className="uppercase tracking-wider">Uniswap {r.venue}</span>}
+              {r.listedAs && <span>listed on BingX</span>}
+              <span>{r.address.slice(0, 6)}…{r.address.slice(-4)}</span>
+              {r.sharesSymbolWith > 0 && (
+                <span className="text-na">
+                  +{r.sharesSymbolWith} other {r.sharesSymbolWith === 1 ? "token uses" : "tokens use"} this symbol
+                </span>
+              )}
+              {/* Neutral, and the sentence is visible. It was an Evidence Blue
+                  chip with the explanation in a title attribute — an accent on
+                  something that cannot be tapped, carrying a fact that touch
+                  and screen readers never surface. */}
+              {r.scannerDisagrees && (
+                <span>
+                  <span className="rounded border border-border px-1.5 py-0.5">scanner disagrees</span>
+                  {" "}{r.scannerDisagrees}
+                </span>
+              )}
+            </div>
           </Link>
         </li>
       ))}

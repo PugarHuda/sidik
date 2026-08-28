@@ -10,9 +10,10 @@ const sans = Inter({
   subsets: ["latin"],
 });
 
+// Three weights, not four: 700 was loaded on every page and used on none.
 const mono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
 });
 

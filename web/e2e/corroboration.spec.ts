@@ -25,11 +25,12 @@ test.describe("source verification", () => {
     // The whole callout, not the emphasised span inside it: the second half of
     // the claim lives in the paragraph around that span, so asserting both on
     // the span could only ever fail.
-    const callout = page.locator("p").filter({ hasText: /publish verified source code/i });
+    const callout = page.locator("div").filter({ hasText: /publish verified source code/i }).last();
     await expect(callout).toBeVisible();
-    // Both halves of the claim have to be numbers, not adjectives.
-    await expect(callout).toContainText(/\d+ of those \d+/);
-    await expect(callout).toContainText(/\d+ of the \d+ that failed a probe/);
+    // Both halves of the claim have to be numbers, not adjectives: the
+    // failing share as the figure, the overall share in the sentence.
+    await expect(callout).toContainText(/\d+\s*of\s*\d+/);
+    await expect(callout).toContainText(/as do \d+ of all \d+/);
   });
 
   test("the catalogue repeats it next to the counts it qualifies", async ({ page }) => {
@@ -112,12 +113,10 @@ test.describe("owner traps", () => {
 
   test("counts them alongside the other findings", async ({ page }) => {
     await page.goto("/catalogue");
-    // exact, because the filter control beside it reads "Owner traps" and a
-    // substring match claims both. The stat tile is the one that carries a
-    // number.
-    const tile = page.getByText("owner traps", { exact: true });
+    // The tile IS the filter now, and it carries its own count.
+    const tile = page.locator("[data-filter-tile='ownerTrap']");
     await expect(tile).toBeVisible();
-    await expect(tile.locator("xpath=following-sibling::dd")).toHaveText(/^\d+$/);
+    await expect(tile).toContainText(/Owner traps\s*\d+/);
   });
 });
 
@@ -131,7 +130,7 @@ test.describe("read-only scanners beside the executed verdict", () => {
     const block = page.getByText(/What read-only scanners say/i);
     await expect(block).toBeVisible();
     // The date is the honesty: these describe the chain that day, not the block.
-    await expect(block).toContainText(/asked \d{4}-\d{2}-\d{2}/);
+    await expect(block).toContainText(/asked \d{4}-\d{2}-\d{2}/i);
     await expect(block).toContainText(/not block 50,200,000/);
     await expect(page.getByText("GoPlus", { exact: true })).toBeVisible();
     await expect(page.getByText("honeypot.is", { exact: true })).toBeVisible();
@@ -163,6 +162,8 @@ test.describe("browsing where inference and execution part ways", () => {
     // attribute is what the filter means.
     await expect(page.locator("ul li:not([data-scanner-disagrees])")).toHaveCount(0);
     await expect(page.getByText("scanner disagrees").first()).toBeVisible();
+    // The sentence is on the row, not hidden in a title attribute.
+    await expect(page.getByText(/says .* the fork (sold|could not sell)/).first()).toBeVisible();
     // Anastasia is in this list: GoPlus cleared a sell that reverts.
     await expect(page.locator("ul li", { hasText: "Anastasia" })).toHaveAttribute("data-scanner-disagrees", "");
   });

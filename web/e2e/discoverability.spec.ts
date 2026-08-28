@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { filterTile } from "./helpers";
 import { CATALOGUE_PAGE_SIZE } from "@sidik/shared";
 
 /**
@@ -77,18 +78,17 @@ test.describe("indexing", () => {
 test.describe("catalogue filter state", () => {
   test("puts the filter in the URL so it can be linked", async ({ page }) => {
     await page.goto("/catalogue");
-    const honeypots = page.getByRole("button", { name: "Honeypots", exact: true });
+    const honeypots = filterTile(page, "Honeypots");
     await expect(honeypots).toBeVisible();
     await honeypots.click();
 
     await expect(page).toHaveURL(/[?&]filter=honeypot/);
-    await expect(honeypots).toHaveAttribute("aria-pressed", "true");
+    await expect(honeypots).toHaveAttribute("aria-current", "page");
   });
 
   test("a filtered URL opened cold shows the filtered list", async ({ page }) => {
     await page.goto("/catalogue?filter=honeypot");
-    await expect(page.getByRole("button", { name: "Honeypots", exact: true }))
-      .toHaveAttribute("aria-pressed", "true");
+    await expect(filterTile(page, "Honeypots")).toHaveAttribute("aria-current", "page");
     const rows = await page.locator("ul li").count();
     expect(rows).toBeGreaterThan(0);
     // Every row on this page must actually be a honeypot finding — checked
@@ -100,7 +100,7 @@ test.describe("catalogue filter state", () => {
     await page.goto("/catalogue");
     const all = await page.locator("ul li").count();
 
-    await page.getByRole("button", { name: "Honeypots", exact: true }).click();
+    await filterTile(page, "Honeypots").click();
     await expect(page).toHaveURL(/filter=honeypot/);
     const filtered = await page.locator("ul li").count();
     expect(filtered).toBeLessThan(all);
@@ -118,8 +118,8 @@ test.describe("catalogue filter state", () => {
     // behind them — not an empty list.
     expect(await page.locator("ul li").count()).toBe(CATALOGUE_PAGE_SIZE);
     await expect(page.getByText(/\d+ of \d+ recorded runs/)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Everything", exact: true }))
-      .toHaveAttribute("aria-pressed", "true");
+    await expect(filterTile(page, "Everything"))
+      .toHaveAttribute("aria-current", "page");
   });
 
   test("a very long search string is bounded, not reflected whole", async ({ page }) => {
@@ -197,8 +197,8 @@ test.describe("catalogue paging", () => {
       await expect(page).toHaveURL(/filter=failing/);
       await expect(page).toHaveURL(/page=2/);
     }
-    await expect(page.getByRole("button", { name: "Anything failed", exact: true }))
-      .toHaveAttribute("aria-pressed", "true");
+    await expect(filterTile(page, "Anything failed"))
+      .toHaveAttribute("aria-current", "page");
   });
 
   test("a page number past the end shows the last page, not an empty one", async ({ page }) => {
