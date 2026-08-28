@@ -14,7 +14,8 @@
     "reproduce": "tsx --env-file-if-exists=.env scripts/reproduce.mts",
     "counts": "tsx scripts/counts.mts",
     "scanners": "tsx --env-file-if-exists=.env scripts/gen-scanners.mts",
-    "recheck": "tsx --env-file-if-exists=.env scripts/recheck.mts"
+    "recheck": "tsx --env-file-if-exists=.env scripts/recheck.mts",
+    "selector-names": "tsx --env-file-if-exists=.env scripts/gen-selector-names.mts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^1.0.48",

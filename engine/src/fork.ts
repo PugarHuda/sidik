@@ -7,7 +7,8 @@ import {
 import { base } from "viem/chains";
 import type { ForkClient, Hex } from "@sidik/shared";
 import { REVERT_MAX, untrustedText } from "./untrusted.js";
-import { startForkProxy, type ForkProxy } from "./forkProxy.js";
+import { forkProxyStats, startForkProxy, type ForkProxy } from "./forkProxy.js";
+import { log } from "./log.js";
 
 // One proxy per engine process, started the first time a fork is opened and
 // kept for every fork after it. See forkProxy.ts for why anvil is not handed
@@ -24,7 +25,7 @@ function forkEndpoint(rpc: string): Promise<string> {
 // revert — the tx never gets broadcast, so probes never get a real hash to
 // trace. anvil doesn't care about real gas costs, so one generous constant
 // is enough to force broadcast-then-revert-on-chain.
-const FORK_GAS_LIMIT = 5_000_000n;
+export const FORK_GAS_LIMIT = 5_000_000n;
 
 // Forking a busy archive RPC can take a while, and a rate-limited provider
 // makes it take longer still — a tight budget turns a slow start into a
@@ -144,12 +145,12 @@ export async function openFork(block: bigint): Promise<OpenFork> {
     },
     setBalanceEth: (a, eth) => test.setBalance({ address: a, value: parseEther(eth) }),
     read: (args) => pub.readContract(args as any) as any,
-    async send({ from, to, data, value }) {
+    async send({ from, to, data, value, gas }) {
       // JSON-RPC account => anvil signs for impersonated/funded senders
       const wallet = createWalletClient({ account: from, chain: base, transport });
       try {
         const hash = await wallet.sendTransaction({
-          to, data, value, account: from, chain: base, gas: FORK_GAS_LIMIT,
+          to, data, value, account: from, chain: base, gas: gas ?? FORK_GAS_LIMIT,
         } as any);
         // anvil mines the moment it has the state, so this wait is really a
         // wait for archive reads through a throttled gateway. viem gives up
@@ -160,7 +161,12 @@ export async function openFork(block: bigint): Promise<OpenFork> {
         const rcpt = await pub.waitForTransactionReceipt({ hash, timeout: RECEIPT_TIMEOUT_MS });
         // revertReason isn't on the receipt itself; leave undefined here.
         // dex.ts recovers it by replaying the call (deriveRevertReason).
-        return { hash, reverted: rcpt.status === "reverted" };
+        // gasUsed equal to the cap is how an out-of-gas revert is told from
+        // a refusal; the logs are what the pool said it paid.
+        return {
+          hash, reverted: rcpt.status === "reverted", gasUsed: rcpt.gasUsed,
+          logs: rcpt.logs.map((l) => ({ address: l.address as Hex, topics: [...l.topics] as Hex[], data: l.data as Hex })),
+        };
       } catch (e: any) {
         // Only a genuine EVM revert (pre-broadcast, e.g. estimation still
         // failed some other way) counts as `reverted: true`. An infra/RPC
@@ -168,6 +174,13 @@ export async function openFork(block: bigint): Promise<OpenFork> {
         if (!isRevertError(e)) throw e;
         return { hash: "0x" as Hex, reverted: true, revertReason: shortRevert(e) };
       }
+    },
+    // Nothing in a run advanced time before this existed, so every sell
+    // happened seconds after its buy: a cooldown read as a honeypot and a
+    // launch-window tax as a permanent one.
+    async advance(seconds) {
+      await test.increaseTime({ seconds });
+      await test.mine({ blocks: 1 });
     },
     snapshot: () => test.snapshot(),
     revertTo: async (id) => { await test.revert({ id: id as Hex }); },
@@ -180,6 +193,10 @@ export async function openFork(block: bigint): Promise<OpenFork> {
       if (closed) return;
       closed = true;
       proc.kill();
+      // The one line that tells a slow fork from a throttled one: a run whose
+      // receipt waits hit 600s with `throttled` in the hundreds was
+      // rate-limited, not broken. Cumulative since process start.
+      log.info({ event: "fork.closed", count: Number(block), ...forkProxyStats() });
     },
   };
 }

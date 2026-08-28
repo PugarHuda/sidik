@@ -257,3 +257,75 @@ test.describe("prototype keys are not addresses", () => {
     expect(body).not.toContain("verdict");
   });
 });
+
+test.describe("what a phone actually pastes", () => {
+  test("a Basescan URL is taken for the address inside it", async ({ page }) => {
+    await page.goto("/");
+    const button = page.getByRole("button", { name: /Run trace/ });
+    await fillWhenReady(page, page.getByLabel("Token address"), `https://basescan.org/token/${RECORDED}#code`,
+      () => expect(button).toBeEnabled({ timeout: 1_000 }));
+    await button.click();
+    await expect(page).toHaveURL(new RegExp(`/run\\?token=${RECORDED}$`));
+  });
+
+  test("a link with no address in it says so, not 'starts with 0x'", async ({ page }) => {
+    await page.goto("/");
+    await fillWhenReady(page, page.getByLabel("Token address"), "https://basescan.org/",
+      () => expect(page.getByText(/No 0x… address found in that link/)).toBeVisible({ timeout: 1_000 }));
+    await expect(page.getByRole("button", { name: /Run trace/ })).toBeDisabled();
+  });
+});
+
+test.describe("a stream that closes without finishing", () => {
+  // The old assertion only checked DONE stayed hidden — which a page stuck on
+  // SCANNING forever also satisfies. The page has to say the run did not end.
+  test("is reported as an error, not left on SCANNING", async ({ page }) => {
+    await page.route("**/api/run**", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "text/event-stream" },
+        body:
+          `event: prescan\ndata: {"type":"prescan","scan":{"token":"${RECORDED}","isErc20":true,"symbol":"TEST","decimals":18,"hasPool":true,"topHolders":[]}}\n\n` +
+          `event: plan\ndata: {"type":"plan","ids":["honeypot"]}\n\n`,
+      }));
+    await page.goto(`/run?token=${RECORDED}`);
+    // Once in the error block, once as the trace's ERROR line.
+    await expect(page.getByText(/The stream ended before the run finished/).first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("status").first()).toHaveText("ERROR");
+    await expect(page.getByText("DONE run complete")).toBeHidden();
+  });
+});
+
+test.describe("pages that are not runs", () => {
+  test("an unknown path gets the app's own 404, with both ways out", async ({ page }) => {
+    const res = await page.goto("/nothing-here");
+    expect(res?.status()).toBe(404);
+    await expect(page.getByText(/No page here/)).toBeVisible();
+    await expect(page.getByRole("link", { name: /paste an address/ })).toHaveAttribute("href", "/");
+    await expect(page.getByRole("link", { name: /browse every recorded run/ })).toHaveAttribute("href", "/catalogue");
+  });
+});
+
+test.describe("liquidity that lives where Sidik does not trade", () => {
+  // The prescan carries what DEX Screener said when Uniswap had no pool. The
+  // page has to turn that into the reason for the N/A, not hide it.
+  test("names the venue and its depth under the verdict", async ({ page }) => {
+    await page.route("**/api/run**", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "text/event-stream" },
+        body:
+          `event: prescan\ndata: {"type":"prescan","scan":{"token":"${RECORDED}","isErc20":true,"symbol":"AERO-ONLY","decimals":18,"hasPool":false,"otherVenues":[{"dex":"aerodrome","pair":"0x00000000000000000000000000000000000000a1","liquidityUsd":784123}],"topHolders":[]}}\n\n` +
+          `event: plan\ndata: {"type":"plan","ids":["honeypot"]}\n\n` +
+          `event: verdict\ndata: {"type":"verdict","verdict":{"probe":"honeypot","status":"NA","title":"Could not buy — no liquidity to test","rows":[{"label":"Buy","claimed":"Tradable","proven":"No Uniswap pool","ok":false}],"numbers":{},"txHashes":[]}}\n\n` +
+          `event: narration\ndata: {"type":"narration","text":"No Uniswap pool."}\n\n` +
+          `event: done\ndata: {"type":"done"}\n\n`,
+      }));
+    await page.goto(`/run?token=${RECORDED}`);
+    const line = page.locator("[data-other-venues]");
+    await expect(line).toBeVisible({ timeout: 20_000 });
+    await expect(line).toContainText("aerodrome");
+    await expect(line).toContainText("$784,123");
+    await expect(line).toContainText(/does not trade on/);
+  });
+});

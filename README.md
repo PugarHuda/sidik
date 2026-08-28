@@ -172,10 +172,10 @@ transaction did, never from an opinion about the code.
 
 | Probe | What it executes |
 |---|---|
-| `honeypot` | Buys, then sells. Measures the proceeds against the pool's own quote, so a sell that succeeds and pays nothing is not a pass. |
-| `hiddenFee` | Measures buy, sell and `transfer()` separately. Taxing tokens on Base commonly charge on the pool route and leave `transfer()` clean. |
-| `lpRug` | Finds the LP holder, impersonates them, and pulls the pool out from under the position. Burned LP is proved unpullable in two reads. |
-| `ownerTrap` | Buys, snapshots, sells once to prove selling works, rolls back, then lets the owner pull every switch in its bytecode and sells again from identical state. |
+| `honeypot` | Buys, then sells. Measures the proceeds against the pool's own quote, so a sell that succeeds and pays nothing is not a pass. A reverted buy is retried at a tenth and a hundredth of the size and reported with its revert reason — a trading-disabled or max-tx trap is a finding, not "no liquidity". A reverted sell is retried after one hour and one day of fork time, so a cooldown reads as a cooldown. A wallet the buyer transferred to also sells, which is how a buyer-whitelist honeypot shows itself. |
+| `hiddenFee` | Measures buy, sell and `transfer()` separately, and sells again a day later in fork time, so a tax that decays or climbs is reported as two numbers. On V2 the sell proceeds are read from the router's own `Swap` log — a token's tax `swapBack` in the same transaction is no longer counted as the holder's payout. |
+| `lpRug` | Finds the LP holder, classifies it before impersonating it — an EOA, an EIP-7702 account, a Safe, the UNCX locker, or an unknown contract — and pulls the pool out from under the position. Locked LP is reported with its unlock date; burned LP is proved unpullable in two reads. On Uniswap V3 it finds the largest position NFT and pulls that through the position manager. |
+| `ownerTrap` | Buys, snapshots, sells once to prove selling works, rolls back, then lets the owner pull every switch in its bytecode and sells again from identical state. Fee setters are tried down a ladder (99 → 10%) and the rung the contract accepts is the fee the owner can set on demand. For a proxy, the scan reads the implementation's bytecode, and the recorded admin is made to replace the code with a contract that reverts everything — then the sell is tried again. |
 | `approvalDrain` | For a wallet: exercises its live approvals to see what a compromised spender could take. |
 | `crossVenue` | Compares what the buy cost inside the pool against what the same asset traded at on venues with no relationship to it, in the same hour. |
 
@@ -192,7 +192,12 @@ was worth before and after.
 Absence is reported as absence. A token carrying none of the switches Sidik
 knows how to operate gets `N/A` with the number it searched for, not a `PASS`
 — a bytecode scan cannot prove there is no privileged code under a name
-nobody has seen before.
+nobody has seen before. What it does carry is named: every PUSH4 selector
+across the recorded bytecodes was resolved through the 4byte signature
+database (922 of 1,152), and functions that look privileged but that Sidik
+has no hostile arguments for are listed on the verdict as found-not-operated.
+A renounced owner is not taken on faith either: `unlock()` in the bytecode
+means a timed lock, and the verdict says so instead of `PASS`.
 
 ## Venue coverage, and a boundary that is not fixable
 
@@ -200,8 +205,10 @@ Probes trade on **Uniswap V2 and V3**. The pre-scan measures both and routes
 each token to whichever pool actually holds the liquidity (`scan.venue`,
 `scan.poolFee`), which is what lets BRETT, TOSHI and DEGEN — each with under
 0.2 WETH left on V2 and hundreds on V3 — return a real verdict instead of "no
-liquidity to test". Aerodrome is not covered; a token trading only there
-returns `N/A` with the reason attached.
+liquidity to test". Aerodrome is not covered; when Uniswap has no pool the
+pre-scan asks DEX Screener where the liquidity is, and the `N/A` names the
+venue and its depth (`scan.otherVenues`) rather than saying "no liquidity"
+about a token with a million dollars on Aerodrome Slipstream.
 
 The second boundary is structural rather than fixable. A family of Base tokens
 living at `0xb2…` addresses — CLANKER among them — has exactly one byte of
@@ -407,6 +414,7 @@ also available as data:
 | `GET /api/token/<address>` | The full recorded run: every verdict, row, measured figure, the fork block and the narration. **404 when the address has no recorded run** — which is not the same answer as "nothing found wrong". |
 | `GET /api/run?token=<address>` | The same run as a Server-Sent Event stream, in the order the probes produced it. |
 | `GET /llms.txt` | What the data means, and the two things a consumer will otherwise get wrong. |
+| `GET /openapi.json` | OpenAPI 3.1 for the JSON endpoints, Verdict schema included. Every JSON body carries `schemaVersion`, `chainId` and `provenance` (recording date, engine commit, catalogue sha256, site commit). CORS-open. |
 | `GET /api/og?token=<address>` | The 1200x630 card a shared link unfurls into, carrying that token's verdict. |
 
 Corroboration always travels in its own `corroboration` field, never inside a

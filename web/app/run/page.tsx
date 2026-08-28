@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FIXTURE_BLOCK, headlineOf, recordedRun, scannersOf, verificationOf } from "@sidik/shared";
+import { FIXTURE_BLOCK, headlineOf, recheckOf, recordedRun, scannersOf, verificationOf } from "@sidik/shared";
 import RunView from "./RunView";
 
 /**
@@ -38,6 +38,9 @@ export async function generateMetadata(
   return {
     title,
     description,
+    // Example links are checksummed and the sitemap is lower-case, so every
+    // run had two URLs; indexers were told they were two pages.
+    alternates: { canonical: `/run?token=${token.toLowerCase()}` },
     openGraph: { title, description, type: "website", images: [image] },
     twitter: { card: "summary_large_image", title, description, images: [image] },
   };
@@ -57,5 +60,9 @@ export default async function RunPage({
   // before.
   const source = verificationOf(token ?? "");
   const scanners = scannersOf(token ?? "");
-  return <RunView key={token ?? ""} token={token ?? ""} source={source ?? null} scanners={scanners ?? null} />;
+  // Same reason as the two above: the recheck map holds verdict titles for
+  // every rechecked address, and importing it from the client component
+  // shipped all of them to every visitor.
+  const recheck = recheckOf(token ?? "");
+  return <RunView key={token ?? ""} token={token ?? ""} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
 }

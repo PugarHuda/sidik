@@ -1,4 +1,4 @@
-import { createPublicClient, http } from "viem";
+import { createPublicClient, http, getAddress } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
 import { logsClient } from "./rpc.js";
@@ -64,6 +64,9 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
   let poolFee: number | undefined;
 
   let v2Weth = 0n;
+  // Both lookups log when they fail. A refused factory read used to be
+  // indistinguishable from "no pool", and "no pool" is what every probe then
+  // reports as the finding.
   try {
     const pair = await fork.read<Hex>({ address: UNISWAP_V2.factory, abi: V2_FACTORY_ABI, functionName: "getPair", args: [token, WETH] });
     if (pair && pair.toLowerCase() !== ZERO_ADDRESS) {
@@ -72,7 +75,9 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
       poolAddress = pair;
       venue = "v2";
     }
-  } catch { /* factory read failed — treat as no V2 pool */ }
+  } catch (e) {
+    log.error({ event: "prescan.v2LookupFailed", token, reason: e instanceof Error ? e.message : String(e) });
+  }
 
   try {
     const v3 = await findV3Pool((a) => fork.read(a), token);
@@ -82,7 +87,13 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
       venue = "v3";
       poolFee = v3.fee;
     }
-  } catch { /* no V3 pool — keep whatever V2 gave us */ }
+  } catch (e) {
+    log.error({ event: "prescan.v3LookupFailed", token, reason: e instanceof Error ? e.message : String(e) });
+  }
+
+  // Only asked when Uniswap has nothing: the answer is a reason, not a venue
+  // to trade on.
+  const otherVenues = hasPool ? undefined : await otherVenuesOf(token);
 
   // owner() only, and that was checked rather than assumed. The owner-switch
   // probe reads this to decide who to impersonate, so a missed owner would
@@ -96,9 +107,106 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
     owner = await fork.read<Hex>({ address: token, abi: OWNER_ABI, functionName: "owner" });
   } catch { /* not Ownable / no owner() — leave undefined */ }
 
+  const proxy = await proxyOf(pub, token);
   const topHolders = await sampleTopHolders(fork, pub, token);
 
-  return { token, isErc20: true, symbol, decimals, hasPool, poolAddress, venue, poolFee, owner, topHolders };
+  return {
+    token, isErc20: true, symbol, decimals, hasPool, poolAddress, venue, poolFee, owner,
+    ...proxy, ...(otherVenues?.length ? { otherVenues } : {}),
+    topHolders,
+  };
+}
+
+/**
+ * The storage slots a proxy keeps its implementation and admin in.
+ *
+ * EIP-1967: keccak256("eip1967.proxy.implementation") - 1 and the admin and
+ * beacon siblings. ZeppelinOS (Circle's FiatTokenProxy, still what USDC runs
+ * on) predates the standard and uses keccak256("org.zeppelinos.proxy.*").
+ */
+const SLOT = {
+  impl1967: "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+  admin1967: "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
+  beacon1967: "0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50",
+  implZos: "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
+  adminZos: "0x10d6a54a4754c8869d6886b5f5d7fbfa5b4522237ea5c60d11bc4e7a1ff9390b",
+} as const;
+
+const BEACON_ABI = [{ type: "function", name: "implementation", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] }] as const;
+
+function slotAddress(word: Hex | undefined): Hex | undefined {
+  if (!word || word.length !== 66) return undefined;
+  const tail = word.slice(-40);
+  if (/^0+$/.test(tail)) return undefined;
+  return getAddress(`0x${tail}`);
+}
+
+/**
+ * Whether the token is a proxy, and if so whose code runs and who can swap it.
+ *
+ * Nine recorded addresses are proxies (USDC, cbBTC, cbETH, USDbC among them).
+ * The owner-switch probe scans bytecode for the switches it can operate, and a
+ * proxy's bytecode is a delegatecall stub — so every one of them read as "no
+ * owner switch found" while the code that actually runs carries pause(),
+ * blacklist(address) and mint(address,uint256).
+ */
+async function proxyOf(pub: any, token: Hex): Promise<Pick<PreScan, "implementation" | "proxyAdmin" | "proxyKind">> {
+  try {
+    const at = (slot: string) => pub.getStorageAt({ address: token, slot }) as Promise<Hex | undefined>;
+    const [impl, admin, beacon, implZos, adminZos] = await Promise.all([
+      at(SLOT.impl1967), at(SLOT.admin1967), at(SLOT.beacon1967), at(SLOT.implZos), at(SLOT.adminZos),
+    ]);
+    const implementation = slotAddress(impl);
+    if (implementation) return { implementation, proxyAdmin: slotAddress(admin), proxyKind: "eip1967" };
+    const beaconAddr = slotAddress(beacon);
+    if (beaconAddr) {
+      const viaBeacon = await pub.readContract({ address: beaconAddr, abi: BEACON_ABI, functionName: "implementation" }) as Hex;
+      return { implementation: viaBeacon, proxyAdmin: slotAddress(admin), proxyKind: "beacon" };
+    }
+    const zos = slotAddress(implZos);
+    if (zos) return { implementation: zos, proxyAdmin: slotAddress(adminZos), proxyKind: "zos" };
+    return {};
+  } catch (e) {
+    // Reported, never swallowed: a missed proxy is a missed switch scan.
+    log.error({ event: "prescan.proxyLookupFailed", token, reason: e instanceof Error ? e.message : String(e) });
+    return {};
+  }
+}
+
+// DEX Screener's public endpoint, no key, 60 requests a minute. Only the
+// venue name, the pair and the dollar depth are kept — enough to say where
+// the liquidity is, nothing that would be quoted as a measurement.
+const DEXSCREENER = "https://api.dexscreener.com/token-pairs/v1/base/";
+const OTHER_VENUES_TIMEOUT_MS = 4_000;
+
+export function parseOtherVenues(body: unknown): NonNullable<PreScan["otherVenues"]> {
+  if (!Array.isArray(body)) return [];
+  const out: NonNullable<PreScan["otherVenues"]> = [];
+  for (const p of body as Record<string, unknown>[]) {
+    const dex = typeof p.dexId === "string" ? p.dexId : "";
+    const pair = typeof p.pairAddress === "string" && /^0x[0-9a-fA-F]{40}$/.test(p.pairAddress) ? (p.pairAddress as Hex) : undefined;
+    const liq = (p.liquidity as { usd?: unknown } | undefined)?.usd;
+    const liquidityUsd = typeof liq === "number" && Number.isFinite(liq) ? Math.round(liq) : 0;
+    if (!dex || !pair) continue;
+    // Uniswap pairs here would mean our own lookup missed them; report them
+    // too, so the reason is complete rather than flattering.
+    out.push({ dex, pair, liquidityUsd });
+  }
+  return out.sort((a, b) => b.liquidityUsd - a.liquidityUsd).slice(0, 5);
+}
+
+async function otherVenuesOf(token: Hex): Promise<PreScan["otherVenues"]> {
+  try {
+    const res = await fetch(`${DEXSCREENER}${token}`, { signal: AbortSignal.timeout(OTHER_VENUES_TIMEOUT_MS) });
+    if (!res.ok) {
+      log.error({ event: "prescan.otherVenuesFailed", token, reason: `HTTP ${res.status}` });
+      return undefined;
+    }
+    return parseOtherVenues(await res.json());
+  } catch (e) {
+    log.error({ event: "prescan.otherVenuesFailed", token, reason: e instanceof Error ? e.message : String(e) });
+    return undefined;
+  }
 }
 
 // ponytail: sampled from recent Transfer logs over a bounded window, not a

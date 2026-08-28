@@ -4,6 +4,10 @@ import type { RunEvent } from "@/lib/sse";
 import { FIXTURES, FIXTURE_BLOCK, recordedRun, safeNarration } from "@sidik/shared";
 
 export const runtime = "nodejs";
+// A live run is minutes long by nature. Vercel's Fluid default is fine on
+// Hobby too, but the number that this route depends on should be written
+// next to it rather than assumed.
+export const maxDuration = 300;
 
 const encoder = new TextEncoder();
 const sseFrame = (e: RunEvent) => encoder.encode(`event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`);
@@ -39,16 +43,21 @@ export async function GET(req: NextRequest) {
   return proxyToEngine(engineUrl, token, req.signal);
 }
 
-// A live run spawns one anvil per probe, so it is slow by nature — but not
-// unbounded. Node's fetch has no default timeout at all: an engine that
-// accepts the connection and then stops talking would hold this route open
-// until the platform kills it, and the page would sit on a spinner the whole
-// time with nothing to show.
-const ENGINE_TIMEOUT_MS = 180_000;
+// A live run is slow by nature — but not unbounded. Node's fetch has no
+// default timeout at all: an engine that accepts the connection and then
+// stops talking would hold this route open until the platform kills it, and
+// the page would sit on a spinner the whole time with nothing to show.
+//
+// Two different clocks. CONNECT bounds the wait for headers. IDLE bounds the
+// silence between frames once they flow: a total timeout of 180s cut healthy
+// V3 runs off mid-stream (one sell receipt alone can take longer under a
+// throttled gateway) and the page was left on SCANNING with no error frame.
+const ENGINE_CONNECT_MS = 60_000;
+const ENGINE_IDLE_MS = 90_000;
 
 async function proxyToEngine(engineUrl: string, token: string, clientSignal: AbortSignal): Promise<Response> {
   // Either the reader going away or the engine going quiet ends this.
-  const signal = AbortSignal.any([clientSignal, AbortSignal.timeout(ENGINE_TIMEOUT_MS)]);
+  const signal = AbortSignal.any([clientSignal, AbortSignal.timeout(ENGINE_CONNECT_MS)]);
 
   let upstream: Response;
   try {
@@ -59,7 +68,7 @@ async function proxyToEngine(engineUrl: string, token: string, clientSignal: Abo
     // cannot read — the page would wait forever instead of showing the fault.
     if (clientSignal.aborted) return new Response(null, { status: 499 });
     const why = e instanceof Error && e.name === "TimeoutError"
-      ? `The engine did not respond within ${ENGINE_TIMEOUT_MS / 1000}s.`
+      ? `The engine did not respond within ${ENGINE_CONNECT_MS / 1000}s.`
       : "The engine could not be reached.";
     return new Response(sseFrame({ type: "error", message: `${why} No verdict was produced, so nothing here is a finding about this token.` }), { headers: sseHeaders });
   }
@@ -83,8 +92,33 @@ async function proxyToEngine(engineUrl: string, token: string, clientSignal: Abo
     return new Response(sseFrame({ type: "error", message }), { headers: sseHeaders });
   }
 
-  // Thin passthrough — no rewriting, just pipe the engine's SSE bytes straight through.
-  return new Response(upstream.body, { status: 200, headers: sseHeaders });
+  // Passthrough with a silence detector: bytes are forwarded untouched, and a
+  // gap longer than ENGINE_IDLE_MS ends the stream with an error frame the
+  // page can show, instead of a connection that simply never finishes.
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const idle = new TransformStream<Uint8Array, Uint8Array>({
+    start(controller) {
+      const arm = () => {
+        timer = setTimeout(() => {
+          controller.enqueue(sseFrame({
+            type: "error",
+            message: `The engine went quiet for ${ENGINE_IDLE_MS / 1000}s mid-run. No verdict was produced, so nothing here is a finding about this token.`,
+          }));
+          controller.terminate();
+        }, ENGINE_IDLE_MS);
+      };
+      arm();
+      // Re-armed on every chunk by transform() below.
+      (controller as unknown as { arm: () => void }).arm = arm;
+    },
+    transform(chunk, controller) {
+      clearTimeout(timer);
+      controller.enqueue(chunk);
+      (controller as unknown as { arm: () => void }).arm();
+    },
+    flush() { clearTimeout(timer); },
+  });
+  return new Response(upstream.body.pipeThrough(idle), { status: 200, headers: sseHeaders });
 }
 
 const sseHeaders = {

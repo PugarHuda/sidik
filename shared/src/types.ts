@@ -38,6 +38,23 @@ export interface PreScan {
   poolFee?: number;
   /** owner() if the contract exposes one. Nothing else is tried — see prescan.ts. */
   owner?: Hex;
+  /**
+   * Set when the token is a proxy: the address whose bytecode actually runs,
+   * read from the EIP-1967 / beacon / ZeppelinOS storage slots. The switch
+   * scan reads THIS code; scanning the proxy shell finds nothing and reported
+   * USDC's pause(), blacklist() and mint() as absent.
+   */
+  implementation?: Hex;
+  /** The address allowed to replace that code, when the proxy records one. */
+  proxyAdmin?: Hex;
+  proxyKind?: "eip1967" | "beacon" | "zos";
+  /**
+   * Pools on venues Sidik cannot trade on, from DEX Screener, filled in only
+   * when no Uniswap pool was found. Turns "no liquidity to test" into "the
+   * liquidity is on Aerodrome, which Sidik does not trade". Context, not
+   * evidence: nothing in it is executed.
+   */
+  otherVenues?: { dex: string; pair: Hex; liquidityUsd: number }[];
   topHolders: { address: Hex; balance: string }[];
 }
 
@@ -59,7 +76,19 @@ export interface ForkClient {
   setBalanceEth(addr: Hex, eth: string): Promise<void>;
   read<T = unknown>(args: { address: Hex; abi: unknown; functionName: string; args?: unknown[] }): Promise<T>;
   // send from `from` (impersonated or funded); returns tx hash even if it reverts.
-  send(args: { from: Hex; to: Hex; data?: Hex; value?: bigint }): Promise<{ hash: Hex; reverted: boolean; revertReason?: string }>;
+  // `gas` overrides the fork's fixed cap; `gasUsed` and `logs` come from the
+  // receipt so a caller can tell an out-of-gas revert from a refusal, and read
+  // what the pool emitted without a second round trip.
+  send(args: { from: Hex; to: Hex; data?: Hex; value?: bigint; gas?: bigint }): Promise<{
+    hash: Hex; reverted: boolean; revertReason?: string; gasUsed?: bigint;
+    logs?: { address: Hex; topics: Hex[]; data: Hex }[];
+  }>;
+  /**
+   * Move the chain forward by `seconds` and mine a block, so a mechanism
+   * gated on time — a sell cooldown, a launch-window tax — is exercised
+   * rather than mistaken for a permanent one.
+   */
+  advance(seconds: number): Promise<void>;
   /**
    * Take a snapshot of the whole chain state.
    *

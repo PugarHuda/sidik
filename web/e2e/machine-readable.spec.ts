@@ -140,3 +140,95 @@ test.describe("scanner disagreement as data", () => {
     }
   });
 });
+
+test.describe("what an integrator's code needs, not just a person's browser", () => {
+  // llms.txt pointed agents at the JSON while robots.txt forbade it; the
+  // agent tools that honour robots refused the data they were sent to.
+  test("robots allows the JSON routes and forbids only the stream and the card", async ({ request }) => {
+    const body = await (await request.get("/robots.txt")).text();
+    expect(body).toMatch(/Disallow: \/api\/run/);
+    expect(body).toMatch(/Disallow: \/api\/og/);
+    expect(body).not.toMatch(/Disallow: \/api\/?\s*$/m);
+    expect(body).not.toMatch(/Disallow: \/api\/token/);
+  });
+
+  test("the JSON routes and the schema are readable from another origin", async ({ request }) => {
+    for (const path of [`/api/token/${HONEYPOT}`, "/api/catalogue", "/openapi.json"]) {
+      const res = await request.get(path);
+      expect(res.headers()["access-control-allow-origin"], path).toBe("*");
+    }
+  });
+
+  test("every JSON body says which shape and which chain it is", async ({ request }) => {
+    const run = await (await request.get(`/api/token/${HONEYPOT}`)).json();
+    const cat = await (await request.get("/api/catalogue")).json();
+    const missing = await request.get("/api/token/0x1111111111111111111111111111111111111111");
+    expect(missing.status()).toBe(404);
+    for (const body of [run, cat, await missing.json()]) {
+      expect(body.schemaVersion).toBe(1);
+      expect(body.chainId).toBe(8453);
+    }
+    // One spelling of an address, so a consumer echoing it builds the same URL.
+    expect(run.address).toBe(HONEYPOT.toLowerCase());
+    expect(run.recorded).toBe(true);
+  });
+
+  test("provenance names the recording commit and a digest a checkout can recompute", async ({ request }) => {
+    const { provenance } = await (await request.get(`/api/token/${HONEYPOT}`)).json();
+    expect(provenance.forkBlock).toBe(50_200_000);
+    expect(provenance.recordedThrough).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(provenance.recordedByCommit).toMatch(/^[0-9a-f]{40}$/);
+    expect(provenance.catalogueSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(provenance.probes).toContain("honeypot");
+    // Same digest from the catalogue route: one catalogue, one hash.
+    const cat = await (await request.get("/api/catalogue")).json();
+    expect(cat.provenance.catalogueSha256).toBe(provenance.catalogueSha256);
+  });
+
+  test("openapi.json declares every key a real response carries", async ({ request }) => {
+    const doc = await (await request.get("/openapi.json")).json();
+    expect(doc.openapi).toMatch(/^3\.1/);
+    const run = await (await request.get(`/api/token/${HONEYPOT}`)).json();
+    const declared = doc.components.schemas.TokenRun.properties;
+    for (const key of Object.keys(run)) expect(declared, `undeclared key: ${key}`).toHaveProperty(key);
+    const verdict = doc.components.schemas.Verdict.properties;
+    for (const key of Object.keys(run.verdicts[0])) expect(verdict, `undeclared verdict key: ${key}`).toHaveProperty(key);
+    const corr = doc.components.schemas.Corroboration.properties;
+    for (const key of Object.keys(run.corroboration)) expect(corr, `undeclared corroboration key: ${key}`).toHaveProperty(key);
+  });
+
+  test("the generic card and llms.txt agree on how many addresses there are", async ({ request }) => {
+    const llms = await (await request.get("/llms.txt")).text();
+    const count = Number(llms.match(/Recorded addresses: (\d+)/)![1]);
+    const cat = await (await request.get("/api/catalogue")).json();
+    expect(cat.total).toBe(count);
+    // The card is a PNG, so the number cannot be read back from it — but the
+    // route must render (a wrong template throws, not lies).
+    const og = await request.get("/api/og");
+    expect(og.status()).toBe(200);
+    expect(og.headers()["content-type"]).toContain("image/png");
+  });
+
+  test("the catalogue page describes itself as a dataset", async ({ page }) => {
+    await page.goto("/catalogue");
+    const ld = await page.locator('script[type="application/ld+json"]').textContent();
+    const parsed = JSON.parse(ld!);
+    expect(parsed["@type"]).toBe("Dataset");
+    expect(parsed.distribution.map((d: { contentUrl: string }) => d.contentUrl)).toContain("/api/catalogue");
+  });
+
+  test("a run page has one canonical URL, lower-cased", async ({ page }) => {
+    await page.goto(`/run?token=${HONEYPOT}`);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`/run\\?token=${HONEYPOT.toLowerCase()}$`));
+  });
+
+  test("a disputed verdict carries its head-of-day recheck as data and on the page", async ({ page, request }) => {
+    const { corroboration } = await (await request.get(`/api/token/${HONEYPOT}`)).json();
+    expect(corroboration.recheck).toBeTruthy();
+    expect(corroboration.recheck.headBlock).toMatch(/^\d+$/);
+    expect(corroboration.recheck.checkedOn).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(["PASS", "FAIL", "NA"]).toContain(corroboration.recheck.status);
+    await page.goto(`/run?token=${HONEYPOT}`);
+    await expect(page.locator("[data-recheck]")).toContainText(/Re-executed at head block [\d,]+ on \d{4}-\d{2}-\d{2}/, { timeout: 30_000 });
+  });
+});

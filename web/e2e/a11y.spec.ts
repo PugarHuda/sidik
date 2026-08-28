@@ -149,3 +149,9 @@ test("every interactive control on the home page is reachable by keyboard", asyn
   // The example buttons are how anyone without an address in hand uses this.
   expect([...reached].filter((r) => r.startsWith("button:")).length).toBeGreaterThan(0);
 });
+
+test("the 404 page passes too — it is the one page nobody tests", async ({ page }) => {
+  await page.goto("/this-does-not-exist");
+  const { violations } = await audit(page);
+  expect(violations, report(violations)).toEqual([]);
+});

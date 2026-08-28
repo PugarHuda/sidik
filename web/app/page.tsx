@@ -20,13 +20,19 @@ const KIND_VERDICT: Record<string, { word: "PASS" | "FAIL"; tone: string }> = {
 export default function Home() {
   const router = useRouter();
   const [address, setAddress] = useState("");
-  const trimmed = address.trim();
+  // A phone's clipboard almost never holds a bare address: it holds a
+  // Basescan, DEX Screener or Uniswap URL with the address inside. Take the
+  // first address found in whatever was pasted; only a paste with none in it
+  // is a mistake.
+  const extracted = address.match(/0x[0-9a-fA-F]{40}/)?.[0];
+  const trimmed = extracted ?? address.trim();
   const valid = ADDRESS_RE.test(trimmed);
   // Only once something has been typed: an empty box is not a mistake, and
   // scolding someone before they have started is noise. Until this existed
   // the button simply sat there greyed out with nothing saying why, which
   // reads as a broken page rather than as invalid input.
   const problem = !trimmed || valid ? null
+    : /^https?:\/\//i.test(trimmed) ? "No 0x… address found in that link."
     : !trimmed.startsWith("0x") ? "A Base address starts with 0x."
     : /[^0-9a-fA-F]/.test(trimmed.slice(2)) ? "Only the digits 0-9 and letters a-f can appear after 0x."
     : `That is ${trimmed.length - 2} characters after 0x; an address has 40.`;
@@ -61,7 +67,7 @@ export default function Home() {
           className="mt-8 flex flex-col gap-3 sm:flex-row"
           onSubmit={(e) => {
             e.preventDefault();
-            if (valid) run(address.trim());
+            if (valid) run(trimmed);
           }}
         >
           <label htmlFor="token-address" className="sr-only">

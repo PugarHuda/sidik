@@ -1,13 +1,49 @@
-import { createPublicClient, http, encodeFunctionData } from "viem";
+import { createPublicClient, http, encodeFunctionData, decodeEventLog, parseAbi, parseAbiItem } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, ProbeCtx, Hex } from "@sidik/shared";
-import { isRevertError } from "./fork.js";
+import { FORK_GAS_LIMIT, isRevertError } from "./fork.js";
 import { UNISWAP_V2, WETH } from "./base.js";
 import { ERC20_ABI, V2_ROUTER_ABI } from "./abi.js";
 import { REVERT_MAX, untrustedText } from "./untrusted.js";
 import { approveV3Data, quoteV3, swapV3Data, V3_ROUTER } from "./dexV3.js";
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
+
+// A sell that ran out of the fork's fixed 5M cap is retried once at anvil's
+// block limit: reflection loops and swapBack-plus-addLiquidity can legitimately
+// need more, and "out of gas" is not "you cannot sell".
+const RETRY_GAS_LIMIT = 30_000_000n;
+
+const V2_SWAP_EVENT = parseAbiItem(
+  "event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)",
+);
+const V2_PAIR_ABI = parseAbi(["function token0() view returns (address)"]);
+
+/**
+ * WETH the router's own swap paid out, read from the pool's Swap logs.
+ *
+ * The standard Base meme template sells its accumulated tax inside
+ * _transfer when the destination is the pair — before the router's swap —
+ * so one sell transaction drains the pool twice, and measuring the pool's
+ * WETH delta credited the contract's cut to the holder. Four catalogue
+ * tokens read "sell tax 0%" that way, one of them hand-verified at 2.99%.
+ * The router's swap is the outermost call, so its Swap log is the last one
+ * the pool emits in that transaction; that amount is what the holder got.
+ */
+export function wethOutOfSwapLogs(
+  logs: { address: Hex; topics: Hex[]; data: Hex }[], pool: Hex, wethIsToken0: boolean,
+): bigint | undefined {
+  const swaps = logs.filter((l) => l.address.toLowerCase() === pool.toLowerCase());
+  for (let i = swaps.length - 1; i >= 0; i--) {
+    const l = swaps[i]!;
+    try {
+      const { eventName, args } = decodeEventLog({ abi: [V2_SWAP_EVENT], data: l.data, topics: l.topics as [Hex, ...Hex[]] });
+      if (eventName !== "Swap") continue;
+      return wethIsToken0 ? args.amount0Out : args.amount1Out;
+    } catch { /* not a Swap log — Sync, Transfer; keep looking */ }
+  }
+  return undefined;
+}
 
 // How much ETH a probe spends to get a position to test with. A fixed size
 // does not work: scam tokens — the ones worth probing — sit in pools smaller
@@ -47,6 +83,8 @@ export type DexResult = {
   received: string;
   hash: Hex;
   revertReason?: string;
+  /** The transaction reverted, as opposed to going through and yielding nothing. */
+  reverted?: boolean;
 };
 
 async function balanceOf(fork: ForkClient, token: Hex, owner: Hex): Promise<bigint> {
@@ -66,8 +104,15 @@ export async function buyExactEth(fork: ForkClient, ctx: ProbeCtx, ethIn: bigint
         functionName: "swapExactETHForTokensSupportingFeeOnTransferTokens",
         args: [0n, [WETH, ctx.token], ctx.testWallet, DEADLINE],
       });
-  const { hash, reverted, revertReason } = await fork.send({ from: ctx.testWallet, to, data, value: ethIn });
-  if (reverted) return { ok: false, amount: "0", predicted: predicted.toString(), received: "0", hash, revertReason };
+  const buyTx = await fork.send({ from: ctx.testWallet, to, data, value: ethIn });
+  if (buyTx.reverted) {
+    // The reason is the finding: "trading not enabled", a max-tx cap, a
+    // blacklist. It used to be dropped here and the probe said "no liquidity".
+    const revertReason = buyTx.revertReason
+      ?? await deriveRevertReason(fork, { account: ctx.testWallet, to, data, value: ethIn });
+    return { ok: false, amount: "0", predicted: predicted.toString(), received: "0", hash: buyTx.hash, revertReason, reverted: true };
+  }
+  const { hash } = buyTx;
 
   // Measure the delta, not amountsOut — fee-on-transfer tokens skim on the way in.
   const after = await balanceOf(fork, ctx.token, ctx.testWallet);
@@ -141,28 +186,52 @@ export async function sellAll(fork: ForkClient, ctx: ProbeCtx, sellAmount?: bigi
         functionName: "swapExactTokensForETHSupportingFeeOnTransferTokens",
         args: [amount, 0n, [ctx.token, WETH], ctx.testWallet, DEADLINE],
       });
-  const sellTx = await fork.send({ from: ctx.testWallet, to: router, data: sellData });
+  let sellTx = await fork.send({ from: ctx.testWallet, to: router, data: sellData });
+  // Burned the whole cap: that is out-of-gas, not a refusal. Once more with
+  // room, and only then judge.
+  if (sellTx.reverted && sellTx.gasUsed === FORK_GAS_LIMIT) {
+    const retry = await fork.send({ from: ctx.testWallet, to: router, data: sellData, gas: RETRY_GAS_LIMIT });
+    sellTx = retry.reverted && retry.gasUsed === RETRY_GAS_LIMIT
+      ? { ...retry, revertReason: `out of gas at ${RETRY_GAS_LIMIT.toLocaleString("en-US")}` }
+      : retry;
+  }
   if (sellTx.reverted) {
     const revertReason = sellTx.revertReason
       ?? await deriveRevertReason(fork, { account: ctx.testWallet, to: router, data: sellData });
     return nothing({ hash: sellTx.hash, revertReason });
   }
 
-  const wethAfter = meter ? await balanceOf(fork, WETH, meter) : 0n;
-  const received = v3
-    ? (wethAfter > wethBefore ? wethAfter - wethBefore : 0n)
-    : (wethBefore > wethAfter ? wethBefore - wethAfter : 0n);
+  let received: bigint;
+  if (v3) {
+    const wethAfter = await balanceOf(fork, WETH, ctx.testWallet);
+    received = wethAfter > wethBefore ? wethAfter - wethBefore : 0n;
+  } else {
+    const fromLogs = pool && sellTx.logs ? await v2ProceedsFromLogs(fork, pool, sellTx.logs) : undefined;
+    // The delta stays as the fallback for a pool that emitted no Swap log at
+    // all (a non-standard pair); it is the measurement that over-credits.
+    const wethAfter = meter ? await balanceOf(fork, WETH, meter) : 0n;
+    received = fromLogs ?? (wethBefore > wethAfter ? wethBefore - wethAfter : 0n);
+  }
   return {
     ok: true, amount: amount.toString(), predicted: predicted.toString(),
     received: received.toString(), hash: sellTx.hash,
   };
 }
 
+async function v2ProceedsFromLogs(fork: ForkClient, pool: Hex, logs: { address: Hex; topics: Hex[]; data: Hex }[]): Promise<bigint | undefined> {
+  try {
+    const token0 = await fork.read<Hex>({ address: pool, abi: V2_PAIR_ABI, functionName: "token0" });
+    return wethOutOfSwapLogs(logs, pool, token0.toLowerCase() === WETH.toLowerCase());
+  } catch {
+    return undefined;
+  }
+}
+
 // ponytail: fork.send() leaves revertReason undefined on a broadcast-then-
 // revert (see engine/src/fork.ts). Replay the identical call as a read-only
 // eth_call — post-revert state is unchanged, so it reproduces the same
 // revert with its reason attached, without needing debug_traceTransaction.
-async function deriveRevertReason(fork: ForkClient, args: { account: Hex; to: Hex; data: Hex }): Promise<string | undefined> {
+async function deriveRevertReason(fork: ForkClient, args: { account: Hex; to: Hex; data: Hex; value?: bigint }): Promise<string | undefined> {
   const pub = createPublicClient({ chain: base, transport: http(fork.rpcUrl) });
   try {
     await pub.call(args);

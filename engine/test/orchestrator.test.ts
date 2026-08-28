@@ -33,6 +33,7 @@ function makeStubFork(): ForkClient {
       return balances[Math.min(i++, balances.length - 1)] as unknown as any;
     },
     send: async () => ({ hash: "0xhash" as Hex, reverted: false }),
+    advance: async () => {},
     // Isolation between probes is now a snapshot rather than a new process.
     // The stub counts them so the test can assert every probe got one and
     // gave it back — a probe that keeps its state would poison the next one.

@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import {
-  EXAMPLES, FIXTURE_BLOCK, headlineOf, impostorsOf, venueListings,
-  type ScannerReadings, type Verdict, type Verification,
+  EXAMPLES, FIXTURE_BLOCK, FIXTURE_META, headlineOf, impostorsOf, venueListings,
+  type Recheck, type ScannerReadings, type Verdict, type Verification,
 } from "@sidik/shared";
 import { streamRunEvents, type RunEvent } from "@/lib/sse";
 
@@ -218,7 +218,48 @@ function VerdictCard({ verdict }: { verdict: Verdict }) {
  * They describe the chain on the day they were asked, not the fork block
  * every verdict describes. That gap is printed rather than papered over.
  */
-function ScannerReadout({ token, readings, verdicts }: { token: string; readings: ScannerReadings; verdicts: Verdict[] }) {
+/**
+ * The OG card exists for shared links; this is the button that produces one.
+ * Native share where the platform has it (every phone), clipboard elsewhere,
+ * always the lower-case canonical URL so two people sharing the same run
+ * share the same link.
+ */
+function ShareButton({ token }: { token: string }) {
+  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
+  const url = () => `${location.origin}/run?token=${token.toLowerCase()}`;
+  async function share() {
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share({ title: document.title, url: url() });
+        return;
+      }
+      await navigator.clipboard.writeText(url());
+      setState("copied");
+    } catch (e) {
+      // AbortError is the user closing the share sheet; not a failure.
+      if (e instanceof Error && e.name === "AbortError") return;
+      setState("failed");
+    }
+  }
+  return (
+    <p className="mt-4 flex flex-wrap items-center gap-3 font-mono text-xs">
+      <button
+        type="button"
+        onClick={share}
+        className="rounded-md border border-border bg-ink px-3 py-1.5 text-fg transition hover:border-accent/60"
+      >
+        Share this verdict
+      </button>
+      {/* aria-live without role=status: the header pill is the page's one
+          status region, and a second one made "the status" ambiguous. */}
+      <span aria-live="polite" className="text-fg-dim">
+        {state === "copied" ? "Link copied." : state === "failed" ? "Could not copy — the address bar has it." : ""}
+      </span>
+    </p>
+  );
+}
+
+function ScannerReadout({ token, readings, verdicts, recheck }: { token: string; readings: ScannerReadings; verdicts: Verdict[]; recheck?: Recheck | null }) {
   const hp = verdicts.find((v) => v.probe === "honeypot");
   const sidikHoneypot = hp?.status === "FAIL";
   const g = readings.goplus;
@@ -277,6 +318,16 @@ function ScannerReadout({ token, readings, verdicts }: { token: string; readings
           Disagrees with what was executed: {disagree.join("; ")}.
         </p>
       )}
+      {recheck && (
+        // The one thing that separates "the token changed since the pin"
+        // from "the scanner is wrong": the same sell, executed again at that
+        // day's head. Still context — the verdict above is about the pin.
+        <p className="mt-1" data-recheck={recheck.status}>
+          Re-executed at head block {Number(recheck.headBlock).toLocaleString("en-US")} on {recheck.checkedOn}:{" "}
+          <span className="text-fg">{recheck.status === "FAIL" ? "still could not sell" : recheck.status === "PASS" ? "still sold" : "could not answer"}</span>
+          {" "}— {recheck.title}.
+        </p>
+      )}
       <p className="mt-2">
         Context only. No scanner flag changes a verdict above.{" "}
         <a href={`/api/token/${token}`} className="underline underline-offset-4 hover:text-fg">Same readings in the JSON.</a>
@@ -295,7 +346,7 @@ function consequenceOf(verdicts: Verdict[], overall: Verdict["status"]): string 
 }
 
 export default function RunView(
-  { token, source, scanners }: { token: string; source?: Verification | null; scanners?: ScannerReadings | null },
+  { token, source, scanners, recheck }: { token: string; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
 ) {
   const tokenValid = TOKEN_RE.test(token);
   const [events, setEvents] = useState<RunEvent[]>([]);
@@ -308,9 +359,21 @@ export default function RunView(
     const controller = new AbortController();
 
     (async () => {
+      let settled = false;
       try {
         for await (const event of streamRunEvents(`/api/run?token=${token}`, controller.signal)) {
+          if (event.type === "done" || event.type === "error") settled = true;
           setEvents((prev) => [...prev, event]);
+        }
+        // The connection closed cleanly with no verdict and no error: a
+        // proxy timeout, a backgrounded phone tab, an engine restart. The
+        // page used to sit on SCANNING forever, which reads as "still
+        // working" on a run that will never finish.
+        if (!settled && !controller.signal.aborted) {
+          setEvents((prev) => [...prev, {
+            type: "error",
+            message: "The stream ended before the run finished. Reload to try again — a run the engine completed is answered from its cache in milliseconds.",
+          }]);
         }
       } catch (e) {
         if (controller.signal.aborted) return;
@@ -425,10 +488,27 @@ export default function RunView(
             <span className="font-mono text-xl font-semibold text-fg">{symbol ?? formatAddr(token)}</span>
           </div>
           <p className="wrap-anywhere mt-4 text-lg leading-7 text-fg">{consequenceOf(verdicts, overall)}</p>
+          {prescan && !prescan.hasPool && prescan.otherVenues && prescan.otherVenues.length > 0 && (
+            // Where the liquidity actually is when Uniswap has none. Read from
+            // DEX Screener at scan time; nothing was executed there, so it
+            // explains the N/A without becoming part of the verdict.
+            <p className="mt-2 text-sm text-fg-dim" data-other-venues>
+              Liquidity exists on{" "}
+              {prescan.otherVenues.map((v, i, all) => (
+                <span key={v.pair}>
+                  {i > 0 && (i === all.length - 1 ? " and " : ", ")}
+                  <span className="text-fg">{v.dex}</span>
+                  {v.liquidityUsd > 0 ? ` (${v.liquidityUsd.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })})` : ""}
+                </span>
+              ))}
+              {" "}— venues Sidik does not trade on, so nothing was executed against it.
+            </p>
+          )}
           <p className="mt-2 font-mono text-xs text-fg-dim">
             Proven at block {block} — {txCount} fork {txCount === 1 ? "transaction" : "transactions"}, none broadcast.
             Not simulated, not inferred from bytecode.
           </p>
+          <ShareButton token={token} />
           <ul className="mt-4 flex flex-wrap gap-2" aria-label="Verdict per probe">
             {ordered.map((v, i) => (
               <li
@@ -579,6 +659,20 @@ export default function RunView(
           >
             pnpm --filter @sidik/engine reproduce {token}
           </code>
+          {FIXTURE_META.engineCommit && (
+            <p className="mt-1 font-mono text-xs">
+              Catalogue recorded through {FIXTURE_META.recordedThrough} at commit{" "}
+              <a
+                href={`https://github.com/PugarHuda/sidik/commit/${FIXTURE_META.engineCommit}`}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="underline underline-offset-4 hover:text-fg"
+              >
+                {FIXTURE_META.engineCommit.slice(0, 7)}
+              </a>
+              {FIXTURE_META.anvil ? <> with {FIXTURE_META.anvil}</> : null}.
+            </p>
+          )}
           <p className="mt-2">
             Or read it as JSON:{" "}
             <a href={`/api/token/${token}`} className="underline underline-offset-4 hover:text-fg">
@@ -647,7 +741,7 @@ export default function RunView(
               )}
             </p>
           )}
-          {scanners && <ScannerReadout token={token} readings={scanners} verdicts={verdicts} />}
+          {scanners && <ScannerReadout token={token} readings={scanners} verdicts={verdicts} recheck={recheck} />}
         </section>
       )}
     </div>

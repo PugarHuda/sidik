@@ -84,7 +84,7 @@ describe("interpretOwnerTrap", () => {
       blockReceived: ONE,
     }, ctx);
     expect(v.status).toBe("PASS");
-    expect(v.rows[0]?.proven).toContain("owner() is the zero address");
+    expect(v.rows[0]?.proven).toContain("an address nobody can sign for");
     expect(v.reason).toContain("Ownable: caller is not the owner");
   });
 

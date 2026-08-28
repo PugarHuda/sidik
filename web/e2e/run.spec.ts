@@ -369,3 +369,26 @@ test.describe("what the critique found and no assertion had", () => {
     expect(color).not.toMatch(/255, 107, 107/); // --fail
   });
 });
+
+test.describe("sharing a verdict", () => {
+  test("the strip has a share control that yields the canonical link", async ({ page, context, browserName }) => {
+    await runToCompletion(page, ANASTASIA);
+    const button = page.getByRole("button", { name: /Share this verdict/ });
+    await expect(button).toBeVisible();
+    // Force the clipboard path: navigator.share opens a sheet no test can
+    // read, and the clipboard is the fallback every desktop takes anyway.
+    await page.evaluate(() => { Object.defineProperty(navigator, "share", { value: undefined, configurable: true }); });
+    if (browserName === "chromium") {
+      await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+      await button.click();
+      await expect(page.getByText("Link copied.")).toBeVisible();
+      const copied = await page.evaluate(() => navigator.clipboard.readText());
+      expect(copied).toMatch(new RegExp(`/run\\?token=${ANASTASIA.toLowerCase()}$`));
+    } else {
+      // Other engines refuse clipboard writes without a user gesture the
+      // harness cannot give; the button must still report, never hang.
+      await button.click();
+      await expect(page.getByText(/Link copied\.|Could not copy/)).toBeVisible();
+    }
+  });
+});

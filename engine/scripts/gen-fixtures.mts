@@ -14,6 +14,7 @@
 //
 // Safe to interrupt and re-run: it loads what is already recorded for this
 // fork block and skips those, writing after every token.
+import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createPublicClient, http, parseAbi, parseAbiItem, formatEther } from "viem";
@@ -163,7 +164,31 @@ export const FIXTURES: Record<string, FrozenRun> = `;
     [...bySymbol].filter(([, addrs]) => addrs.length > 1).map(([sym, addrs]) => [sym, addrs.sort()]),
   );
 
+  // Provenance for the JSON: which day, which engine commit, which anvil.
+  // Each is read from the machine doing the recording, never typed in.
+  const sh = (cmd: string): string | null => {
+    try { return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim() || null; } catch { return null; }
+  };
+  const meta = {
+    recordedThrough: new Date().toISOString().slice(0, 10),
+    engineCommit: sh("git rev-parse HEAD"),
+    anvil: sh("anvil --version"),
+    probes: PROBES.map((p) => p.id),
+  };
+
   const count = `
+
+/**
+ * When and by what the last run in this catalogue was recorded. Written by
+ * the generator on every run; a consumer checking provenance reads it from
+ * /api/token or /api/catalogue.
+ */
+export const FIXTURE_META: {
+  recordedThrough: string;
+  engineCommit: string | null;
+  anvil: string | null;
+  probes: string[];
+} = ${JSON.stringify(meta, null, 2)};
 
 export const FIXTURE_COUNT = ${Object.keys(runs).length};
 
@@ -398,8 +423,15 @@ function upToDate(run: FrozenRun): boolean {
   return true;
 }
 
-const RERECORD = process.env.SIDIK_RERECORD === "1";
-const stale = RERECORD ? Object.keys(runs).filter((a) => !upToDate(runs[a]!)) : [];
+// SIDIK_RERECORD=1 re-records what upToDate() says is stale; =all re-records
+// every run, which is what a change to how a probe measures demands — the
+// 2026-08-28 pass changed V2 sell metering, added cooldown and transferee
+// sells, a fee ladder, proxy upgrades and V3 LP pulls, so no recorded verdict
+// was produced the way the engine now produces one.
+const RERECORD = process.env.SIDIK_RERECORD ?? "";
+const stale = RERECORD === "all" ? Object.keys(runs)
+  : RERECORD === "1" ? Object.keys(runs).filter((a) => !upToDate(runs[a]!))
+  : [];
 if (RERECORD) {
   process.stderr.write(`${stale.length} of ${already} recorded run(s) are stale and will be re-recorded\n`);
 }
@@ -429,7 +461,12 @@ const queue = targets.filter((t) => {
   seen.add(k);
   return true;
 });
-process.stderr.write(`${queue.length} to record\n\n`);
+// SIDIK_SHARD=i/n keeps every n-th target starting at i, so two processes
+// can sweep disjoint halves at once. Each merges the file on every write, so
+// neither loses the other's runs.
+const shard = /^(\d+)\/(\d+)$/.exec(process.env.SIDIK_SHARD ?? "");
+const sharded = shard ? queue.filter((_, i) => i % Number(shard[2]) === Number(shard[1])) : queue;
+process.stderr.write(`${sharded.length} to record${shard ? ` (shard ${shard[0]} of ${queue.length})` : ""}\n\n`);
 
 // Windows fails new process creation with 0xC0000142 (DLL init) once a
 // session has churned through enough of them — it is desktop-heap exhaustion,
@@ -438,10 +475,10 @@ process.stderr.write(`${queue.length} to record\n\n`);
 const BREATHE_MS = 400;
 
 let i = 0;
-for (const t of queue) {
+for (const t of sharded) {
   i++;
   if (i > 1) await new Promise((r) => setTimeout(r, BREATHE_MS));
-  process.stderr.write(`[${i}/${queue.length}] ${t.label} ${t.address} ... `);
+  process.stderr.write(`[${i}/${sharded.length}] ${t.label} ${t.address} ... `);
   const run = await record(t.address, t.mustBeToken ?? true);
   if (hostFailures >= HOST_FAILURES_BEFORE_STOP) {
     write(runs);

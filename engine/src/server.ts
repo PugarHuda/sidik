@@ -6,7 +6,7 @@ import { serve } from "@hono/node-server";
 import type { Hex } from "@sidik/shared";
 import { runSidik, type RunEvent } from "./orchestrator.js";
 import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "./concurrency.js";
-import { cacheSize } from "./cache.js";
+import { cacheSize, getCached } from "./cache.js";
 import { BASE_FORK_BLOCK } from "./forkBlock.js";
 import { log } from "./log.js";
 import { forkProxyStats } from "./forkProxy.js";
@@ -41,6 +41,19 @@ export function createApp(runner: Runner = runSidik) {
     forkProxy: forkProxyStats(),
     uptimeSeconds: Math.round(process.uptime()),
   }));
+
+  // A run the engine has already finished, as JSON. The web's /api/token
+  // asks here when the committed catalogue has no entry, so a live run and
+  // its shared link agree. 404 is "not run here", never "nothing found".
+  app.get("/token/:address", (c) => {
+    const address = c.req.param("address");
+    if (!TOKEN_RE.test(address)) {
+      return c.json({ error: "address must be a 0x-prefixed 40-hex-char address" }, 400);
+    }
+    const run = getCached(address, BASE_FORK_BLOCK);
+    if (!run) return c.json({ error: "no finished run for this address at this fork block" }, 404);
+    return c.json(run);
+  });
 
   app.get("/run", (c) => {
     const token = c.req.query("token");

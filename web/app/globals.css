@@ -139,3 +139,33 @@ pre {
     animation: none;
   }
 }
+
+/* A page styled as a case file should print like one: light ground, no
+   motion, the trace and the command unclipped, nothing interactive. */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .animate-reveal,
+  .animate-recording {
+    animation: none;
+  }
+  [role="group"] {
+    max-height: none;
+    overflow: visible;
+    white-space: pre-wrap;
+  }
+  nav,
+  button,
+  details > summary,
+  form {
+    display: none;
+  }
+  details {
+    display: block;
+  }
+  details[open] > * {
+    display: block;
+  }
+}

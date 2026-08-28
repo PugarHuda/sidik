@@ -48,7 +48,8 @@ Recorded addresses: ${FIXTURE_COUNT}
   the chain that day, not the fork block. Where a scanner and the fork
   disagree, the catalogue row says so (filter=scannerDisagrees); the
   repository's recheck command re-runs the sell at today's head to tell a
-  changed token from a wrong flag.
+  changed token from a wrong flag, and its result is under
+  corroboration.recheck (head block, date, status) when one was run.
 - Every recorded verdict can be reproduced: the repository's reproduce
   command forks Base at the same block and diffs the result.
 
@@ -63,16 +64,29 @@ Recorded addresses: ${FIXTURE_COUNT}
   narration. 404 when the address has no recorded run.
 - ${SITE}/api/run?token=<address> — the same run as a Server-Sent Event
   stream, in the order the probes produced it.
+- ${SITE}/openapi.json — OpenAPI 3.1 for the two JSON endpoints, with the
+  Verdict schema. Every JSON body carries schemaVersion, chainId (8453) and a
+  provenance object: the recording date, engine commit, and a sha256 of the
+  catalogue to check against a checkout.
 
 ## Probes
 
 - honeypot: buys, then sells, and measures the proceeds against the pool's own
-  quote. A sell that succeeds and pays nothing is not a pass.
-- hiddenFee: measures buy, sell and transfer() separately.
-- lpRug: impersonates the LP holder and pulls the pool.
+  quote. A sell that succeeds and pays nothing is not a pass. A reverted buy is
+  retried smaller and reported with its reason; a reverted sell is retried
+  after 1h and 24h of fork time (a cooldown is not a honeypot); a wallet the
+  buyer transferred to also sells.
+- hiddenFee: measures buy, sell and transfer() separately, and sells again a
+  day later; V2 proceeds come from the router's Swap log, not the pool delta.
+- lpRug: classifies the LP holder (EOA, 7702 account, Safe, UNCX locker,
+  unknown contract), impersonates it and pulls the pool; on V3 pulls the
+  largest position through the position manager. Locked LP carries its
+  unlock date.
 - ownerTrap: buys, snapshots, sells to prove selling works, rolls back, lets
   the owner throw every switch in the bytecode, and sells again from identical
-  state.
+  state. Fee setters are tried down a ladder; for a proxy the implementation
+  is scanned and the admin is made to replace the code before the sell.
+  Privileged-looking functions Sidik cannot operate are named, not ignored.
 - approvalDrain: for a wallet, exercises its live approvals.
 - crossVenue: compares the price paid inside the pool against independent
   venues in the same hour.

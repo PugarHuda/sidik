@@ -27,6 +27,13 @@ interface CachedRun {
 // via fork.setBalanceEth in its own setup().
 const TEST_WALLET: Hex = ANVIL_ACCOUNT_0;
 
+// How long one run may take before the probes still queued are given up.
+// A throttled gateway can hold a single receipt for minutes, and a run is
+// fifteen or more sends; without a ceiling one such run held a concurrency
+// slot for over an hour after its reader had gone. Checked between probes,
+// so a probe already executing finishes and is recorded.
+const RUN_BUDGET_MS = Number(process.env.SIDIK_RUN_BUDGET_MS ?? 10 * 60_000);
+
 export interface Deps {
   openFork: typeof openFork;
   prescan: (fork: ForkClient, token: Hex) => Promise<PreScan>;
@@ -88,6 +95,15 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
     const verdicts: Verdict[] = [];
     for (const id of ids) {
       yield { type: "probe:start", id };
+      if (performance.now() - started > RUN_BUDGET_MS) {
+        // An NA with no rows: the shape isProbeFailure recognises, so the
+        // generator never freezes a budget overrun as a verdict.
+        log.error({ event: "probe.skipped", token, probe: id, ms: since(started), reason: "run budget exceeded" });
+        const verdict = naVerdict(id, `probe ${id} could not run — the run exceeded its ${Math.round(RUN_BUDGET_MS / 60_000)}-minute budget`);
+        verdicts.push(verdict);
+        yield { type: "verdict", verdict };
+        continue;
+      }
       const verdict = await runProbe(d, fork, token, scan, id);
       verdicts.push(verdict);
       yield { type: "verdict", verdict };

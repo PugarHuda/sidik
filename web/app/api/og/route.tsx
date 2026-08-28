@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
-import { FIXTURE_BLOCK, headlineOf, recordedRun } from "@sidik/shared";
+import { FIXTURE_BLOCK, FIXTURE_COUNT, headlineOf, recordedRun } from "@sidik/shared";
 
 export const runtime = "nodejs";
 
@@ -101,7 +101,7 @@ export async function GET(req: NextRequest) {
             <div style={{ display: "flex" }}>
               {run
                 ? `${txCount} transactions mined on a fork of Base at block ${block}`
-                : `194 Base addresses executed against a fork at block ${block}`}
+                : `${FIXTURE_COUNT} Base addresses executed against a fork at block ${block}`}
             </div>
           </div>
           <div style={{

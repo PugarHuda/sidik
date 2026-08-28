@@ -25458,6 +25458,23 @@ export const FIXTURES: Record<string, FrozenRun> = {
   }
 };
 
+/**
+ * When and by what the last run in this catalogue was recorded. Written by
+ * the generator on every run; a consumer checking provenance reads it from
+ * /api/token or /api/catalogue.
+ */
+export const FIXTURE_META: {
+  recordedThrough: string;
+  engineCommit: string | null;
+  anvil: string | null;
+  probes: string[];
+} = {
+  "recordedThrough": "2026-08-28",
+  "engineCommit": "668a669c8d842bf88f041f5d4663af4e92f78da4",
+  "anvil": null,
+  "probes": ["honeypot", "hiddenFee", "lpRug", "ownerTrap", "approvalDrain", "crossVenue"]
+};
+
 export const FIXTURE_COUNT = 194;
 
 // Symbols that more than one recorded address claims. Small by nature, and

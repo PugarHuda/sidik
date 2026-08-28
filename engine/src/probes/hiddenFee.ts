@@ -14,6 +14,10 @@ const RECIPIENT: Hex = PROBE_RECIPIENT;
 // reads as a tax; anything above it is the contract keeping your money.
 const MIN_REPORTABLE_TAX_BPS = 50;
 
+// How far the chain is moved before the second sell. Launch taxes on Base
+// templates are quoted in hours or "the first day"; one day clears them all.
+const ONE_DAY_S = 86_400;
+
 function pct(bps: number): string {
   return `${(bps / 100).toFixed(2).replace(/\.00$/, "")}%`;
 }
@@ -37,7 +41,15 @@ export function interpretHiddenFee(raw: RawResult, ctx: ProbeCtx): Verdict {
   const taxedSell = sellTaxBps >= MIN_REPORTABLE_TAX_BPS;
   const buyTaxPct = buyTaxBps > 0 ? pct(buyTaxBps) : "0%";
   const sellTaxPct = raw.sellMeasured ? (sellTaxBps > 0 ? pct(sellTaxBps) : "0%") : "n/a";
-  const txHashes = [raw.buyTxHash as Hex, raw.sellTxHash as Hex, raw.xferTxHash as Hex]
+  // The same sell a day later. A launch tax that decays ("30% for 24h") and
+  // a tax that climbs are both findings a single sell seconds after the buy
+  // cannot see; a stable tax is one number twice.
+  const laterMeasured = raw.sellLaterMeasured === true;
+  const sellTaxLaterBps = Number(raw.sellTaxLaterBps ?? 0);
+  const sellTaxLaterPct = laterMeasured ? (sellTaxLaterBps > 0 ? pct(sellTaxLaterBps) : "0%") : "n/a";
+  const taxChanges = laterMeasured && raw.sellMeasured
+    && Math.abs(sellTaxLaterBps - sellTaxBps) >= MIN_REPORTABLE_TAX_BPS;
+  const txHashes = [raw.buyTxHash as Hex, raw.sellTxHash as Hex, raw.sellLaterTxHash as Hex, raw.xferTxHash as Hex]
     .filter((h) => h && h !== "0x") as Hex[];
 
   if (rawSent === "0") {
@@ -83,15 +95,24 @@ export function interpretHiddenFee(raw: RawResult, ctx: ProbeCtx): Verdict {
   const bps = Number(raw.feeBps ?? 0);
   const feePct = pct(bps);
   const taxedTransfer = bps >= MIN_REPORTABLE_TAX_BPS;
-  const numbers = { sent, received, feePct, buyTaxPct, sellTaxPct };
+  const numbers: Record<string, string> = { sent, received, feePct, buyTaxPct, sellTaxPct };
+  if (laterMeasured) numbers.sellTaxLaterPct = sellTaxLaterPct;
   const xferRow = {
     label: "Transfer the full balance", claimed: "Recipient gets 100%",
     proven: taxedTransfer ? `Recipient got ${feePct} less` : "Recipient got 100%",
     ok: !taxedTransfer,
   };
   const rows = [buyRow, sellRow, xferRow];
+  if (taxChanges) {
+    rows.splice(2, 0, {
+      label: "Sell back a day later", claimed: "The same tax as today",
+      proven: `Proceeds were ${sellTaxLaterPct} short of the quote, against ${sellTaxPct} straight after buying`,
+      ok: sellTaxLaterBps < MIN_REPORTABLE_TAX_BPS,
+    });
+  }
+  const taxedLater = laterMeasured && sellTaxLaterBps >= MIN_REPORTABLE_TAX_BPS;
 
-  if (!taxedBuy && !taxedSell && !taxedTransfer) {
+  if (!taxedBuy && !taxedSell && !taxedTransfer && !taxedLater) {
     // Only claim the sides that were actually measured. An unmeasured sell is
     // not a clean one, and saying otherwise put "no hidden fee on selling" on
     // the card for a honeypot whose sell reverts — the single worst place to
@@ -107,7 +128,9 @@ export function interpretHiddenFee(raw: RawResult, ctx: ProbeCtx): Verdict {
 
   const charged: string[] = [];
   if (taxedBuy) charged.push(`${buyTaxPct} on buy`);
-  if (taxedSell) charged.push(`${sellTaxPct} on sell`);
+  if (taxedSell || taxedLater) {
+    charged.push(taxChanges ? `${sellTaxPct} on sell (${sellTaxLaterPct} a day later)` : `${sellTaxPct} on sell`);
+  }
   if (taxedTransfer) charged.push(`${feePct} on transfer`);
   return {
     probe: "hiddenFee", status: "FAIL",
@@ -134,18 +157,29 @@ export const hiddenFeeProbe: Probe = {
         feeBps: 0, buyTxHash: buy.hash, sellTxHash: "0x" as Hex, xferTxHash: "0x" as Hex };
     }
 
-    // Sell half and keep half: one buy funds both the sell measurement and
-    // the transfer measurement, and both are needed — a token can tax the
-    // pool route, the transfer, or either one alone.
-    const half = bought / 2n;
-    const sell = half > 0n ? await sellAll(fork, ctx, half) : undefined;
+    // Sell a third now, a third a day later, and transfer the rest: one buy
+    // funds all three measurements, and all three are needed — a token can
+    // tax the pool route, the transfer, either one alone, or only for a
+    // window after launch.
+    const third = bought / 3n;
+    const sell = third > 0n ? await sellAll(fork, ctx, third) : undefined;
     const sellMeasured = Boolean(sell?.ok && BigInt(sell.predicted) > 0n);
     const sellTaxBps = sellMeasured ? shortfallBps(BigInt(sell!.predicted), BigInt(sell!.received)) : 0;
     const sellTxHash = (sell?.hash ?? "0x") as Hex;
 
+    let sellLater: Awaited<ReturnType<typeof sellAll>> | undefined;
+    if (sellMeasured) {
+      await fork.advance(ONE_DAY_S);
+      sellLater = await sellAll(fork, ctx, third);
+    }
+    const sellLaterMeasured = Boolean(sellLater?.ok && BigInt(sellLater.predicted) > 0n);
+    const sellTaxLaterBps = sellLaterMeasured ? shortfallBps(BigInt(sellLater!.predicted), BigInt(sellLater!.received)) : 0;
+    const sellLaterTxHash = (sellLater?.hash ?? "0x") as Hex;
+    const later = { sellLaterMeasured, sellTaxLaterBps, sellLaterTxHash };
+
     const sent = await fork.read<bigint>({ address: ctx.token, abi: ERC20_ABI, functionName: "balanceOf", args: [ctx.testWallet] });
     if (sent === 0n) {
-      return { sent: "0", received: "0", buyTaxBps, sellTaxBps, sellMeasured,
+      return { sent: "0", received: "0", buyTaxBps, sellTaxBps, sellMeasured, ...later,
         feeBps: 0, buyTxHash: buy.hash, sellTxHash, xferTxHash: "0x" as Hex };
     }
 
@@ -161,7 +195,7 @@ export const hiddenFeeProbe: Probe = {
     // would be a fabricated number, so say what actually happened instead.
     if (reverted) {
       return { sent: sent.toString(), received: "0", transferReverted: true, buyTaxBps, sellTaxBps,
-        sellMeasured, feeBps: 0, buyTxHash: buy.hash, sellTxHash, xferTxHash: hash };
+        sellMeasured, ...later, feeBps: 0, buyTxHash: buy.hash, sellTxHash, xferTxHash: hash };
     }
     const after = await fork.read<bigint>({ address: ctx.token, abi: ERC20_ABI, functionName: "balanceOf", args: [RECIPIENT] });
     const received = after > before ? after - before : 0n;
@@ -169,7 +203,7 @@ export const hiddenFeeProbe: Probe = {
     // Reflection tokens can credit MORE than was sent; that is not a fee, so
     // floor at 0 rather than reporting a negative one.
     const feeBps = shortfallBps(sent, received);
-    return { sent: sent.toString(), received: received.toString(), buyTaxBps, sellTaxBps, sellMeasured,
+    return { sent: sent.toString(), received: received.toString(), buyTaxBps, sellTaxBps, sellMeasured, ...later,
       feeBps, buyTxHash: buy.hash, sellTxHash, xferTxHash: hash };
   },
   interpret: interpretHiddenFee,

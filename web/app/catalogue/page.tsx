@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  CATALOGUE_FILTERS, catalogueRows, catalogueSummary, filterCounts, filterRows,
+  CATALOGUE_FILTERS, FIXTURE_BLOCK, catalogueRows, catalogueSummary, filterCounts, filterRows,
   isCatalogueFilter, paginate, VERIFICATION_STATS,
 } from "@sidik/shared";
 import CatalogueControls from "./CatalogueControls";
@@ -62,8 +62,26 @@ export default async function CataloguePage({
     return qs ? `/catalogue?${qs}` : "/catalogue";
   };
 
+  // Structured data: the catalogue is a dataset with a JSON distribution, and
+  // saying so in the vocabulary indexers already read is how it gets found
+  // by someone searching for Base token data rather than for this site.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: "Sidik — executed Base token runs",
+    description: `${rows.length} Base addresses bought, sold and transferred against a fork of Base at block ${Number(FIXTURE_BLOCK).toLocaleString("en-US")}, with every verdict and measured figure.`,
+    license: "https://github.com/PugarHuda/sidik/blob/master/LICENSE",
+    isAccessibleForFree: true,
+    keywords: ["Base", "ERC-20", "honeypot", "token safety", "fork execution"],
+    distribution: [
+      { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: "/api/catalogue" },
+      { "@type": "DataDownload", encodingFormat: "text/plain", contentUrl: "/llms.txt" },
+    ],
+  };
+
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-12 sm:py-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Link href="/" className="font-mono text-sm tracking-[0.3em] text-accent">SIDIK</Link>
 
       {/* The heading follows the filter. It used to read "Every recorded run"

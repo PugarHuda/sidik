@@ -3,6 +3,7 @@ import { base } from "viem/chains";
 import type { ForkClient, Hex } from "@sidik/shared";
 import { UNISWAP_V3, WETH, ZERO_ADDRESS } from "./base.js";
 import { ERC20_ABI, V3_FACTORY_ABI, V3_QUOTER_ABI, V3_ROUTER_ABI } from "./abi.js";
+import { log } from "./log.js";
 
 // Uniswap V3 on Base. Most of the Base tokens anyone has heard of left V2 for
 // V3 — BRETT holds ~300 WETH here and under 0.2 on V2 — so probing only V2
@@ -32,6 +33,12 @@ export async function findV3Pool(
   // needs a benchmark that can see past the RPC first — otherwise any change
   // can be "proven" to help or hurt by picking a run.
   let best: V3Pool | undefined;
+  // A tier that is not deployed answers with the zero address, not a throw.
+  // A throw is the RPC failing, and when every tier fails that way the
+  // honest answer is an error — not "no pool", which the swallowed version
+  // turned into "no liquidity to test" and then froze into the catalogue.
+  let failed = 0;
+  let last: unknown;
   for (const fee of UNISWAP_V3.feeTiers) {
     try {
       const address = await read<Hex>({
@@ -40,8 +47,17 @@ export async function findV3Pool(
       if (!address || address.toLowerCase() === ZERO_ADDRESS) continue;
       const weth = await read<bigint>({ address: WETH, abi: ERC20_ABI, functionName: "balanceOf", args: [address] });
       if (!best || weth > best.weth) best = { address, fee, weth };
-    } catch { /* tier not deployed, or an unreadable pool — try the next */ }
+    } catch (e) {
+      failed++;
+      last = e;
+    }
   }
+  if (failed === UNISWAP_V3.feeTiers.length) {
+    const reason = last instanceof Error ? last.message : String(last);
+    log.error({ event: "dexV3.poolLookupFailed", token, reason: reason.slice(0, 200) });
+    throw new Error(`V3 pool lookup failed on every fee tier: ${reason.slice(0, 200)}`);
+  }
+  if (failed > 0) log.error({ event: "dexV3.tierLookupFailed", token, count: failed });
   return best;
 }
 

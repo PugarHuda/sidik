@@ -3,6 +3,7 @@ import {
   CATALOGUE_FILTERS, FIXTURE_BLOCK, catalogueRows, catalogueSummary,
   filterRows, isCatalogueFilter, paginate, venueListings, verificationOf,
 } from "@sidik/shared";
+import { PROVENANCE } from "@/lib/provenance";
 
 export const runtime = "nodejs";
 
@@ -31,6 +32,8 @@ export async function GET(req: NextRequest) {
   const page = paginate(filterRows(all, { filter, query }), Number(one("page")) || 1);
 
   return Response.json({
+    schemaVersion: 1,
+    chainId: 8453,
     forkBlock: FORK_BLOCK,
     // Said once, at the top, so a consumer cannot take a hash from a row and
     // go looking for it on an explorer.
@@ -52,6 +55,7 @@ export async function GET(req: NextRequest) {
       },
       run: `/api/token/${r.address}`,
     })),
+    provenance: PROVENANCE,
   }, {
     headers: { "cache-control": "public, max-age=300, stale-while-revalidate=86400" },
   });
