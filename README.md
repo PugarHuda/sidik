@@ -291,7 +291,11 @@ change one.
 whether Blockscout holds published verified source for it — 191 of 194 do, as
 do 58 of the 59 with a finding against them. It is here because it answers the
 obvious objection to the whole project: no, reading the contract first would
-not have caught these.
+not have caught these. Sourcify is asked the same question independently
+(`SOURCIFY_STATS`: exact and partial matches counted separately, an exact
+match including the metadata hash), and where a verifier records the
+deploying address it is shown as a fact with a Basescan link — never as a
+cluster or a signal.
 
 ```bash
 # re-read Blockscout for any address not already recorded

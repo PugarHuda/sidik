@@ -102,6 +102,12 @@ export async function GET(
       // the number that matters: almost every token with a finding against it
       // publishes source anyone could have read first.
       sourceVerified: verificationOf(address)?.verified ?? null,
+      // Sourcify, independently: exact / partial / null (holds nothing);
+      // undefined only when Sourcify was never reached for this address.
+      sourcify: verificationOf(address)?.sourcify ?? null,
+      // The deploying address as a verifier recorded it. A fact, not a signal.
+      deployer: verificationOf(address)?.deployer ?? null,
+      deployerSource: verificationOf(address)?.deployerSource ?? null,
       // Two read-only scanners' readings for the same address, recorded on
       // the date inside. They describe the chain that day, not the fork
       // block above, and nothing in them changes a verdict.

@@ -739,6 +739,39 @@ export default function RunView(
               ) : (
                 <>No verified source code is published for this address on Blockscout.</>
               )}
+              {/* A second verifier with a stricter notion of "verified"; an
+                  exact match includes the metadata hash. Independent of
+                  Blockscout, so two witnesses instead of one. */}
+              {source.sourcify && (
+                <>
+                  {" "}<a
+                    href={`https://repo.sourcify.dev/8453/${token}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="underline underline-offset-4 hover:text-fg"
+                  >
+                    Sourcify
+                  </a>{" "}
+                  holds {source.sourcify.match === "exact" ? "an exact" : "a partial"} match
+                  {source.sourcify.verifiedAt ? <>, verified {source.sourcify.verifiedAt.slice(0, 10)}</> : null}.
+                </>
+              )}
+              {source.sourcify === null && <> Sourcify holds nothing for it.</>}
+              {source.deployer && (
+                <>
+                  {" "}Deployed by{" "}
+                  <a
+                    href={`https://basescan.org/address/${source.deployer}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="underline underline-offset-4 hover:text-fg"
+                    data-deployer={source.deployer}
+                  >
+                    {formatAddr(source.deployer)} ↗
+                  </a>
+                  {source.deployerSource === "sourcify" ? " (per Sourcify's deployment record)" : " (per Blockscout)"}.
+                </>
+              )}
             </p>
           )}
           {scanners && <ScannerReadout token={token} readings={scanners} verdicts={verdicts} recheck={recheck} />}

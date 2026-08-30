@@ -88,6 +88,15 @@ const Corroboration = {
   properties: {
     alsoTradesOn: { type: "array", items: { type: "object", properties: { venue: { type: "string" }, ticker: { type: "string" } } } },
     sourceVerified: { type: ["boolean", "null"], description: "Blockscout's answer. Across the catalogue, verified source is not a safety signal." },
+    sourcify: {
+      anyOf: [
+        { type: "object", required: ["match"], properties: { match: { type: "string", enum: ["exact", "partial"] }, verifiedAt: { type: "string" } } },
+        { type: "null" },
+      ],
+      description: "Sourcify's independent answer: exact (metadata hash included), partial, or null when it holds nothing.",
+    },
+    deployer: { type: ["string", "null"], description: "The deploying address as recorded by the verifier in deployerSource. A fact, not a signal." },
+    deployerSource: { type: ["string", "null"], enum: ["sourcify", "blockscout", null] },
     scanners: { anyOf: [ScannerReading, { type: "null" }] },
     recheck: { anyOf: [Recheck, { type: "null" }] },
   },

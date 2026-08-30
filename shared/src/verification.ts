@@ -11,872 +11,1549 @@ export interface Verification {
   verified: boolean;
   name?: string;
   compiler?: string;
+  /** Sourcify's answer: exact (metadata hash included) or partial; null when it holds nothing. */
+  sourcify?: { match: "exact" | "partial"; verifiedAt?: string } | null;
+  /** The deploying address, as recorded by the verifier named in deployerSource. */
+  deployer?: string;
+  deployerSource?: "sourcify" | "blockscout";
 }
 
 export const VERIFIED_SOURCE: Record<string, Verification> = {
   "0x48f617e5b1b214a90800348d7944bbc0e9290fbb": {
     "verified": true,
     "name": "Anastasia",
-    "compiler": "0.8.24+commit.e11b9ed9"
+    "compiler": "0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-19T07:21:13Z"
+    },
+    "deployer": "0xe7359dDB1c36ac4620071b6E15C1578ec774db96",
+    "deployerSource": "sourcify"
   },
   "0x0e86efe5ba52336c2173ad69ee726e054619e0d8": {
     "verified": true,
     "name": "BankrReflectBot",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-02T22:13:08Z"
+    },
+    "deployer": "0x936960b3844a80038B5A50e2064cC29eC6dB64d4",
+    "deployerSource": "sourcify"
   },
   "0x89f48b0067f42f3a8b233a6dc9dcd4101aa0ea1c": {
-    "verified": false
+    "verified": false,
+    "sourcify": null
   },
   "0x27740c050e3764a2cee00317b7ac68a52d11ab5f": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x07ec06ae91ee22302c097a3781cadcf99ac98e2a": {
     "verified": true,
     "name": "TransparentUpgradeableProxy",
-    "compiler": "v0.8.29+commit.ab55807c"
+    "compiler": "v0.8.29+commit.ab55807c",
+    "sourcify": null
   },
   "0xdeb18e7b78ffd555d5e94ebe110e1ff2d778bd8b": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x3b627e17622f479e91d3a6e65846991e96c351a2": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x3798553e8225fe075198e126b64e0955909c4595": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x6d4e90b6d909ba295f8c6065d3f1dde0c529c477": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x8baef50e259174df675a264eff3b329ae8d1c667": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x8fc0c63c1af9169a28c49d156bb2da0479e25689": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xc5dba21bd8ba6f621ddbde780cafe9f8f3586c04": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xa0865cf95b23c35b980736878892848c62783214": {
     "verified": true,
     "name": "PRXN",
-    "compiler": "0.8.34+commit.80d5c536"
+    "compiler": "0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-12T00:58:10Z"
+    },
+    "deployer": "0xEdBb987946dDF931fdfCB6412eD66f98631a8115",
+    "deployerSource": "sourcify"
   },
   "0x8797572558379dd4bb3f2a5eb347e4fdfeb5e9a9": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x76e9f582d35e352dc89190210006d4be42d2ac34": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x945aa7c3ab890a4837a8a6a7b0ee0b82ae8e4bd1": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xb8d528dd93fe1f94f2ef7fdd12f59bd645c07110": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x556d8af69bca54157ef1fcf8b7065c80ce34eae9": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x17abed1db9f5fb83df57386fec6dd84aeb2e6095": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x59891ef20aa01f24ab7b29ce5c2ebf9534ff0d58": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xfd2cc6b7af94c209a6221a134ac4b3924e1e84ab": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x8f92c14757ebf6298dd5be033a179d01f6794696": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xd55be3a4c5ef55d3c7c48f95871fa518b80562de": {
     "verified": true,
     "name": "Chubby",
-    "compiler": "v0.8.25+commit.b61c2a91"
+    "compiler": "v0.8.25+commit.b61c2a91",
+    "sourcify": null
   },
   "0x5a060aef57e013889edad44f2aacb5a5cac66e8b": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x0f8ac22b85076f9bfe0b93cc49fb6426cb150f88": {
     "verified": true,
     "name": "Blepe",
-    "compiler": "0.8.19+commit.7dd6d404"
+    "compiler": "0.8.19+commit.7dd6d404",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-06-19T20:38:06Z"
+    },
+    "deployer": "0x82fA07721843D7760D65efe7ae2DA95fFb609d29",
+    "deployerSource": "sourcify"
   },
   "0x80394b07eea4c1e7c9c0d65f9cbbe6e32832b80b": {
     "verified": true,
     "name": "Community",
-    "compiler": "0.8.26+commit.8a97fa7a"
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-21T00:15:58Z"
+    },
+    "deployer": "0xE23d26C5C325298a40161991F4d3e47610692A57",
+    "deployerSource": "sourcify"
   },
   "0xa989353699f2fb20de69e74b34f8aac11075a299": {
     "verified": true,
     "name": "DogToken",
-    "compiler": "v0.8.28+commit.7893614a"
+    "compiler": "v0.8.28+commit.7893614a",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-28T16:10:10Z"
+    },
+    "deployer": "0x1dD20436f9eCD1511aB65245f31f292a487EAc45",
+    "deployerSource": "sourcify"
   },
   "0xf478a0289e6c5d578e1688d5b7d6c10517198335": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x33f5658a7c4614fc714059643b3e0e5a37408b02": {
     "verified": true,
     "name": "CUBE",
-    "compiler": "v0.8.23+commit.f704f362"
+    "compiler": "v0.8.23+commit.f704f362",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-22T15:44:46Z"
+    },
+    "deployer": "0xcE92b2AA3aDc164eC1d3bCf7B5d4BcE35bD45324",
+    "deployerSource": "sourcify"
   },
   "0x91fbb2503ac69702061f1ac6885759fc853e6eae": {
     "verified": true,
     "name": "KNINETokenL2",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": null
   },
   "0x3311aac4a400052c2206e0d491e582e5cb1ed5ce": {
     "verified": true,
     "name": "Fafnirium",
-    "compiler": "0.8.34+commit.80d5c536"
+    "compiler": "0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-21T23:44:01Z"
+    },
+    "deployer": "0x015015463B04bf72aC0E227d248E1b07d04D86E6",
+    "deployerSource": "sourcify"
   },
   "0x5d1a03a683c405c0a5609e8ff96e463454f371c6": {
     "verified": true,
     "name": "ASTROVERSE",
-    "compiler": "0.8.21+commit.d9974bed"
+    "compiler": "0.8.21+commit.d9974bed",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-16T18:36:16Z"
+    },
+    "deployer": "0x259951fD7aA1F7Cd1422B97d6D5bd7475187a774",
+    "deployerSource": "sourcify"
   },
   "0x17297b350d6d7ffc799899025bc68c987636edff": {
     "verified": true,
     "name": "Chubby",
-    "compiler": "v0.8.25+commit.b61c2a91"
+    "compiler": "v0.8.25+commit.b61c2a91",
+    "sourcify": null
   },
   "0xac45abc8ffa668dee7edd324ff2610b0f0515254": {
     "verified": true,
     "name": "Amiri",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-28T16:03:30Z"
+    },
+    "deployer": "0xe1ff1aB8600694E7e83e53AaF010b7Da6A65E309",
+    "deployerSource": "sourcify"
   },
   "0xb460d4cb0353fb80d86cb74529715fb35aad1a3d": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x314e24e49e43a201744fa8148c73d08d17eac597": {
     "verified": true,
     "name": "FeeTokenFast",
-    "compiler": "v0.8.17+commit.8df45f5f"
+    "compiler": "v0.8.17+commit.8df45f5f",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-28T20:52:16Z"
+    },
+    "deployer": "0xB78323DE264bc12e8f3b514128a1ac8A8D347D5e",
+    "deployerSource": "sourcify"
   },
   "0x039ffbad099c7df8864c16c1a18a0a31efa259a8": {
     "verified": true,
     "name": "from1kto100Mcoin",
-    "compiler": "v0.8.25+commit.b61c2a91"
+    "compiler": "v0.8.25+commit.b61c2a91",
+    "sourcify": null
   },
   "0xe22f1468de1dbc629c599926f637d4fa119aee41": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x320238f952412b7a7dc0eefa45a503c62571afd3": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x0480dfeb876221ad9ab90d4687efd6d5d6c839c2": {
     "verified": true,
     "name": "TZToken",
-    "compiler": "0.8.35+commit.47b9dedd"
+    "compiler": "0.8.35+commit.47b9dedd",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-21T00:30:19Z"
+    },
+    "deployer": "0x8e55DDf6f6d614bCd44B42a69E4a265609E506E6",
+    "deployerSource": "sourcify"
   },
   "0x901d6f4e31cad7eae70711d8bc0f1cc071ad3e54": {
     "verified": true,
     "name": "BitbondTokenToolCoreTokenV1",
-    "compiler": "0.8.17+commit.8df45f5f"
+    "compiler": "0.8.17+commit.8df45f5f",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-06-29T01:05:15Z"
+    },
+    "deployer": "0x1418480b8E3a46B5a6fF32aec4185718FCaEa69b",
+    "deployerSource": "sourcify"
   },
   "0x794c29c0b5ec64359e1451f700635c348a8948c4": {
     "verified": true,
     "name": "DEADSTAR",
-    "compiler": "v0.8.20+commit.a1b79de6"
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-16T22:12:21Z"
+    },
+    "deployer": "0x03c01CE8773249058c0E7B04ad50686b242Ae27d",
+    "deployerSource": "sourcify"
   },
   "0x67ae48e70c11ff3357593d208fcecb73da85634e": {
     "verified": true,
     "name": "Blepe",
-    "compiler": "0.8.19+commit.7dd6d404"
+    "compiler": "0.8.19+commit.7dd6d404",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-06-16T22:02:41Z"
+    },
+    "deployer": "0x2e6E5dC84C43B135d2b1568B46b4789Bb3096f3A",
+    "deployerSource": "sourcify"
   },
   "0xb831d522b89b41c16c3879d6644e40c349e4a1a5": {
     "verified": true,
     "name": "WrappedNULLA",
-    "compiler": "0.8.34+commit.80d5c536"
+    "compiler": "0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-16T14:11:14Z"
+    },
+    "deployer": "0x8aa00E84c234F695328766ADc90c084eBA46853E",
+    "deployerSource": "sourcify"
   },
   "0xe482480f78791809a6bc563e788ebef26e80eee0": {
     "verified": true,
     "name": "ERC1967Proxy",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-06T13:04:10Z"
+    }
   },
   "0x5293211da97091bd87a6c2450790762012a4c801": {
     "verified": true,
     "name": "BaseUniswapV2ECLYPSE",
-    "compiler": "v0.8.20+commit.a1b79de6"
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-12T12:26:51Z"
+    }
   },
   "0xb357e2546e51fa6f2383e768a7d022d5777ba152": {
     "verified": true,
     "name": "SocietyForAIAgentsFund",
-    "compiler": "v0.8.33+commit.64118f21"
+    "compiler": "v0.8.33+commit.64118f21",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-06T21:32:34Z"
+    },
+    "deployer": "0xCE9A474Cfc924C86eBEcef9b55d27ECcfF744B23",
+    "deployerSource": "sourcify"
   },
   "0xf5d8a91e2a60a6e4c57d45d5ee71e79e841145dd": {
     "verified": true,
     "name": "BitcoinSV",
-    "compiler": "0.8.25+commit.b61c2a91"
+    "compiler": "0.8.25+commit.b61c2a91",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-05T20:26:49Z"
+    },
+    "deployer": "0xffFf3F3FcC40D24Ea11C4B8620d6863A61d89941",
+    "deployerSource": "sourcify"
   },
   "0xd0eb51e0fc50395491b19c53fe1cc10eefd16b52": {
     "verified": true,
     "name": "Contract",
-    "compiler": "0.8.23+commit.f704f362"
+    "compiler": "0.8.23+commit.f704f362",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-06T00:00:28Z"
+    },
+    "deployer": "0x235c0410BBd1E059150A948ee6C5b0EbB034C9E7",
+    "deployerSource": "sourcify"
   },
   "0x5a663876680fc9a8fbca8c634573a370b08d8702": {
     "verified": true,
     "name": "Contract",
-    "compiler": "v0.8.23+commit.f704f362"
+    "compiler": "v0.8.23+commit.f704f362",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-28T17:16:22Z"
+    },
+    "deployer": "0x19E38491356e6654F6c124BF52ea08EBaf9cC3eA",
+    "deployerSource": "sourcify"
   },
   "0x081cbec42a9910515d25da5e60c3ee71b93d2f16": {
     "verified": true,
     "name": "CHILLGULL",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-16T14:42:28Z"
+    },
+    "deployer": "0x05a192Cd1E1955A93B58d9652209D86c43a4c255",
+    "deployerSource": "sourcify"
   },
   "0xebc5581b7af0f04e8a4439ca4a9ce0d4251865ad": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x84d9a957cc93edc6f50bfc5797f695eaae878fd3": {
     "verified": true,
     "name": "VALTToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-03-20T14:40:40Z"
+    },
+    "deployer": "0x90074DD658677bF9C67BF819532a57408105A1F1",
+    "deployerSource": "sourcify"
   },
   "0x2b86bfd41dd069ad2d839b606084c47f90177db0": {
     "verified": true,
     "name": "Dish",
-    "compiler": "0.8.26+commit.8a97fa7a"
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-07T07:14:43Z"
+    }
   },
   "0xbea3fbcc94ae6748d380af54e167db888db277ab": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x867340cfc92a771cd3cffcff056a84490cade7c0": {
     "verified": true,
     "name": "wWojakcoin",
-    "compiler": "v0.8.25+commit.b61c2a91"
+    "compiler": "v0.8.25+commit.b61c2a91",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-19T08:20:10Z"
+    },
+    "deployer": "0xC6bEE60Fe92bfBbB88d423F362090d74F07Ad506",
+    "deployerSource": "sourcify"
   },
   "0xe8556a4641c862aa3172f95d6b4eddd9ada8f8d4": {
     "verified": true,
     "name": "GR4YS_TRACKER",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-05-26T16:07:59Z"
+    },
+    "deployer": "0x5b5e4ddBf1f2278d8f8bf135c6bE1A4D81B97f5B",
+    "deployerSource": "sourcify"
   },
   "0x0357d61ede1cbcb38981b11117cfca1854ca28ad": {
     "verified": true,
     "name": "TransparentUpgradeableProxy",
-    "compiler": "v0.8.22+commit.4fc1097e"
+    "compiler": "v0.8.22+commit.4fc1097e",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-01T21:09:37Z"
+    },
+    "deployer": "0x84e37696845aC0B1d70F5a8a78106CADDB2C9153",
+    "deployerSource": "sourcify"
   },
   "0xe97daef87ad94652d8deefbf47475aa854774864": {
     "verified": true,
     "name": "LittlePoopies",
-    "compiler": "0.8.34+commit.80d5c536"
+    "compiler": "0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-10T19:26:08Z"
+    },
+    "deployer": "0x181E458645E9FAa3cD8fc1eBE2148785b256E688",
+    "deployerSource": "sourcify"
   },
   "0x5c201703e40491ad5c7163266fe3a9d6631ab416": {
     "verified": true,
     "name": "WrappedPNH",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": null
   },
   "0xdd1cc64e17bfef92c40178ca9772bffcccbe9211": {
     "verified": true,
     "name": "DogPlanetCore",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-04-13T13:26:36Z"
+    },
+    "deployer": "0x14d863e45ea26D6930fAF1E64882637564C40F01",
+    "deployerSource": "sourcify"
   },
   "0x2924bce11e3fca9c34fe508dedd59bf128a9f89f": {
     "verified": true,
     "name": "QENIS",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-27T03:45:08Z"
+    },
+    "deployer": "0xdc18E4dA31026Fd7fefE9fFB2C37e72c7093a228",
+    "deployerSource": "sourcify"
   },
   "0xffd7ab897caaa6114fe055d624832311346c2a02": {
     "verified": true,
     "name": "CASHCAT",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-13T17:39:25Z"
+    },
+    "deployer": "0x42a4134Ca588056940C39e053445E96E2d49f51F",
+    "deployerSource": "sourcify"
   },
   "0x7fce20582ad75d5734875e322f56e0e9ebc5898a": {
     "verified": true,
     "name": "MemeToken",
-    "compiler": "0.8.24+commit.e11b9ed9"
+    "compiler": "0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-05T19:02:03Z"
+    },
+    "deployer": "0xD7F38d94390400Dbd46d1daC0a0e884D257D3830",
+    "deployerSource": "sourcify"
   },
   "0x08092bbbf654107369eb374e58ac083a0bd5dfdf": {
     "verified": true,
     "name": "TweakCoin",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-15T02:09:26Z"
+    },
+    "deployer": "0x2683c7B10d870fc1A96E1b8C7fAf70Bf0c83f1f1",
+    "deployerSource": "sourcify"
   },
   "0x688623465a6d3d60958022d55c9fdc987640f0e3": {
     "verified": true,
     "name": "ERC20",
-    "compiler": "0.8.23+commit.f704f362"
+    "compiler": "0.8.23+commit.f704f362",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-05T15:41:32Z"
+    },
+    "deployer": "0xdef9F2B00A58969C7f0A35f9EFcbBCe9e7044AA3",
+    "deployerSource": "sourcify"
   },
   "0x5984ac8e7e63e695e18bd33577ccacad8bf118a6": {
     "verified": true,
     "name": "SRL",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-16T22:35:17Z"
+    },
+    "deployer": "0x8A28d238A658Fa2B15C510180eBd2362c0D59E40",
+    "deployerSource": "sourcify"
   },
   "0x8fab908211812cfa52d34bf0efe066bd9d01f732": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x986f8e548d553c970694196cc6b96ce3cab6c2a3": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xe3022688628beeed272b309a9c422442da16cf5e": {
     "verified": true,
     "name": "AtelieZCoin",
-    "compiler": "0.8.26+commit.8a97fa7a"
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-31T09:36:33Z"
+    },
+    "deployer": "0xaE62f92Bbccd462aFa38fA75Ba1cDE45D1c03902",
+    "deployerSource": "sourcify"
   },
   "0xf63552002690d2a75da21f312102d3e7497de285": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x338b0ddced75284f30545722aec7f36e9b0c731a": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xbc0e72be2342d73597ff5bee4141c0c2616eeef5": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xf53c642c336cd22be88b42acd59964cfe9fe8594": {
     "verified": true,
     "name": "Token",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-06-19T15:09:34Z"
+    },
+    "deployer": "0x20d8B5944475e426b3c323CF284610f37cb2f199",
+    "deployerSource": "sourcify"
   },
   "0x7f2d4a8d081772c79d850be78000146362d5237a": {
     "verified": true,
     "name": "MobshedPlatformToken",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": null
   },
   "0xde3c5dba11a2072f7914356474f60523d1957299": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-05-29T07:54:33Z"
+    },
+    "deployer": "0xB3E5e5E749187c40a2186E0A855827b5B40880A3",
+    "deployerSource": "sourcify"
   },
   "0xd79ef2b159080e93a65ee665917fbd83323fddd9": {
     "verified": true,
     "name": "Nova",
-    "compiler": "0.8.34+commit.80d5c536"
+    "compiler": "0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-13T02:20:08Z"
+    },
+    "deployer": "0x793C6818306efeC8A227E1231cb164731d1f51E2",
+    "deployerSource": "sourcify"
   },
   "0x87200dee45f528bc6e33046921e37567f4570467": {
-    "verified": false
+    "verified": false,
+    "sourcify": null
   },
   "0x681ae616c1fd24d2f7bda177c8ff7c4846600f31": {
     "verified": true,
     "name": "XYJToken",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-13T18:14:23Z"
+    },
+    "deployer": "0x3595559Eb6fB46a9cC3572bCB1246DD7beD5418c",
+    "deployerSource": "sourcify"
   },
   "0x7c38a6a64156a1dcc97cae3388de4dfca30d6a88": {
     "verified": true,
     "name": "BaseETH",
-    "compiler": "0.8.30+commit.73712a01"
+    "compiler": "0.8.30+commit.73712a01",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-04T06:44:02Z"
+    },
+    "deployer": "0x166583B07197F2dA20Ff4873DD8F844b4f8b6642",
+    "deployerSource": "sourcify"
   },
   "0xe832d1c26eac94b5fcc9bf32c84ab14412a26123": {
     "verified": true,
     "name": "ERC20TemplateProxy",
-    "compiler": "0.8.28+commit.7893614a"
+    "compiler": "0.8.28+commit.7893614a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-02T18:12:13Z"
+    }
   },
   "0x9a26f5433671751c3276a065f57e5a02d2817973": {
     "verified": true,
     "name": "KeyboardCat",
-    "compiler": "0.8.24+commit.e11b9ed9"
+    "compiler": "0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T12:41:57Z"
+    },
+    "deployer": "0x49937c707e374D58524b5e2df55F3fc85dd25aFe",
+    "deployerSource": "sourcify"
   },
   "0xb1a03eda10342529bbf8eb700a06c60441fef25d": {
     "verified": true,
     "name": "Erc20",
-    "compiler": "0.8.24+commit.e11b9ed9"
+    "compiler": "0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-11-25T03:43:28Z"
+    },
+    "deployer": "0xE6564e652E204261408d6Ec5dE8110eDff8D97aC",
+    "deployerSource": "sourcify"
   },
   "0x4ed4e862860bed51a9570b96d89af5e1b0efefed": {
     "verified": true,
     "name": "DegenToken",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T11:50:31Z"
+    },
+    "deployer": "0x3C12B77aE8B7DD1FEB63D1D6a2A819AcdA0a41d2",
+    "deployerSource": "sourcify"
   },
   "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf": {
     "verified": true,
     "name": "FiatTokenProxy",
-    "compiler": "0.6.12+commit.27d51765"
+    "compiler": "0.6.12+commit.27d51765",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-09-09T23:27:05Z"
+    },
+    "deployer": "0xCE97003ea2E0a565A9a0b6e36209c6ddaaa14B05",
+    "deployerSource": "sourcify"
   },
   "0x0578d8a44db98b23bf096a382e016e29a5ce0ffe": {
     "verified": true,
     "name": "Token",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T10:56:13Z"
+    },
+    "deployer": "0x55045DA52be49461aF91a235E4303D4a9B2312AE",
+    "deployerSource": "sourcify"
   },
   "0xf6e932ca12afa26665dc4dde7e27be02a7c02e50": {
     "verified": true,
     "name": "MOCHI",
-    "compiler": "0.8.22+commit.4fc1097e"
+    "compiler": "0.8.22+commit.4fc1097e",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-08T10:13:01Z"
+    },
+    "deployer": "0xc39C924C74588D34E7c6668413a34D96609Ef1C4",
+    "deployerSource": "sourcify"
   },
   "0x50c5725949a6f0c72e6c4a641f24049a917db0cb": {
     "verified": true,
     "name": "OptimismMintableERC20",
-    "compiler": "0.8.15+commit.e14f2714"
+    "compiler": "0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-08T17:43:17Z"
+    },
+    "deployer": "0xd1236a6A111879d9862f8374BA15344b6B233Fbd",
+    "deployerSource": "sourcify"
   },
   "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca": {
     "verified": true,
     "name": "Proxy",
-    "compiler": "v0.8.15+commit.e14f2714"
+    "compiler": "v0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-09T01:18:00Z"
+    },
+    "deployer": "0x3885226c26c467B342220132ec9d0b311b2DD43c",
+    "deployerSource": "sourcify"
   },
   "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22": {
     "verified": true,
     "name": "Proxy",
-    "compiler": "v0.8.15+commit.e14f2714"
+    "compiler": "v0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-08T15:52:33Z"
+    },
+    "deployer": "0x0cF966857325db9a9B4dada66e80cE581C18Aca1",
+    "deployerSource": "sourcify"
   },
   "0x94d2d1c2a3e56a946fcfb2ec510312ae58875665": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x199084f1390b58493096ff73ec74c68164ba8453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xc6cb72971c78e83022ff4fe668fa52d5d3175e6c": {
     "verified": true,
     "name": "BEST",
-    "compiler": "0.8.26+commit.8a97fa7a"
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-06-11T21:36:58Z"
+    },
+    "deployer": "0x13eb4b447d5A089b71738571615A35003E48B622",
+    "deployerSource": "sourcify"
   },
   "0x4409d3392019bae6b914a5d92fbff46fa2aca368": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.3.10+commit.91361694"
+    "compiler": "v0.3.10+commit.91361694",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-12T17:17:46Z"
+    },
+    "deployer": "0xDf4157610F596a2102b4cfB3efe6004A7e34319B",
+    "deployerSource": "sourcify"
   },
   "0x3329c0315f6a0c0787d94755de083ef625fa5b6b": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.3.10+commit.91361694"
+    "compiler": "v0.3.10+commit.91361694",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-28T11:33:24Z"
+    },
+    "deployer": "0xA9672270F064505b842C9c782fc8E05AFa36Cc68",
+    "deployerSource": "sourcify"
   },
   "0x76a7d5cb4a024aea67cd187cc296a66cd9c8d0dd": {
     "verified": true,
     "name": "ZestfulTARSIER",
-    "compiler": "v0.8.36+commit.8a079791"
+    "compiler": "v0.8.36+commit.8a079791",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-27T03:46:24Z"
+    },
+    "deployer": "0x51D07292a40C3599f89Cbcd7ADCB8F66A5EE1039",
+    "deployerSource": "sourcify"
   },
   "0x9b88500c69cea66c329abd1c494319b197fb8453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xe43df70a3a8067680aae799fa5171c3f473b46ed": {
     "verified": true,
     "name": "Novalon",
-    "compiler": "v0.8.27+commit.40a35a09"
+    "compiler": "v0.8.27+commit.40a35a09",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-30T00:54:26Z"
+    },
+    "deployer": "0x0c3154Aa5c1469FCD92a437d42475B3A467C070F",
+    "deployerSource": "sourcify"
   },
   "0x4887ba8cc476cb01b191e6c06e693ae1cd3a60b1": {
     "verified": true,
     "name": "SolannaToken",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-25T03:09:49Z"
+    },
+    "deployer": "0x47cB0B49a833DE86c74b646536c8ee6a4555B38b",
+    "deployerSource": "sourcify"
   },
   "0x08eb45c0a7ec0dd112026ecc0e10169efbbc8e7f": {
     "verified": true,
     "name": "OptimismMintableERC20",
-    "compiler": "v0.8.15+commit.e14f2714"
+    "compiler": "v0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-06T08:45:19Z"
+    },
+    "deployer": "0x558f2821C2536D5f14b165a6fC2f70e41a1187F4",
+    "deployerSource": "sourcify"
   },
   "0x60cbd52cf413b47a76998fa5c4c3148588f68453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x6658884a973f522833bf98b48ce6b23e4d4e8453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x242c0c5eec80d30b5ca6537b08f9cc73288ef4a7": {
     "verified": true,
     "name": "hoody4663",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x0a776c1c22b8b8e7eab346744daa33722b80fda4": {
     "verified": true,
     "name": "OptimismMintableERC20",
-    "compiler": "0.8.15+commit.e14f2714"
+    "compiler": "0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2025-12-31T02:53:18Z"
+    },
+    "deployer": "0x8687EF4ecEE34786F4e85c2DC442aAB19dBe8DdE",
+    "deployerSource": "sourcify"
   },
   "0x272ab9b55cc3c9308ef0af08f4c29f74a0c7180b": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0xb152f798b2bb54a6c51a76613127c78070e71bc6": {
     "verified": true,
     "name": "BlackHole",
-    "compiler": "v0.8.20+commit.a1b79de6"
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-01T19:51:00Z"
+    },
+    "deployer": "0x8EDb8d436A6D7A63eFd0657037043F558E3aE335",
+    "deployerSource": "sourcify"
   },
   "0x0d02b0a3df7f1fad99fcdbe94e8053d608cda649": {
     "verified": true,
     "name": "MPCcoin",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-06T04:01:52Z"
+    },
+    "deployer": "0xAFBc10994f6F7b9A13e64CF382f0B5d374e2EdF3",
+    "deployerSource": "sourcify"
   },
   "0xfc8c5291c488118be0218742156cc2952a737b81": {
     "verified": true,
     "name": "FidMarket",
-    "compiler": "0.8.26+commit.8a97fa7a"
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-19T00:46:50Z"
+    },
+    "deployer": "0x1e9F3C9e936c60d184a7947bb1798809487F97F5",
+    "deployerSource": "sourcify"
   },
   "0x1d4cea73e212829d06b9a774d2e06be9dee5aab0": {
     "verified": true,
     "name": "OptimismMintableERC20",
-    "compiler": "v0.8.15+commit.e14f2714"
+    "compiler": "v0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-05-22T22:21:53Z"
+    },
+    "deployer": "0x4B7a5e5a0119B011c5Ba112A84A3FB47C7c18802",
+    "deployerSource": "sourcify"
   },
   "0x77014b4470a08986a78d7fe4d0df43398ef8fbc5": {
     "verified": true,
     "name": "TimpalToken",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-30T07:38:14Z"
+    },
+    "deployer": "0x81568E13726dF10f0CAC7e4b12706D224d40e0Cf",
+    "deployerSource": "sourcify"
   },
   "0x1d531d84f3ce34616f145484e2002ef409a3917f": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x8c7568cc28ddac01ab6779daa4f6be66b1201dd0": {
     "verified": true,
     "name": "OneWorldChain",
-    "compiler": "0.8.17+commit.8df45f5f"
+    "compiler": "0.8.17+commit.8df45f5f",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-09T02:40:41Z"
+    },
+    "deployer": "0x9FC47A7d69D3914A1592783E752BbC0f7Cf9EBaE",
+    "deployerSource": "sourcify"
   },
   "0x10658717a059f0911bd6efa4c49da30d9afcca88": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0xe06e84bba8e3f3f50f32b90baa9cc40cdd8a8453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x077a8a984712a41c0ec7b90cfc3e3d600ecf28e0": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x7ca0100d60adcd859db0c4260a078e5d2ef558c7": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.35+commit.47b9dedd"
+    "compiler": "v0.8.35+commit.47b9dedd",
+    "sourcify": null
   },
   "0x93f8e67af68da54b6e15b352379e4f46b629ae04": {
     "verified": true,
     "name": "StandardToken",
-    "compiler": "0.8.4+commit.c7e474f2"
+    "compiler": "0.8.4+commit.c7e474f2",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2025-06-14T21:07:47Z"
+    },
+    "deployer": "0x13878D33522ee4b1e0CE4B77F92f79ce0E3ED315",
+    "deployerSource": "sourcify"
   },
   "0x4b572b3b7bdc25f895fc2763ab03c210db1c5e78": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xdfc9e32dd0542d12c08ed15fefadbae8071b48a5": {
     "verified": true,
     "name": "BridgeToken",
-    "compiler": "0.8.4+commit.c7e474f2"
+    "compiler": "0.8.4+commit.c7e474f2",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-06-21T14:11:54Z"
+    },
+    "deployer": "0x1A8Ab4B4EaC001185fAD1b6E31D8C0675B9BEcbF",
+    "deployerSource": "sourcify"
   },
   "0x2287857e281209079e88d3119d3586df970d4f7e": {
     "verified": true,
     "name": "StremeSuperToken",
-    "compiler": "0.8.26+commit.8a97fa7a"
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-30T19:54:00Z"
+    },
+    "deployer": "0x8FeF3E15a20F69889140C56C16229BB55E51DE2F",
+    "deployerSource": "sourcify"
   },
   "0xa50e26f8a1da5819667adcaf1595deb979181554": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.35+commit.47b9dedd"
+    "compiler": "v0.8.35+commit.47b9dedd",
+    "sourcify": null
   },
   "0x271b01cc11032a4e23f0200f8f57eb45176ab491": {
     "verified": true,
     "name": "StremeSuperToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-15T17:30:57Z"
+    },
+    "deployer": "0x8FeF3E15a20F69889140C56C16229BB55E51DE2F",
+    "deployerSource": "sourcify"
   },
   "0x1a8c9732977199562dc13f1c0e167d1e5c623217": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x0e07e2228fa5b61e217248281654872306dbd5ba": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0xa565f900777214bce3391755f3ff8da87608e1ef": {
     "verified": true,
     "name": "MakeMeRich",
-    "compiler": "0.8.24+commit.e11b9ed9"
+    "compiler": "0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-09T17:59:53Z"
+    },
+    "deployer": "0xeA9233BE61298f3bCd69edd9d32A4F08c31bEBEa",
+    "deployerSource": "sourcify"
   },
   "0x0f61edbfe6cd86024c0f210c0695b08df55fdfc9": {
     "verified": true,
     "name": "AdvancedLaunchToken",
-    "compiler": "0.8.28+commit.7893614a"
+    "compiler": "0.8.28+commit.7893614a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-17T02:38:43Z"
+    }
   },
   "0xae1d5b3490d92dbeea64bb6866d7b4224a63cfad": {
     "verified": true,
     "name": "UlsanCoin",
-    "compiler": "v0.8.20+commit.a1b79de6"
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-31T07:16:34Z"
+    },
+    "deployer": "0xF779b0588121B5daC868eEC820b2E2bFdE122A05",
+    "deployerSource": "sourcify"
   },
   "0x74c7293f500133590275359b7f597b309bba8453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x17155c58fe6c27a54fbd27edbcc9dc888a3372e0": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x260859325ef0c34ef17c6370e6feb9c08a0f1111": {
     "verified": true,
     "name": "LaunchToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x75691296fcec4f1e526febb54a1646f37c3c9db4": {
     "verified": true,
     "name": "ShootToken",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-18T21:19:54Z"
+    },
+    "deployer": "0x475992C9eCebA23AA6f949A5B320E7cf889769d3",
+    "deployerSource": "sourcify"
   },
   "0xf90554c68917cc7510104162c1c85b16b78a8453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xe7b03d62b2352ee26ab104695a81d306a2991111": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xa0659c8860396c696baffa819e3d318b8a9f675b": {
     "verified": true,
     "name": "Scrubbr",
-    "compiler": "0.8.34+commit.80d5c536"
+    "compiler": "0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-04T00:58:23Z"
+    },
+    "deployer": "0xB3622dA9D3396448D6e55F76d5e5C94A27830D5b",
+    "deployerSource": "sourcify"
   },
   "0x5cda0e1ca4ce2af96315f7f8963c85399c172204": {
     "verified": true,
     "name": "BeaconProxy",
-    "compiler": "0.8.25+commit.b61c2a91"
+    "compiler": "0.8.25+commit.b61c2a91",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-02-11T11:43:08Z"
+    },
+    "deployer": "0x691AcCd4C6Dc147e3Cf983bcbf3198896E794451",
+    "deployerSource": "sourcify"
   },
   "0x577484f0f0448b0ffdc9ddf5abe4ced848f788b5": {
     "verified": true,
     "name": "AtlasSignalToken",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-12T20:02:37Z"
+    },
+    "deployer": "0xa47A91b828B5E1006Ba3E4F9b048177D7539F9c6",
+    "deployerSource": "sourcify"
   },
   "0x1f6b9ce8ef0ee1bfe0018bf677db018fffc02624": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x266faa3c91c9c936e5e6490fb32fce61673f92ae": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x4f23d1c67ab2dc0358ca3c58491912b5e2df8453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x2b71749c6bd181e572bbbf1945a0bd4f3a4fcba7": {
     "verified": true,
     "name": "HANTToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x2543c8b3ea1f72c32c29830de04991812f67a5b8": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x1a9f84e6503a3d758c0727f0a6f801b9807e05c8": {
     "verified": true,
     "name": "HANTToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x205bf9f807f2a2a490314dacf19acd40a7b9efe1": {
     "verified": true,
     "name": "OmniToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x1b6b74bfdbb36f0f60351d1141edf41f7d81efff": {
-    "verified": false
+    "verified": false,
+    "sourcify": null
   },
   "0x30457a1ab7cd796d6e55e4e5ba12e09f2283e856": {
     "verified": true,
     "name": "TaxableERC20",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T11:27:37Z"
+    },
+    "deployer": "0x9a4d392EDea94FF73F0452aB482a0437EAe9Cad3",
+    "deployerSource": "sourcify"
   },
   "0x29cf480a98c9c44a5be6aaed145a307066b5cbef": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x2e9f109b057b64c7b9d8206c5263738343fc0a18": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x8d1e302f60622d69a647b70c2d95e17ad719acd5": {
     "verified": true,
     "name": "MOPPY",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-14T17:12:03Z"
+    },
+    "deployer": "0x680376e6f27Bb5ad782C2C68b51eb177b2e30f2F",
+    "deployerSource": "sourcify"
   },
   "0x1b30bce0c2f09f8d68d58ff1ec0d7c99db133f3b": {
     "verified": true,
     "name": "TeamToken",
-    "compiler": "0.6.12+commit.27d51765"
+    "compiler": "0.6.12+commit.27d51765",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-11-24T23:13:22Z"
+    },
+    "deployer": "0xA9934a98522918bdD27D76bc1e7d86871AbD16A8",
+    "deployerSource": "sourcify"
   },
   "0x08d316642b7018126ccc7d46530e3183dc971070": {
     "verified": true,
     "name": "FairLaunchERC20",
-    "compiler": "v0.8.28+commit.7893614a"
+    "compiler": "v0.8.28+commit.7893614a",
+    "sourcify": null
   },
   "0x16ab57c87860d48e18945f0a294dad418c132ada": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x11c54faeb8cfa86dad82c7f805f3789952e8b7eb": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x3b6f06bb8b4dc8426ea3b766479ad438bd56facc": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x0f8d46092d914c39131a48aeb5436a4c753cde65": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xe9b615bdb168f261e9e8daf500968d614cdd017d": {
     "verified": true,
     "name": "EndMatch",
-    "compiler": "v0.8.24+commit.e11b9ed9"
+    "compiler": "v0.8.24+commit.e11b9ed9",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-28T16:02:41Z"
+    },
+    "deployer": "0x8cb825342DefB29412f791F8BB20CE46F6431674",
+    "deployerSource": "sourcify"
   },
   "0x22c946de2c53cce60761334ac69e06f803f0d0f2": {
     "verified": true,
     "name": "GSRF",
-    "compiler": "v0.8.20+commit.a1b79de6"
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-05T01:43:09Z"
+    },
+    "deployer": "0x9941eBB7FD8c4e6612787078F80A74C251E0481E",
+    "deployerSource": "sourcify"
   },
   "0x3fefb455cf5e7c0a145035efaf3e06db86b7e678": {
     "verified": true,
     "name": "StremeSuperToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x8d6e13b6083c5a8c7e8d9874dc6761c45debc190": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x2e554a9a692fe4c10fab0cbb7a67c8c1070e4d55": {
     "verified": true,
     "name": "HANTToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x852e896161931bb9f785bf75365927e70f47b988": {
     "verified": true,
     "name": "OptimismMintableERC20",
-    "compiler": "0.8.15+commit.e14f2714"
+    "compiler": "0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-08-17T18:22:58Z"
+    },
+    "deployer": "0xf31d65433051C178F24BD1509EF8414D8503d8DA",
+    "deployerSource": "sourcify"
   },
   "0x7f7826f3c9d013b0cedc0536539bfc0bce9efd69": {
     "verified": true,
     "name": "CapIXProtocol",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-14T02:22:21Z"
+    },
+    "deployer": "0x9FE340f7eeD171F8624184B595fD2904f17F2a69",
+    "deployerSource": "sourcify"
   },
   "0x05cfb29e2df2b8bd9209d6fbf425e8a4c75fa4df": {
     "verified": true,
     "name": "FairLaunchERC20",
-    "compiler": "v0.8.28+commit.7893614a"
+    "compiler": "v0.8.28+commit.7893614a",
+    "sourcify": null
   },
   "0x332452924aa6b1491f8bbeb36276132938e18ecb": {
     "verified": true,
     "name": "hoody4663",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x067839cf58aa1e7ee99da6e4ff8269686388bd01": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x75bb363282efee82de7db6db91874a01ef5b4d99": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.35+commit.47b9dedd"
+    "compiler": "v0.8.35+commit.47b9dedd",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-04T23:21:17Z"
+    }
   },
   "0x2331ab2dd5b638ea0654a351fbc9a3798621708b": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x0cb42678ea285c2e630b3b4bece67b78c409371e": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x915ce8b817cb7f73961c26e4e8f8cad8f055b2e7": {
     "verified": true,
     "name": "Velprime",
-    "compiler": "v0.8.20+commit.a1b79de6"
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-12T05:45:48Z"
+    },
+    "deployer": "0xFc86dEF6142494386A31A315071465A0a518fC25",
+    "deployerSource": "sourcify"
   },
   "0x288cd3885871dcfbb50771edfe6a9418291962f5": {
     "verified": true,
     "name": "FairLaunchERC20",
-    "compiler": "v0.8.28+commit.7893614a"
+    "compiler": "v0.8.28+commit.7893614a",
+    "sourcify": null
   },
   "0x040feecececb79fdcc0c7aa2685391c4e09f9049": {
     "verified": true,
     "name": "LockedLaunchTokenV2",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-29T03:51:07Z"
+    },
+    "deployer": "0x8D47bA07Ff9ccCCF58c7E8810eE42c0Dc8B8b123",
+    "deployerSource": "sourcify"
   },
   "0x36c81d7e1966310f305ea637e761cf77f90852f0": {
     "verified": true,
     "name": "GBLIN_GlobalBalancedLiquidityIndex",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-06-21T20:18:59Z"
+    },
+    "deployer": "0x9FFa542E369C53af62380296092EC669f329a9ee",
+    "deployerSource": "sourcify"
   },
   "0x87605cccb17bc26111059ec9c4d5ec88fc0b5da6": {
     "verified": true,
     "name": "RootedToken",
-    "compiler": "v0.8.34+commit.80d5c536"
+    "compiler": "v0.8.34+commit.80d5c536",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-08-01T21:33:55Z"
+    },
+    "deployer": "0xEBD2a887e842CBF5736A0766Cd11Ef6Ebc381Eab",
+    "deployerSource": "sourcify"
   },
   "0xdd1b63d64e3971501ab34a3f378ded22629893cb": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0xac46d20d160d04ee76369e787ce5fa16d3bc8453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x41b057e98709d6da20b12e947a73a9f27f7ead7b": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x16afbf183d5b041352b2df720205a79810051111": {
     "verified": true,
     "name": "LaunchToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x151236a82f9386ed8d30ed0a7f3fcdea3b9eb372": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x0e07ad9dcb9506abe239ac9c23e44f212c56ecc8": {
     "verified": true,
     "name": "LossbackToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x47067c69c03a39b9d46f5a1a6003d80c412fbed5": {
     "verified": true,
     "name": "TipCryp",
-    "compiler": "0.8.35+commit.47b9dedd"
+    "compiler": "0.8.35+commit.47b9dedd",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-05-28T17:11:45Z"
+    },
+    "deployer": "0xdd6277c2268162518C187137f4c6F0b8aeb0A88F",
+    "deployerSource": "sourcify"
   },
   "0x7428eb1bf1cc91a93532029948c4813e9a15159c": {
     "verified": true,
     "name": "VPRUnion",
-    "compiler": "v0.8.20+commit.a1b79de6"
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2026-07-05T21:45:13Z"
+    },
+    "deployer": "0xFc86dEF6142494386A31A315071465A0a518fC25",
+    "deployerSource": "sourcify"
   },
   "0x8a39c790921323fae233783934039b4975298453": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x621e9069787ba60d30b2a4ac4bdfaca138b82063": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x0c7db32361af489a2822755bd98eafefcea2af78": {
     "verified": true,
     "name": "HANTToken",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x15c9e9151e89e24fd076d6cad0ccf860f3773d4d": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.26+commit.8a97fa7a"
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
   },
   "0x79334c3e64d85173bd875dc72843f2df7387cd16": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x465803b95bea8da23d287aebcc7aafe3f341340f": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x28b73a5c4efafb970a5c9adee3033e63de7d6bd2": {
-    "verified": true
+    "verified": true,
+    "sourcify": null
   },
   "0x5bbb4f8a466f58ec9603a7aed5bc4632cf032029": {
     "verified": true,
     "name": "ClankerToken",
-    "compiler": "0.8.28+commit.7893614a"
+    "compiler": "0.8.28+commit.7893614a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2025-10-28T19:56:49Z"
+    },
+    "deployer": "0x7eB7652A42608863A14044E218925c0e0C350220",
+    "deployerSource": "sourcify"
   },
   "0x8686939ace7cb4541379f8bc073b9de6d4d3c70f": {
     "verified": true,
     "name": "Token",
-    "compiler": "v0.8.20+commit.a1b79de6"
+    "compiler": "v0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-15T23:02:05Z"
+    },
+    "deployer": "0xf57d50b5b7390D4e9e45F059147FCE2048C653C3",
+    "deployerSource": "sourcify"
   },
   "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": {
     "verified": true,
     "name": "FiatTokenProxy",
-    "compiler": "0.6.12+commit.27d51765"
+    "compiler": "0.6.12+commit.27d51765",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T13:59:29Z"
+    },
+    "deployer": "0x6aAFF8af0ae8017725312C388bA3745dfE91185B",
+    "deployerSource": "sourcify"
   },
   "0x532f27101965dd16442e59d40670faf5ebb142e4": {
     "verified": true,
     "name": "BrettToken",
-    "compiler": "v0.8.17+commit.8df45f5f"
+    "compiler": "v0.8.17+commit.8df45f5f",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-08T10:12:48Z"
+    },
+    "deployer": "0x46F64BeC31Eaf281176f9bb5899107A80e932B45",
+    "deployerSource": "sourcify"
   },
   "0xac1bd2486aaf3b5c0fc3fd868558b082a531b2b4": {
     "verified": true,
     "name": "ToshiToken",
-    "compiler": "0.8.17+commit.8df45f5f"
+    "compiler": "0.8.17+commit.8df45f5f",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-08T10:06:01Z"
+    },
+    "deployer": "0xbD11CeD0A5021CD7262c64576a79d5Dc3Bb5856C",
+    "deployerSource": "sourcify"
   },
   "0x940181a94a35a4569e4529a3cdfb74e38fd98631": {
     "verified": true,
     "name": "Aero",
-    "compiler": "0.8.19+commit.7dd6d404"
+    "compiler": "0.8.19+commit.7dd6d404",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-08T10:12:35Z"
+    },
+    "deployer": "0xe83f922C34A1962e9aE9F52B59e18239764f2818",
+    "deployerSource": "sourcify"
   },
   "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b": {
     "verified": true,
     "name": "OptimismMintableERC20",
-    "compiler": "0.8.20+commit.a1b79de6"
+    "compiler": "0.8.20+commit.a1b79de6",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T11:02:35Z"
+    },
+    "deployer": "0x97cF38bB06Da57b6418083998b09976eC40A90a3",
+    "deployerSource": "sourcify"
   }
 };
 
@@ -893,6 +1570,9 @@ export const VERIFICATION_STATS = {
   failing: 59,
   failingVerified: 58,
 } as const;
+
+/** Sourcify's independent count over the same addresses, and how many deployers are on record. */
+export const SOURCIFY_STATS = {"exact":61,"partial":37,"none":96,"deployerKnown":92} as const;
 
 /**
  * What is known about one address, or undefined if it was never checked.

@@ -168,3 +168,27 @@ test.describe("browsing where inference and execution part ways", () => {
     await expect(page.locator("ul li", { hasText: "Anastasia" })).toHaveAttribute("data-scanner-disagrees", "");
   });
 });
+
+test.describe("a second verifier, independently", () => {
+  test("the JSON carries Sourcify's answer and the deployer beside Blockscout's", async ({ request }) => {
+    const { corroboration } = await (await request.get(`/api/token/${HONEYPOT}`)).json();
+    // Anastasia is verified on both: Blockscout says yes, Sourcify holds a match.
+    expect(corroboration.sourceVerified).toBe(true);
+    expect(corroboration.sourcify).toBeTruthy();
+    expect(["exact", "partial"]).toContain(corroboration.sourcify.match);
+    expect(corroboration.sourcify.verifiedAt).toMatch(/^\d{4}-\d{2}-\d{2}/);
+    expect(corroboration.deployer).toMatch(/^0x[0-9a-fA-F]{40}$/);
+    expect(["sourcify", "blockscout"]).toContain(corroboration.deployerSource);
+  });
+
+  test("the run page names the second witness and the deployer as facts, outside the verdict", async ({ page }) => {
+    await page.goto(`/run?token=${HONEYPOT}`);
+    await expect(page.getByText(/Sourcify holds (an exact|a partial) match, verified \d{4}-\d{2}-\d{2}/)).toBeVisible({ timeout: 30_000 });
+    const deployer = page.locator("[data-deployer]");
+    await expect(deployer).toBeVisible();
+    await expect(deployer).toHaveAttribute("href", /basescan\.org\/address\/0x[0-9a-fA-F]{40}/);
+    // Still corroboration: it sits under the context heading, not in the strip.
+    const strip = page.locator("[data-overall-verdict]");
+    await expect(strip).not.toContainText(/Sourcify|Deployed by/);
+  });
+});
