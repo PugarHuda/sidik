@@ -8,7 +8,8 @@ the catalogue, re-count before reusing this:
 pnpm --filter @sidik/engine counts
 ```
 
-Deadline: **2026-09-02 23:59 UTC**.
+Last recounted: **2026-08-31**, against catalogue commit `bb4b632` as deployed
+at `9ccd873`. Deadline: **2026-09-02 23:59 UTC**.
 
 ---
 
@@ -18,72 +19,135 @@ Deadline: **2026-09-02 23:59 UTC**.
 > transfers it and tries to rug it — on a forked Base mainnet — and shows you
 > what actually happened.
 
+## Why an exchange or a launchpad should care
+
+Four of the six partner judges run listing venues — HuoStarter, Up10, WEEX,
+BingX. Listing a token that cannot be sold is their downside, not a
+hypothetical, and the standard pre-listing checks are exactly the ones this
+project measured and found wanting:
+
+- **"Is the contract verified?"** 191 of 194 addresses are. So are 58 of the
+  59 with a finding against them. It separates almost nothing.
+- **"What does the scanner say?"** GoPlus and honeypot.is were run over the
+  same catalogue and the answers published in both directions. On buy tax they
+  are excellent — GoPlus matched the executed figure on **164 of 164**. On
+  who can still stop a holder from leaving, GoPlus agreed with the fork on
+  **9 of 38**.
+- **"Does it trade?"** Sidik corroborates pool pricing against **BingX and
+  Gate** — one of those venues is on the judging panel — and treats the
+  agreement as context, never as a verdict.
+
+Sidik is the pre-listing check that answers by executing the trade rather than
+by reading the contract.
+
 ## The one number to lead with
 
-> **191 of the 194 addresses Sidik probed publish verified source code — and
-> so do 46 of the 47 it caught.** Every honeypot. Every hidden fee. Every
-> ruggable pool. Every owner trap. "Check that the contract is verified" is
-> the advice everyone gives, and on Base it separates almost nothing.
+> **191 of the 194 addresses Sidik probed publish verified source code — and so
+> do 58 of the 59 it caught.** Every honeypot. Every hidden fee. Every ruggable
+> pool. Every owner trap. "Check that the contract is verified" is the advice
+> everyone gives, and on Base it separates almost nothing.
 
-That is measured, per address, from Blockscout's public API and recorded in
-`shared/src/verification.ts`. It is the answer to the only real objection to
-this project — *could I not have just read the contract?* — and it is why
-executing beats reading.
+Measured per address from Blockscout's public API and recorded in
+`shared/src/verification.ts`. **Sourcify was then asked the same question
+independently**: 61 exact matches (metadata hash included), 37 partial, 96 it
+holds nothing for. Two verifiers, same conclusion — publishing your source is
+not evidence of anything.
+
+Per probe, of the tokens that failed it: honeypots 7/7 verified, hidden fees
+18/18, LP rugs 29/29, owner traps 24/24.
+
+## The second number, and the one people argue with
+
+> **24 tokens have a privileged address that can still stop a holder from
+> leaving. 8 of them pass every other probe Sidik has.**
+
+Those eight are XYJ, DEGEN, cbBTC, USDbC, cbETH, E3D, PP and **USDC**. They
+buy, sell, transfer and price exactly like a clean token. Then the owner-switch
+probe impersonates the privileged address, pulls the switch, and makes the
+identical sell again — and it fails.
+
+**16 of the 24 are proxy admins replacing the implementation**, which is why
+USDC, cbBTC, cbETH and USDbC are among them. State this plainly and it is the
+most interesting result in the project; state it carelessly and it reads as an
+accusation against Circle and Coinbase. It is neither a prediction nor a
+discovery of wrongdoing: it is proof that the upgrade path is real and
+reachable, executed rather than inferred. The run page says so directly, under
+the verdict:
+
+> Sidik pulled that switch itself, on a fork. It proves the privileged address
+> **can** do this — not that it has, and not that it will. Nothing here
+> happened on Base, and a contract having an admin is a design decision, not an
+> accusation.
+
+The other eight owner traps are not blue chips: wPNH's owner minted 21,563,882
+tokens and sold them into the same pool, and the identical exit then paid
+**0.77%** of what it had. PP's paid **0.47%**. E3D's paid **0%**.
 
 ## Measured against the scanners judges already know
 
 The catalogue was run through GoPlus (the check most wallets embed) and
 honeypot.is (which simulates its own buy and sell), and the answers recorded
-beside the executed verdicts — both directions of disagreement, dated,
-never touching a verdict.
+beside the executed verdicts — both directions of disagreement, dated, never
+touching a verdict. 193 addresses carry a scanner reading.
 
-- **GoPlus cleared Anastasia and ROOTED.** Both cannot be sold on a fork.
-- **GoPlus did not flag DEGEN or XYJ as pausable, or PP as mintable.** On
-  the fork, DEGEN's and XYJ's owners' `pause()` stopped the identical sell,
-  and PP's owner minted ten billion tokens and sold them into the pool.
-  GoPlus flags whether the code exists; Sidik reports what pulling it did —
-  and it also cleared eight tokens GoPlus flags whose switches are dead
-  because ownership was renounced, BRETT among them.
-- **Where the scanners are strong, say so.** On buy tax GoPlus matched the
-  executed figure on 146 of 146 addresses. The comparison is published in
-  both directions, and the catalogue has a filter for the rows where a
-  scanner and the fork disagree.
-- Against honeypot.is, 171 of 177 agree, and every disagreement is the
-  scanner flagging a token the fork sold at block 50,200,000. Scanners
-  describe today; verdicts describe the pin — so Sidik forked **today's
-  head** (8.1 days later) and sold again: COBIE, KEYCAT, NVO and CASHCAT
-  all still sold. Those flags were wrong on the day, not stale. COBIE is the token
-  whose owner Sidik proved *could* stop the sell; they had not.
+| Question | Agreement | Sidik-only | Scanner-only |
+|---|---|---|---|
+| Buy tax (GoPlus) | **164 / 164** | 0 | 0 |
+| Buy tax (honeypot.is) | 175 / 177 | 2 — 7SiN 2.99%, ROOTED 6.99% | 0 |
+| Honeypot (honeypot.is) | 173 / 179 | 0 | 6 |
+| Honeypot (GoPlus) | 125 / 131 | 3 — Anastasia, TZ, ROOTED | 3 |
+| Owner can trap (GoPlus) | **9 / 38** | **20** | 9 |
+
+Read that table honestly and it says two things at once. **Where the scanners
+are strong, they are excellent** — buy tax is a solved problem and GoPlus
+solved it. **Where the question is "what could a privileged address still
+do?", inference and execution part company almost entirely.** The 20
+Sidik-only owner traps include every one of the proxies.
+
+Scanners describe today; verdicts describe the pinned block. So the disputed
+addresses were re-forked at the head of the day and sold again — that is the
+only thing that separates "the token changed" from "the scanner is wrong". The
+catalogue has a filter for every row where a scanner and the fork disagree.
 
 ## Why this is not another risk scanner
 
-The field's other entrants analyse: bytecode, holder distribution, contract
-metadata, an LLM's opinion of verifiable on-chain facts. All of that is
-inference, and inference is exactly what a token author optimises against.
+Several strong entries in this field also refuse to take a model's word for
+things, and they deserve the credit: Fork replays a Moonwell governance change
+on a real Base fork, Delivered pays for x402 endpoints and checks what actually
+arrived, Drift-d publishes that its own signal performs worse than chance.
+"Receipts, not opinions" is no longer a differentiator by itself.
 
-Sidik executes. Every verdict on the site is backed by a transaction that was
-mined — 1,075 of them across 194 addresses — on an ephemeral anvil fork of Base
-pinned at block 50,200,000. A honeypot is not "flagged as suspicious"; the
-sell reverted, and the revert string is printed next to the claim.
+What separates Sidik is how many times it has been made to hold:
 
-That distinction should lead every field you fill in.
+- **194 addresses**, not one protocol or one proposal.
+- **1,692 fork transactions** mined across six probes.
+- The whole catalogue **re-recorded end to end** after the owner-switch probe
+  was added, rather than patched.
+- Every disagreement with two independent scanners **published in both
+  directions**, including the ones where the scanner wins.
+- A **reproduce** command that re-forks Base at the same block with your own
+  RPC and diffs the result against what is published. It runs in CI on every
+  push.
+- Provenance on every JSON body: recording date, engine commit, and a sha256
+  of the catalogue you can recompute from a checkout.
+
+The entries that infer — scoring tokens by holder distribution, tax mechanics,
+rug surface, proxy slots — are doing the thing this project measured. The
+191/194 number is the reply.
 
 ## What it found (counted, not estimated)
 
-- **194 Base addresses** probed end to end, **1,075 fork transactions** mined
-- **47 fail at least one probe**: 25 LP rugs, 15 hidden fees, **7 owner
-  traps**, 4 honeypots, 1 drainable wallet
-- **4 of those 7 owner traps pass every other probe** — COBIE, XYJ, DEGEN and
-  PP buy, sell, transfer and price exactly like a clean token, and their
-  owners can still stop the exit. Two of the seven are dilution rather than a
-  block: wPNH's owner minted 21,563,882 tokens and sold them into the same
-  pool, and the identical exit then paid **0.77%** of what it had; PP's paid
-  **0.47%**.
+- **194 Base addresses** probed end to end, **1,692 fork transactions** mined
+- **59 fail at least one probe**, 16 pass everything that applied, 119 come
+  back N/A
+- The findings: **29 LP rugs, 24 owner traps, 18 hidden fees, 7 honeypots,
+  1 drainable wallet** (a token can fail more than one)
 - 104 trade on Uniswap V3, 87 on V2
-- **9 tickers are claimed by more than one contract** — five separate
-  contracts on Base call themselves BRIAN — and their verdicts differ. One
-  PEPETO comes back NA and another FAIL; one MOCHI fails on V2 while its
-  namesake passes on V3. Picking a token by its ticker can pick the wrong one.
+- The owner-switch probe applied to 49 addresses: 24 failed, 14 passed, 11
+  could not be answered; on 142 it did not apply at all
+- **6 tickers are claimed by more than one contract** — four separate contracts
+  on Base call themselves BRIAN, three call themselves CRASH — and their
+  verdicts differ. Picking a token by its ticker can pick the wrong one.
 
 ## What it refuses to do
 
@@ -99,56 +163,72 @@ Worth saying out loud, because it is the hard part:
   deterministic template — that check exists because one narration did exactly
   that.
 - An address with no recorded run gets an error, not a clean bill of health.
-  "Not probed" and "nothing found wrong" are different sentences.
+  "Not probed" and "nothing found wrong" are different sentences. The MCP tools
+  repeat that sentence in their own descriptions, because a model reading a
+  tool description is the reader most likely to skip the docs.
 - The left-hand column is labelled "What a buyer assumes", not "Claimed".
   Sidik never reads a project's site or docs, so it has no claim to quote.
 - A probe that finds no mechanism to test says so, with the number it searched
-  for, and is marked as not applying rather than counted as a failure to
-  answer. A bytecode scan cannot prove there is no privileged code under a
-  name nobody has seen.
-- Where it cannot establish *who* is allowed to pull a switch — a token with
-  no `owner()` at all — it returns N/A, not PASS. All it proved there is that
-  a stranger could not, and a PASS would be a verdict with no evidence.
+  for, and is marked as not applying rather than counted as a failure.
+- Where it cannot establish *who* is allowed to pull a switch — a token with no
+  `owner()` at all — it returns N/A, not PASS. All it proved there is that a
+  stranger could not, and a PASS would be a verdict with no evidence.
 - A reverted sell is not the end of the honeypot question. The probe retries a
-  tenth of the position — a max-tx cap is not a trap, and a holder who can
-  leave in pieces is told so — and measures whether the token skims plain
-  transfers. Two of the four "honeypots" turned out to be that: 7SiN and
-  ROOTED take 2.99% and 6.99% off every transfer, and Uniswap V3 rejects a
-  swap whose input arrives short. The holder still cannot sell, so the
-  verdict stays FAIL, but the title now names the mechanism instead of
-  implying a deliberate trap the run never established.
-- A stranger's call that does not revert is not treated as proof the switch is
-  open. One token let anyone call `blacklist(address)` without reverting and
-  the sell still worked: the call did nothing. The claim only stands if the
-  exit then broke or supply moved.
+  tenth of the position, waits out a cooldown, and measures whether the token
+  skims plain transfers. 7SiN and ROOTED take 2.99% and 6.99% off every
+  transfer, and Uniswap V3 rejects a swap whose input arrives short — the
+  holder still cannot sell, so the verdict stays FAIL, but the title names the
+  mechanism instead of implying a trap the run never established.
+- A stranger's call that does not revert is not proof the switch is open. One
+  token let anyone call `blacklist(address)` without reverting and the sell
+  still worked: the call did nothing.
 
 ## Reproducibility, stated as a number
 
-The catalogue was re-recorded end to end after the owner-switch probe was
-added. Comparing every verdict against the ones it replaced, at the same
-pinned block: **586 verdicts compared, 2 changed status** — both of them the
-deliberate cross-venue addition (DEGEN and VIRTUAL went NA to PASS because
-BingX had no price in that hour and Gate does). Nine more changed only their
-wording, every one of them an edit that was made on purpose.
+`pnpm --filter @sidik/engine reproduce <address>` re-forks Base at the same
+block with your own archive RPC, re-executes the probes, and diffs the result
+against what is published for that address. `--sample N` does it for a spread
+of the catalogue. It runs in CI on every push.
 
-`pnpm --filter @sidik/engine reproduce --sample 5` re-runs a spread of the
-catalogue against a fresh fork and diffs it: **20 verdicts reproduced, 0
-differed**. It runs in CI on every push, and anyone with a Base archive RPC
-can run it against any address in the catalogue.
+Run fresh on **2026-08-30**, against the deployed catalogue:
+
+```
+pnpm --filter @sidik/engine reproduce --sample 3
+→ 12 verdict(s) reproduced, 0 differed.
+```
+
+Three addresses drawn across the catalogue (Anastasia, TWEAK, HODL) — including
+the honeypot whose sell reverts — every probe
+re-executed on a new fork at block 50,200,000, every verdict identical to the
+published one. Anyone with a Base archive RPC can run the same command against
+any address in the catalogue and get the same answer.
+
+The catalogue was re-recorded end to end after the owner-switch probe was
+added — 194 addresses, every verdict regenerated rather than patched — so the
+published catalogue and the current probe set are the same generation of code.
 
 ## Honest limits
 
 State these; the field rewards it.
 
-- The public site **replays recorded runs**. No free host would run the engine
-  (anvil forking needs real compute), so the runs were executed here and
-  frozen. They are genuine output, not mock data, and the code that produced
-  them is in the repo.
-- Probes trade through Uniswap V2 and V3 only. A token whose liquidity lives
-  on Aerodrome comes back NA — with the reason attached.
+- The public site **replays recorded runs**. Forking Base needs an archive RPC
+  and real compute, and no free tier runs it — Fly wants a card, Hugging Face
+  wants PRO. The runs were executed here and frozen. They are genuine output,
+  not mock data, and the code that produced them is in the repo. **There is no
+  hosted engine, and the site says so rather than naming a URL that does not
+  answer.**
+- **119 of 194 addresses come back N/A**, and the single largest cause is LP
+  rug on Uniswap V3: the probe looks for a position in a 9,000-block window and
+  91 V3 tokens have none there. That is honest — it did not find a position, so
+  it does not claim one — but it is the biggest usability cost in the project
+  and the next engine win.
+- Probes trade through Uniswap V2 and V3 only. A token whose liquidity lives on
+  Aerodrome comes back N/A, with the reason attached.
 - Three Base contracts (CLANKER, ELENA, WIFHAIR) hold a single byte of code,
-  `0xef`, which is not a valid EVM opcode. Public nodes answer for them
-  anyway; a fork cannot. Those are reported as unprobeable, not as safe.
+  `0xef`, which is not a valid EVM opcode. Public nodes answer for them anyway;
+  a fork cannot. Reported as unprobeable, not as safe.
+- The scanner readings describe the day they were taken, not the pinned fork
+  block. That is why disputed addresses are re-forked at the head of day.
 
 ## Links to paste
 
@@ -158,6 +238,7 @@ State these; the field rewards it.
 | GitHub | https://github.com/PugarHuda/sidik |
 | Catalogue (deep link worth showing a judge) | https://sidik-eight.vercel.app/catalogue?filter=ownerTrap |
 | The single best run to open first | https://sidik-eight.vercel.app/run?token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed |
+| The one that will start an argument | https://sidik-eight.vercel.app/run?token=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 |
 | Machine-readable proof | https://sidik-eight.vercel.app/api/token/0x48F617e5b1B214a90800348D7944bBc0E9290Fbb |
 | The whole catalogue as data | https://sidik-eight.vercel.app/api/catalogue |
 | What the data means, for an agent | https://sidik-eight.vercel.app/llms.txt |
@@ -166,42 +247,103 @@ State these; the field rewards it.
 
 ## Still yours to do
 
-Nothing in this list can be done from here.
+Nothing in this list can be done from the repository.
 
-1. **X profile** — required field.
+1. **X profile** — required field, no entry without it.
 2. **Discord or Telegram handle** — one of the two is required.
 3. **Submit from the registered wallet** (already registered as Pugar Huda
-   Mantoro; registration was signature-only and is done) and pay the
-   **~$10 ETH ignition fee on Base**. It is a platform fee, not a stake, and
-   it is not refundable.
+   Mantoro; registration was signature-only and is done) and pay the **~$10 ETH
+   ignition fee on Base**. Platform fee, not a stake, not refundable.
 4. **Rotate `VENICE_API_KEY`.** It was pasted into a chat transcript. It has
    never been committed — verified against the full git history — but a
-   transcript is a leak. Replace it in `engine/.env` and in any host config.
+   transcript is a leak. Replace it in `engine/.env` and any host config.
+5. **Submit early rather than polished.** Upvotes inform the judges and the
+   leaders are already in the teens; an entry that lands three days late starts
+   at zero regardless of how good it is.
 
 ## A judge's two-minute path
 
-Give them this, in order:
+Give them this, in order. Add `&instant=1` to any run link to skip the paced
+replay.
 
 1. https://sidik-eight.vercel.app/run?token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed
    — **DEGEN**, and the best two minutes this project has. A top-tier Base
-   token that passes every trade test Sidik has: the buy lands, the sell
-   lands, no hidden fee, the pool prices it like the wider market. Then the
-   owner-switch probe impersonates its owner, calls `pause()`, and makes the
-   identical sell again — and it reverts. 0.9801 WETH before, a revert after.
-   Nothing about that says the owner will do it. It says the holder's exit is
-   the owner's to decide, and no amount of reading the source establishes
-   which way that goes.
-2. https://sidik-eight.vercel.app/run?token=0x48F617e5b1B214a90800348D7944bBc0E9290Fbb
+   token that passes every trade test: the buy lands, the sell lands, no hidden
+   fee, the pool prices it like the wider market. Then the owner-switch probe
+   impersonates its owner, calls `pause()`, and makes the identical sell again —
+   and it reverts. 0.9801 WETH before, a revert after. Nothing about that says
+   the owner will do it. It says the holder's exit is the owner's to decide.
+2. https://sidik-eight.vercel.app/run?token=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+   — **USDC**, if they have appetite for it. Same probe, same result, and the
+   page is careful to say that a proxy admin existing is a design, not a
+   scandal. This is the one that makes people argue, which is why it is second
+   and not first.
+3. https://sidik-eight.vercel.app/run?token=0x48F617e5b1B214a90800348D7944bBc0E9290Fbb
    — Anastasia. The buy lands, the sell reverts with
-   `TransferHelper: TRANSFER_FROM_FAILED`, and that string is the evidence.
-   Its source code is published and verified, like 46 of the 47 Sidik caught.
-3. https://sidik-eight.vercel.app/catalogue?filter=ownerTrap — every token
-   whose owner can still trap a holder, then `?filter=honeypot` for the ones
-   that already do.
-4. `curl https://sidik-eight.vercel.app/api/token/<address>` — the same
-   verdict as JSON, carrying `forkBlock` and `transactionsWereBroadcast: false`.
-   `/api/catalogue` for the whole list, `/llms.txt` for what it all means.
-5. And if they doubt any of it:
+   `TransferHelper: TRANSFER_FROM_FAILED`, and that string is the evidence. Its
+   source is published and verified, like 58 of the 59 Sidik caught.
+4. https://sidik-eight.vercel.app/catalogue?filter=ownerTrap — every token whose
+   owner can still trap a holder, then `?filter=scannerDisagrees` for the rows
+   where a scanner and the fork part ways.
+5. `curl https://sidik-eight.vercel.app/api/token/<address>` — the same verdict
+   as JSON, carrying `forkBlock` and `transactionsWereBroadcast: false`.
+   `/api/catalogue` for the list, `/llms.txt` for what it all means.
+6. And if they doubt any of it:
    `pnpm --filter @sidik/engine reproduce 0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed`
    forks Base at the same block with their own RPC and tells them whether the
-   published verdict comes back. It runs in CI on every push, too.
+   published verdict comes back.
+
+---
+
+## Ready-to-paste submission description
+
+Paste this into the entry description field. It is written for the AI vetting
+pass as much as for a human: concrete, counted, and explicit about its limits.
+
+> Sidik proves what a Base ERC-20 does to a buyer by doing it, rather than
+> inferring risk from bytecode. Given an address, it forks Base mainnet at a
+> pinned block with anvil and executes six probes as real transactions: it buys
+> and sells (honeypot), measures buy, sell and transfer separately and again a
+> day later in fork time (hidden fee), grants an allowance and drains it
+> (approval drain), classifies the LP holder and impersonates it to pull the
+> pool (LP rug), compares pool pricing against BingX and Gate (cross-venue),
+> and impersonates the privileged address to pull every ownership switch it can
+> find, then makes the identical sell again (owner trap). Every verdict is
+> decided by deterministic code reading the result of a mined transaction. The
+> model orders the probes and writes the prose; a numeric guard rejects any
+> figure that does not appear verbatim in the run data, so it cannot invent a
+> verdict, a hash or a number.
+>
+> The catalogue is 194 Base addresses and 1,692 fork transactions. 59 fail at
+> least one probe: 29 LP rugs, 24 owner traps, 18 hidden fees, 7 honeypots, 1
+> drainable wallet. 16 pass everything that applied; 119 return N/A, and the
+> largest single cause is LP-rug on Uniswap V3 finding no position in its
+> search window — reported as "not answered", never as "safe".
+>
+> The finding the project exists for: 191 of the 194 addresses publish verified
+> source code, and so do 58 of the 59 with a finding against them. Sourcify,
+> asked independently, holds 61 exact and 37 partial matches. "Check that the
+> contract is verified" separates almost nothing on Base. The catalogue was
+> also run through GoPlus and honeypot.is, with every disagreement published in
+> both directions: on buy tax GoPlus matched the executed figure on 164 of 164
+> addresses, and on whether a privileged address can still stop a holder from
+> leaving it agreed on 9 of 38. 24 tokens have such an address, and 8 of them —
+> including USDC, cbBTC and cbETH — pass every other probe. 16 of the 24 are
+> proxy admins replacing the implementation. That is a proof of capability, not
+> an accusation or a prediction, and the interface says so on the page.
+>
+> What it refuses to do is as deliberate as what it does. Fork transactions are
+> never linked to a block explorer, because they were never broadcast. An
+> address with no recorded run returns an error, never a clean bill of health.
+> A probe with no mechanism to test returns N/A rather than PASS. The public
+> site replays recorded runs, because forking Base needs an archive RPC and
+> real compute that no free tier provides — the runs are genuine output of the
+> engine in this repository, frozen, and `pnpm --filter @sidik/engine reproduce
+> <address>` re-forks Base at the same block with your own RPC and diffs the
+> result against what is published. It runs in CI on every push.
+>
+> Every surface is machine-readable: JSON per address and for the catalogue,
+> an OpenAPI 3.1 schema, an llms.txt, provenance on every body (recording date,
+> engine commit, sha256 of the catalogue), and an MCP server over Streamable
+> HTTP exposing sidik_token, sidik_catalogue and sidik_run, so an agent asked
+> "is this token safe?" can call a fork execution instead of a scanner.
