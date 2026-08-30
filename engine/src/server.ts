@@ -10,6 +10,7 @@ import { cacheSize, getCached } from "./cache.js";
 import { BASE_FORK_BLOCK } from "./forkBlock.js";
 import { log } from "./log.js";
 import { forkProxyStats } from "./forkProxy.js";
+import { mcpGet, mcpPost } from "./mcp.js";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
 
@@ -54,6 +55,12 @@ export function createApp(runner: Runner = runSidik) {
     if (!run) return c.json({ error: "no finished run for this address at this fork block" }, 404);
     return c.json(run);
   });
+
+  // Sidik as a tool: Model Context Protocol over Streamable HTTP, so an agent
+  // (Claude Code: `claude mcp add --transport http sidik <engine>/mcp`) calls
+  // a fork execution instead of a scanner. See mcp.ts.
+  app.post("/mcp", mcpPost);
+  app.get("/mcp", mcpGet);
 
   app.get("/run", (c) => {
     const token = c.req.query("token");

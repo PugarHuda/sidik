@@ -431,6 +431,7 @@ also available as data:
 | `GET /api/run?token=<address>` | The same run as a Server-Sent Event stream, in the order the probes produced it. |
 | `GET /llms.txt` | What the data means, and the two things a consumer will otherwise get wrong. |
 | `GET /openapi.json` | OpenAPI 3.1 for the JSON endpoints, Verdict schema included. Every JSON body carries `schemaVersion`, `chainId` and `provenance` (recording date, engine commit, catalogue sha256, site commit). CORS-open. |
+| `POST <engine>/mcp` | The engine as a [Model Context Protocol](https://modelcontextprotocol.io) server over Streamable HTTP — `claude mcp add --transport http sidik http://<engine>/mcp`. Tools: `sidik_token` (executed verdicts for an address), `sidik_catalogue` (paged, filtered), `sidik_run` (execute the probes now on a fresh fork). No SDK: the protocol Sidik speaks is `engine/src/mcp.ts`, tested end to end through Hono. |
 | `GET /api/og?token=<address>` | The 1200x630 card a shared link unfurls into, carrying that token's verdict. |
 
 Corroboration always travels in its own `corroboration` field, never inside a

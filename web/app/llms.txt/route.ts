@@ -64,6 +64,9 @@ Recorded addresses: ${FIXTURE_COUNT}
   narration. 404 when the address has no recorded run.
 - ${SITE}/api/run?token=<address> — the same run as a Server-Sent Event
   stream, in the order the probes produced it.
+- POST <engine>/mcp — the engine as a Model Context Protocol server
+  (Streamable HTTP): tools sidik_token, sidik_catalogue, sidik_run. The
+  public site serves recorded runs; a live engine is where sidik_run works.
 - ${SITE}/openapi.json — OpenAPI 3.1 for the two JSON endpoints, with the
   Verdict schema. Every JSON body carries schemaVersion, chainId (8453) and a
   provenance object: the recording date, engine commit, and a sha256 of the

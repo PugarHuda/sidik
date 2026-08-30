@@ -17,3 +17,6 @@ web/playwright-report
 .github/agents/
 .github/hooks/
 /.impeccable/
+
+.vercel
+.env*
