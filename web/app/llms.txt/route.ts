@@ -64,9 +64,13 @@ Recorded addresses: ${FIXTURE_COUNT}
   narration. 404 when the address has no recorded run.
 - ${SITE}/api/run?token=<address> — the same run as a Server-Sent Event
   stream, in the order the probes produced it.
-- POST <engine>/mcp — the engine as a Model Context Protocol server
-  (Streamable HTTP): tools sidik_token, sidik_catalogue, sidik_run. The
-  public site serves recorded runs; a live engine is where sidik_run works.
+- POST /mcp on a running engine — Sidik as a Model Context Protocol server
+  (Streamable HTTP): tools sidik_token, sidik_catalogue, sidik_run. There is
+  no public engine to connect to, and this line will not name one until there
+  is: forking Base needs an archive RPC and real compute, and every host that
+  offers it wants a card. Run the engine yourself from the repository
+  (pnpm dev:engine) and point a client at http://localhost:8787/mcp. Nothing
+  this site serves needs an engine — the runs below were recorded by one.
 - ${SITE}/openapi.json — OpenAPI 3.1 for the two JSON endpoints, with the
   Verdict schema. Every JSON body carries schemaVersion, chainId (8453) and a
   provenance object: the recording date, engine commit, and a sha256 of the

@@ -37,7 +37,13 @@ export async function GET(req: NextRequest) {
   const forceReplay = req.nextUrl.searchParams.get("replay") === "1" && process.env.NODE_ENV !== "production";
 
   if (!engineUrl || forceReplay) {
-    return new Response(replayStream(token as Hex), { headers: sseHeaders });
+    // ?instant=1 drops the presentation pacing to zero. The trace is paced so
+    // it reads as a sequence, which costs about six seconds — fine for
+    // somebody reading one run, wrong for somebody opening their twentieth,
+    // and wrong for anything scripted. It changes only the delays: the same
+    // events arrive in the same order, carrying the same recorded figures.
+    const instant = req.nextUrl.searchParams.get("instant") === "1";
+    return new Response(replayStream(token as Hex, instant), { headers: sseHeaders });
   }
 
   return proxyToEngine(engineUrl, token, req.signal);
@@ -144,27 +150,30 @@ const sseHeaders = {
 const STEP_MS = 260;
 const PROBE_MS = 620;
 
-function replayStream(token: Hex): ReadableStream<Uint8Array> {
+function replayStream(token: Hex, instant = false): ReadableStream<Uint8Array> {
   const run = recordedRun(token);
+  // The only thing `instant` touches. Every event, figure and hash below is
+  // identical either way — this is the pause between them, nothing else.
+  const pace = (ms: number) => (instant ? 0 : ms);
 
   const script: [number, RunEvent][] = run
     ? [
         [0, { type: "replay", block: FIXTURE_BLOCK }],
-        [STEP_MS, { type: "prescan", scan: run.scan }],
-        [STEP_MS, { type: "plan", ids: run.ids }],
+        [pace(STEP_MS), { type: "prescan", scan: run.scan }],
+        [pace(STEP_MS), { type: "plan", ids: run.ids }],
         ...run.verdicts.flatMap((verdict): [number, RunEvent][] => [
-          [STEP_MS, { type: "probe:start", id: verdict.probe }],
-          [PROBE_MS, { type: "verdict", verdict }],
+          [pace(STEP_MS), { type: "probe:start", id: verdict.probe }],
+          [pace(PROBE_MS), { type: "verdict", verdict }],
         ]),
-        [STEP_MS, { type: "narration", text: safeNarration(run.narration, run.verdicts) }],
-        [STEP_MS / 2, { type: "done" }],
+        [pace(STEP_MS), { type: "narration", text: safeNarration(run.narration, run.verdicts) }],
+        [pace(STEP_MS / 2), { type: "done" }],
       ]
     // No replay banner here. It announces "recorded run — real fork proof",
     // and on this path there is no recording and no proof — only an error.
     // Emitting it anyway put a claim of evidence at the top of a page whose
     // whole content is that there is none.
     : [
-        [STEP_MS, {
+        [pace(STEP_MS), {
           type: "error",
           // Counted, not written down: the catalogue grows every time it is
           // re-recorded, and a hardcoded number would start lying immediately.

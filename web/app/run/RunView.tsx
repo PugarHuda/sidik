@@ -346,7 +346,7 @@ function consequenceOf(verdicts: Verdict[], overall: Verdict["status"]): string 
 }
 
 export default function RunView(
-  { token, source, scanners, recheck }: { token: string; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
+  { token, instant = false, source, scanners, recheck }: { token: string; instant?: boolean; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
 ) {
   const tokenValid = TOKEN_RE.test(token);
   const [events, setEvents] = useState<RunEvent[]>([]);
@@ -361,7 +361,7 @@ export default function RunView(
     (async () => {
       let settled = false;
       try {
-        for await (const event of streamRunEvents(`/api/run?token=${token}`, controller.signal)) {
+        for await (const event of streamRunEvents(`/api/run?token=${token}${instant ? "&instant=1" : ""}`, controller.signal)) {
           if (event.type === "done" || event.type === "error") settled = true;
           setEvents((prev) => [...prev, event]);
         }
@@ -383,7 +383,7 @@ export default function RunView(
     })();
 
     return () => controller.abort();
-  }, [token, tokenValid]);
+  }, [token, tokenValid, instant]);
 
   if (!tokenValid) {
     return (
@@ -473,6 +473,22 @@ export default function RunView(
         <p className="-mt-4 font-mono text-xs text-fg-dim">
           <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-na align-middle" aria-hidden="true" />
           Recorded run — real fork proof from block {replay.block}, replayed with no live engine
+          {/* The trace is paced so it reads as a sequence, which costs about
+              six seconds. That is right for the first run somebody opens and
+              wrong for the twentieth, so the pacing is skippable. It is
+              presentation only: same events, same figures, no pauses. */}
+          {isRunning && !instant && (
+            <>
+              {" · "}
+              <Link
+                href={`/run?token=${token}&instant=1`}
+                data-skip-replay
+                className="underline underline-offset-4 hover:text-fg"
+              >
+                skip the replay
+              </Link>
+            </>
+          )}
         </p>
       )}
 
@@ -488,6 +504,19 @@ export default function RunView(
             <span className="font-mono text-xl font-semibold text-fg">{symbol ?? formatAddr(token)}</span>
           </div>
           <p className="wrap-anywhere mt-4 text-lg leading-7 text-fg">{consequenceOf(verdicts, overall)}</p>
+          {/* The owner-switch probe proves a capability, not an event. On a
+              blue chip — USDC, cbBTC, cbETH, USDbC all fail this probe
+              because a proxy admin really can replace their code — that
+              distinction is the entire meaning of the verdict, and a strip
+              that says nothing but FAIL invites the opposite reading. */}
+          {verdicts.some((v) => v.probe === "ownerTrap" && v.status === "FAIL") && (
+            <p className="mt-3 text-sm leading-6 text-fg-dim" data-capability-note>
+              Sidik pulled that switch itself, on a fork. It proves the privileged address{" "}
+              <span className="text-fg">can</span> do this — not that it has, and not that it will.
+              Nothing here happened on Base, and a contract having an admin is a design decision,
+              not an accusation.
+            </p>
+          )}
           {prescan && !prescan.hasPool && prescan.otherVenues && prescan.otherVenues.length > 0 && (
             // Where the liquidity actually is when Uniswap has none. Read from
             // DEX Screener at scan time; nothing was executed there, so it

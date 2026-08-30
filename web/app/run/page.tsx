@@ -49,11 +49,15 @@ export async function generateMetadata(
 export default async function RunPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string | string[] }>;
+  searchParams: Promise<{ token?: string | string[]; instant?: string | string[] }>;
 }) {
   const params = await searchParams;
   const raw = params.token;
   const token = Array.isArray(raw) ? raw[0] : raw;
+  // ?instant=1 skips the paced replay. Presentation only — same events, same
+  // figures, no pauses between them.
+  const rawInstant = params.instant;
+  const instant = (Array.isArray(rawInstant) ? rawInstant[0] : rawInstant) === "1";
   // Looked up here rather than in the client: the map covers all 194 recorded
   // addresses and the page shows exactly one of them. Handing the component
   // the whole thing is how the catalogue got shipped to the browser twice
@@ -64,5 +68,9 @@ export default async function RunPage({
   // every rechecked address, and importing it from the client component
   // shipped all of them to every visitor.
   const recheck = recheckOf(token ?? "");
-  return <RunView key={token ?? ""} token={token ?? ""} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
+  // Keyed by token AND instant. RunView never resets its event list — it
+  // relies on being remounted — so changing only `instant` (which is exactly
+  // what the "skip the replay" link does) would re-run the stream effect and
+  // append a second copy of the trace to the first.
+  return <RunView key={`${token ?? ""}:${instant}`} token={token ?? ""} instant={instant} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
 }
