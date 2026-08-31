@@ -34,6 +34,23 @@ const BURNED_LP_PCT_FOR_PASS = 99;
 // the window right up to what one request allows. At 3k the holder sample
 // came back empty for 56% of the catalogue, which is what starved lpRug's
 // candidate search and left it saying NA more often than not.
+//
+// ponytail: this window is why 91 V3 tokens report "No V3 position could be
+// found to pull" and land at NA — 9k blocks is about five hours on Base, and
+// most pools are funded once at launch, months before the pin. The obvious
+// fix is to search from the pool's birth instead: binary-search getCode on
+// the pool to find its creation block, then read Mint from there. That was
+// measured on 2026-08-31 and is NOT viable as written — the search is ~26
+// sequential archive reads per token through the fork proxy, and one token
+// had not finished in twelve minutes under the free-tier RPC. Re-recording
+// 91 of them that way is a day, not an afternoon.
+//
+// What would make it work is removing the search, not speeding it up: the
+// pool's creation block is a static fact per address, so record it once
+// (a one-off indexing pass, or read it from an explorer API) and keep it in
+// the fixture beside poolAddress. Then discovery is one getLogs from a known
+// block and the probe never binary-searches anything. Do that before touching
+// the window here.
 const LP_TRANSFER_LOOKBACK_BLOCKS = 9_000n;
 
 // Uniswap V3 NonfungiblePositionManager on Base — Blockscout-verified 2026-08-28.

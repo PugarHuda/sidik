@@ -218,10 +218,17 @@ State these; the field rewards it.
   hosted engine, and the site says so rather than naming a URL that does not
   answer.**
 - **119 of 194 addresses come back N/A**, and the single largest cause is LP
-  rug on Uniswap V3: the probe looks for a position in a 9,000-block window and
-  91 V3 tokens have none there. That is honest — it did not find a position, so
-  it does not claim one — but it is the biggest usability cost in the project
-  and the next engine win.
+  rug on Uniswap V3: the probe looks for a position in a 9,000-block window —
+  about five hours on Base — and 91 V3 tokens were funded once at launch,
+  months before the pinned block. It did not find a position so it does not
+  claim one, which is the right behaviour, but it is the biggest usability cost
+  in the project. The cause is known precisely, and so is the fix: record each
+  pool's creation block once and read `Mint` from there. Searching for it at
+  probe time was measured on 2026-08-31 and rejected — binary-searching
+  `getCode` costs ~26 sequential archive reads per token, and one token had not
+  finished in twelve minutes on a free-tier RPC. The note is in
+  `engine/src/probes/lpRug.ts` so the next attempt starts from the measurement
+  rather than repeating it.
 - Probes trade through Uniswap V2 and V3 only. A token whose liquidity lives on
   Aerodrome comes back N/A, with the reason attached.
 - Three Base contracts (CLANKER, ELENA, WIFHAIR) hold a single byte of code,
@@ -266,6 +273,9 @@ Nothing in this list can be done from the repository.
 Give them this, in order. Add `&instant=1` to any run link to skip the paced
 replay.
 
+0. https://sidik-eight.vercel.app — the landing page states both findings as
+   figures before anything is clicked: 58 of 59 caught addresses publish
+   verified source, and 8 of the 24 owner traps pass every other probe.
 1. https://sidik-eight.vercel.app/run?token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed
    — **DEGEN**, and the best two minutes this project has. A top-tier Base
    token that passes every trade test: the buy lands, the sell lands, no hidden

@@ -226,6 +226,25 @@ test.describe("numbers have to agree across surfaces", () => {
     expect(body).toContain(String(total));
   });
 
+  test("the landing page's owner-trap figure equals what the catalogue filter returns", async ({ page, request }) => {
+    await page.goto("/");
+    const stat = page.locator("[data-owner-trap-stat]");
+    await expect(stat).toBeVisible();
+    const text = (await stat.textContent()) ?? "";
+    const m = text.match(/(\d+)\s*of\s*(\d+)/);
+    expect(m, `no "N of M" in: ${text.slice(0, 120)}`).toBeTruthy();
+    const [, clean, traps] = m!.map(Number) as [number, number, number];
+
+    const api = await (await request.get("/api/catalogue?filter=ownerTrap")).json();
+    console.log(`[angles] landing says ${clean} of ${traps}; ownerTrap filter returns ${api.total}`);
+    // The headline denominator is the whole owner-trap set, which is exactly
+    // what the filter selects. A hand-written number is how the submission
+    // copy drifted for three commits; this one is counted, and this asserts it.
+    expect(traps).toBe(api.total);
+    expect(clean).toBeGreaterThan(0);
+    expect(clean).toBeLessThanOrEqual(traps);
+  });
+
   test("the failing count on the catalogue matches the rows the filter yields", async ({ request }) => {
     const all = await (await request.get("/api/catalogue")).json();
     const failing = await (await request.get("/api/catalogue?filter=failing")).json();
