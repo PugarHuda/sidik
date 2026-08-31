@@ -468,6 +468,14 @@ function upToDate(run: FrozenRun): boolean {
   // every sentence the probe can produce now names which windows it searched,
   // so a re-recorded run cannot match this again and be swept up forever.
   if (lp && /in the last [\d,]+ blocks \(\d+ mints? seen\)$/.test(lp.rows[0]?.proven ?? "")) return false;
+  // 2026-08-31, later: a pool whose LP sits in a contract used to stop at
+  // "pulling it needs that contract's own logic". The probe now impersonates
+  // that contract's OWNER and calls the contract's own ways out, and one of
+  // those contracts turned out to be a verified time-locker whose pools are a
+  // PASS. A run recorded before that carries no releaseTried figure, so it
+  // never asked. Self-terminating: every contract-held verdict produced now
+  // records the number, including zero.
+  if (lp && /held by contract/.test(lp.title) && lp.numbers.releaseTried === undefined) return false;
   return true;
 }
 

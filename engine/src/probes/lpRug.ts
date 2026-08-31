@@ -6,7 +6,8 @@ import { amount } from "../format.js";
 import { BURN_ADDRESSES, UNISWAP_V2, WETH } from "../base.js";
 import { ERC20_ABI, TRANSFER_EVENT, V2_ROUTER_ABI } from "../abi.js";
 import { quoteV3 } from "../dexV3.js";
-import { classifyHolder, codeAt, isoDate, UNCX_V2_LOCKER, uncxV2Lock, type HolderKind } from "../lockers.js";
+import { classifyHolder, codeAt, isoDate, lockerName, UNCX_V2_LOCKER, uncxV2Lock, type HolderKind } from "../lockers.js";
+import { OWNABLE_ABI, RELEASES_SEARCHED, releaseData, releasesIn } from "../lpRelease.js";
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
 
@@ -90,7 +91,10 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const afterWei = toWei(raw.holderValueAfter);
   const before = amount(beforeWei, 18, "WETH");
   const after = amount(afterWei, 18, "WETH");
-  const pct = `${Math.round(ownerLpPct)}%`;
+  // "<1%" rather than "0%": the share is rounded to whole points at source, so
+  // a holder with a real but small position was being described as holding
+  // none of it, in the same sentence that named them the holder.
+  const pct = ownerLpPct > 0 || !raw.lpHolderFound ? `${Math.round(ownerLpPct)}%` : "<1%";
   const burnedPct = Number(raw.burnedLpPct ?? 0);
   const burned = `${burnedPct.toFixed(2).replace(/[.]00$/, "")}%`;
   const txHashes = [raw.pullTxHash as Hex].filter((h) => h && h !== "0x") as Hex[];
@@ -125,13 +129,18 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   // the locker exists to prevent; reading the lock is the honest test.
   if (holderKind === "uncx-locker") {
     const until = String(raw.lockUnlockDate ?? "");
+    // Which locker, by name. It used to say UNCX unconditionally, which was
+    // true while UNCX was the only one recognised and became a false label the
+    // moment a second locker was.
+    const who = lockerName(lpOwner) ?? "a locker";
     numbers.lockUnlockDate = until || "unknown";
+    numbers.locker = who;
     if (raw.lockedPct !== undefined) numbers.lockedPct = `${Number(raw.lockedPct).toFixed(2).replace(/0+$/, "").replace(/[.]$/, "")}%`;
     return {
       probe: "lpRug", status: "PASS",
-      title: until ? `LP locked until ${until} in UNCX — could not be pulled` : "LP is held by the UNCX locker — could not be pulled",
+      title: until ? `LP locked until ${until} in ${who} — could not be pulled` : `LP is held by the ${who} locker — could not be pulled`,
       rows: [{ label: ROW_LABEL, claimed: CLAIMED,
-        proven: `${share} sits in UNCX's locker contract${until ? `, unlockable on ${until}` : ""}; no owner can withdraw it before then`, ok: true }],
+        proven: `${share} sits in ${who}'s locker contract${until ? `, unlockable on ${until}` : ""}; no owner can withdraw it before then`, ok: true }],
       numbers, txHashes,
     };
   }
@@ -139,14 +148,35 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   // A contract with logic of its own (a vesting contract, a DAO treasury, an
   // unknown locker). anvil can impersonate it, but the pull would then bypass
   // whatever that logic enforces — so it would prove nothing about the pool.
-  if (holderKind === "contract" && raw.lpHolderFound) {
+  // What it can do honestly is knock on the front door: impersonate the
+  // contract's own owner and call the contract's own ways out. Only when that
+  // fails is the question still unanswered, and the verdict now says how hard
+  // it was asked.
+  if (holderKind === "contract" && raw.lpHolderFound && !raw.releasedVia) {
+    const tried = Number(raw.releaseTried ?? 0);
+    const holderOwner = raw.holderOwner ? String(raw.holderOwner) as Hex : undefined;
+    if (tried > 0) numbers.releaseTried = `${tried} of ${raw.releasesSearched ?? RELEASES_SEARCHED}`;
+    if (holderOwner) numbers.holderOwner = holderOwner;
+    const asked = tried > 0
+      ? `; its owner ${holderOwner!.slice(0, 6)}…${holderOwner!.slice(-4)} was impersonated and ${tried === 1 ? "the one way out it exposes was" : `all ${tried} ways out it exposes were`} called, and the liquidity did not move`
+      : "; it exposes no way out that Sidik knows how to operate";
     return {
       probe: "lpRug", status: "NA",
-      title: `LP held by contract ${lpOwner.slice(0, 6)}…${lpOwner.slice(-4)}; pulling it needs that contract's own logic`,
+      title: tried > 0
+        ? `LP held by contract ${lpOwner.slice(0, 6)}…${lpOwner.slice(-4)}, and its owner could not release it`
+        : `LP held by contract ${lpOwner.slice(0, 6)}…${lpOwner.slice(-4)}; pulling it needs that contract's own logic`,
       rows: [{ label: ROW_LABEL, claimed: CLAIMED,
-        proven: `${share} is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code`, ok: false }],
+        proven: `${share} is held by a contract Sidik does not recognise${asked}. That is not proof the liquidity is safe — only that this way in did not open.`, ok: false }],
       numbers, txHashes,
     };
+  }
+
+  // The contract did hand it over. Say which door opened, because "the owner
+  // can drain this pool" is a different and much stronger claim when the
+  // route is named.
+  if (raw.releasedVia) {
+    numbers.releasedVia = String(raw.releasedVia);
+    if (raw.holderOwner) numbers.holderOwner = String(raw.holderOwner);
   }
 
   if (v3 && raw.noPositionReason) {
@@ -189,13 +219,18 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
     };
   }
 
-  const who = holderKind === "safe" ? "a Safe multisig" : "owner";
+  const who = raw.releasedVia ? "the holding contract's owner"
+    : holderKind === "safe" ? "a Safe multisig" : "owner";
   if (collapsed) {
     return {
       probe: "lpRug", status: "FAIL",
-      title: holderKind === "safe" ? "LP rug possible — a Safe multisig can pull all liquidity" : "LP rug possible — owner can pull all liquidity",
+      title: raw.releasedVia ? "LP rug possible — the contract holding the LP released it to its owner"
+        : holderKind === "safe" ? "LP rug possible — a Safe multisig can pull all liquidity"
+        : "LP rug possible — owner can pull all liquidity",
       rows: [{ label: ROW_LABEL, claimed: CLAIMED,
-        proven: `${who === "owner" ? "Owner" : "A Safe multisig"} holds ${share} and removing it collapsed a holder's position from ${before} to ${after}`, ok: false }],
+        proven: raw.releasedVia
+        ? `${share} sat in a contract, whose owner released it with ${String(raw.releasedVia)} and then removed it — a holder's position collapsed from ${before} to ${after}`
+        : `${who === "owner" ? "Owner" : "A Safe multisig"} holds ${share} and removing it collapsed a holder's position from ${before} to ${after}`, ok: false }],
       numbers, txHashes,
     };
   }
@@ -288,8 +323,17 @@ export const lpRugProbe: Probe = {
         lockedPct: lock ? Number((lock.amount * 10000n) / totalSupply) / 100 : ownerLpPct,
       };
     }
+    let release: Record<string, unknown> = {};
     if (holderKind === "contract") {
-      return { ...found, holderValueAfter: holderValueBefore, pullTxHash: "0x" as Hex };
+      const heldBy = lpOwner;
+      const r = await tryRelease(fork, heldBy, await codeAt(fork, heldBy), 0n, pool, async () => {
+        const bal = await fork.read<bigint>({ address: pool, abi: ERC20_ABI, functionName: "balanceOf", args: [heldBy] });
+        return bal >= lpBalance;
+      });
+      release = { releaseTried: r.tried, releasesSearched: RELEASES_SEARCHED, ...(r.owner ? { holderOwner: r.owner } : {}), ...(r.via ? { releasedVia: r.via } : {}) };
+      if (!r.movedTo) return { ...found, ...release, holderValueAfter: holderValueBefore, pullTxHash: "0x" as Hex };
+      lpOwner = r.movedTo;
+      lpBalance = await fork.read<bigint>({ address: pool, abi: ERC20_ABI, functionName: "balanceOf", args: [lpOwner] });
     }
 
     await fork.impersonate(lpOwner);
@@ -316,7 +360,7 @@ export const lpRugProbe: Probe = {
     }
     await fork.stopImpersonate(lpOwner);
 
-    return { ...found, holderValueAfter, pullTxHash };
+    return { ...found, ...release, holderValueAfter, pullTxHash };
   },
   interpret: interpretLpRug,
 };
@@ -394,12 +438,27 @@ async function executeV3(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
   if (BURN_ADDRESSES.some((a) => a.toLowerCase() === lpOwner.toLowerCase())) return { ...found, burnedLpPct: 100 };
   // ponytail: the V3 locker has no per-position index, so the unlock date is
   // not read here; the holder being the locker is what makes the pull impossible.
-  if (holderKind === "uncx-locker" || holderKind === "contract") return found;
+  if (holderKind === "uncx-locker") return found;
 
-  await fork.impersonate(lpOwner);
-  await fork.setBalanceEth(lpOwner, "1");
+  let puller = lpOwner;
+  let release: Record<string, unknown> = {};
+  if (holderKind === "contract") {
+    const heldBy = lpOwner;
+    const r = await tryRelease(fork, heldBy, await codeAt(fork, heldBy), best.tokenId, V3_NPM, async () => {
+      const now = await fork.read<Hex>({ address: V3_NPM, abi: V3_NPM_ABI, functionName: "ownerOf", args: [best!.tokenId] });
+      return now.toLowerCase() === heldBy.toLowerCase();
+    });
+    release = { releaseTried: r.tried, releasesSearched: RELEASES_SEARCHED, ...(r.owner ? { holderOwner: r.owner } : {}), ...(r.via ? { releasedVia: r.via } : {}) };
+    if (!r.movedTo) return { ...found, ...release };
+    // The position is out of the contract and in the hands of an account, so
+    // the ordinary pull can now be executed and measured.
+    puller = r.movedTo;
+  }
+
+  await fork.impersonate(puller);
+  await fork.setBalanceEth(puller, "1");
   const decrease = await fork.send({
-    from: lpOwner, to: V3_NPM,
+    from: puller, to: V3_NPM,
     data: encodeFunctionData({
       abi: V3_NPM_ABI, functionName: "decreaseLiquidity",
       args: [{ tokenId: best.tokenId, liquidity: best.liquidity, amount0Min: 0n, amount1Min: 0n, deadline: DEADLINE }],
@@ -409,17 +468,17 @@ async function executeV3(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
   let holderValueAfter = holderValueBefore;
   if (!decrease.reverted) {
     const collect = await fork.send({
-      from: lpOwner, to: V3_NPM,
+      from: puller, to: V3_NPM,
       data: encodeFunctionData({
         abi: V3_NPM_ABI, functionName: "collect",
-        args: [{ tokenId: best.tokenId, recipient: lpOwner, amount0Max: MAX_UINT128, amount1Max: MAX_UINT128 }],
+        args: [{ tokenId: best.tokenId, recipient: puller, amount0Max: MAX_UINT128, amount1Max: MAX_UINT128 }],
       }),
     });
     pullTxHash = collect.hash;
     holderValueAfter = await priceHolder();
   }
-  await fork.stopImpersonate(lpOwner);
-  return { ...found, holderValueAfter, pullTxHash };
+  await fork.stopImpersonate(puller);
+  return { ...found, ...release, holderValueAfter, pullTxHash };
 }
 
 /**
@@ -465,6 +524,60 @@ async function poolBirthBlock(pool: Hex, head: bigint): Promise<bigint | undefin
     return undefined;
   }
 }
+
+/**
+ * Can the contract holding this LP be made to give it up by its own owner?
+ *
+ * Impersonating the holder contract itself would prove nothing — anvil runs
+ * the caller, not the contract's rules, so "the pool can be drained" would
+ * only mean "anvil can do anything". So this impersonates the contract's
+ * `owner()` instead and calls the contract's own ways out, then looks at
+ * whether the LP actually moved. That is the ownerTrap method pointed at the
+ * LP holder rather than at the token.
+ *
+ * `moved` is decided by reading, not by the call not reverting: a launchpad
+ * fee contract's `withdraw` returns happily and leaves the position exactly
+ * where it was.
+ */
+async function tryRelease(
+  fork: ForkClient, holder: Hex, code: Hex | undefined, positionId: bigint, lpAsset: Hex,
+  stillHeld: () => Promise<boolean>,
+): Promise<{ tried: number; owner?: Hex; via?: string; movedTo?: Hex }> {
+  const ways = releasesIn(code ?? "0x");
+  if (!ways.length) return { tried: 0 };
+
+  let owner: Hex;
+  try {
+    owner = await fork.read<Hex>({ address: holder, abi: OWNABLE_ABI, functionName: "owner" });
+  } catch {
+    // No owner() at all. Somebody may still be privileged inside it, but
+    // Sidik has no way to name them, and guessing would be the inference this
+    // probe exists to avoid.
+    return { tried: 0 };
+  }
+  if (!owner || owner.toLowerCase() === ZERO) return { tried: 0, owner };
+
+  await fork.impersonate(owner);
+  await fork.setBalanceEth(owner, "1");
+  let tried = 0;
+  let via: string | undefined;
+  try {
+    for (const way of ways) {
+      tried++;
+      try {
+        await fork.send({ from: owner, to: holder, data: releaseData(way, owner, positionId, lpAsset) });
+      } catch {
+        continue; // encoding or send refused; the next way out is still worth trying
+      }
+      if (!(await stillHeld())) { via = way.sig; break; }
+    }
+  } finally {
+    await fork.stopImpersonate(owner);
+  }
+  return { tried, owner, via, movedTo: via ? owner : undefined };
+}
+
+const ZERO = "0x0000000000000000000000000000000000000000";
 
 /** The largest live position of `pool` among `ids`, or undefined if none is one. */
 async function largestPosition(fork: ForkClient, ctx: ProbeCtx, fee: number, ids: bigint[]) {

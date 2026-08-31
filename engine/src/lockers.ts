@@ -22,6 +22,32 @@ import type { ForkClient, Hex } from "@sidik/shared";
 export const UNCX_V2_LOCKER: Hex = "0xc4e637d37113192f4f1f060daebd7758de7f4131";
 export const UNCX_V3_LOCKER: Hex = "0x231278edd38b00b07fbd52120cef685b9baebcc1";
 
+/**
+ * Every locker Sidik recognises, and the name each one is called by on screen.
+ *
+ * A contract earns a place here only on evidence, because being on this list
+ * turns an unanswered pool into a PASS. The bar, applied to all three: the
+ * contract is verified by an independent verifier, and its own source shows
+ * that nobody can take the liquidity out early.
+ *
+ * `UniV3LPLocker` was added 2026-08-31. Sourcify holds an exact match for it
+ * on chain 8453, and its `unlock(uint256)` reads
+ * `require(userLock.endTime < block.timestamp, "Not yet")` behind a
+ * `validLockOwner` modifier — a real deadline, not a switch its operator can
+ * throw. It holds the launch position of 11 pools in the catalogue, every one
+ * of which used to report only that a contract held the LP.
+ */
+export const LOCKERS: Record<string, string> = {
+  [UNCX_V2_LOCKER]: "UNCX",
+  [UNCX_V3_LOCKER]: "UNCX",
+  "0x25c9c4b56e820e0dea438b145284f02d9ca9bd52": "UniV3LPLocker",
+};
+
+/** What to call the locker holding this LP, or undefined if it is not one. */
+export function lockerName(address: Hex | string): string | undefined {
+  return LOCKERS[String(address).toLowerCase()];
+}
+
 const UNCX_V2_LOCKER_ABI = parseAbi([
   "function getNumLocksForToken(address lpToken) view returns (uint256)",
   "function TOKEN_LOCKS(address lpToken, uint256 index) view returns (uint256 lockID)",
@@ -38,7 +64,10 @@ export type HolderKind = "eoa" | "eoa-7702" | "safe" | "uncx-locker" | "contract
 /** Pure: what kind of account holds the LP, from its address and bytecode. */
 export function classifyHolder(address: Hex, code: Hex | undefined): HolderKind {
   const a = address.toLowerCase();
-  if (a === UNCX_V2_LOCKER || a === UNCX_V3_LOCKER) return "uncx-locker";
+  // The kind is still spelled "uncx-locker" because it is recorded into every
+  // frozen verdict; renaming it would split the catalogue into two spellings
+  // of the same fact for no gain. Which locker it is comes from lockerName().
+  if (LOCKERS[a]) return "uncx-locker";
   if (!code || code === "0x") return "eoa";
   if (code.toLowerCase().startsWith(EIP7702_PREFIX)) return "eoa-7702";
   if (code.toLowerCase().includes(SAFE_MASTER_COPY)) return "safe";
