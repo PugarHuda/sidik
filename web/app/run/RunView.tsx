@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import {
-  EXAMPLES, FIXTURE_BLOCK, FIXTURE_META, headlineOf, impostorsOf, venueListings,
+  EXAMPLES, FIXTURE_BLOCK, FIXTURE_META, headlineOf, impostorsOf, unprobeableReason, venueListings,
   type Recheck, type ScannerReadings, type Verdict, type Verification,
 } from "@sidik/shared";
 import { streamRunEvents, type RunEvent } from "@/lib/sse";
@@ -587,8 +587,15 @@ export default function RunView(
           {/* Two sentences: the plain one first, the exact one second. The
               API's message is precise and is what the tests and the JSON
               carry; a person on a phone needs the first sentence. */}
-          <p className="mt-2 text-base text-fg">
-            Sidik has not traded this token yet. It only shows results for addresses it actually bought and sold on a fork.
+          <p className="mt-2 text-base text-fg" data-error-plain>
+            {unprobeableReason(token)
+              // "Not traded yet" promises a run that can never arrive. For an
+              // address the probes cannot operate on at all — WETH is what
+              // they trade *with* — that sentence is simply false, and the
+              // difference between "not yet" and "not ever" is the same
+              // distinction this whole project turns on.
+              ? <>Sidik cannot trade this address at all, so no run for it will ever exist.</>
+              : <>Sidik has not traded this token yet. It only shows results for addresses it actually bought and sold on a fork.</>}
           </p>
           <p className="wrap-anywhere mt-1 text-sm text-fg-dim">{errorEvent?.message}</p>
           <div className="mt-4">

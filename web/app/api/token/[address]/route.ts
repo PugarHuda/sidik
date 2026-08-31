@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import {
-  FIXTURES, FIXTURE_BLOCK, headlineOf, recheckOf, recordedRun, safeNarration, scannersOf, venueListings, verificationOf,
+  FIXTURES, FIXTURE_BLOCK, headlineOf, recheckOf, recordedRun, safeNarration, scannersOf, unprobeableReason, venueListings, verificationOf,
   type FrozenRun,
 } from "@sidik/shared";
 import { PROVENANCE } from "@/lib/provenance";
@@ -74,9 +74,15 @@ export async function GET(
     // 404 rather than an empty verdict: "no recorded run" is a different
     // statement from "nothing was found wrong", and a consumer must not be
     // able to mistake one for the other.
+    // Some addresses cannot have a run at all rather than merely lacking one
+    // — WETH is what the probes trade *with*. Saying "not recorded" there
+    // implies a run could appear later, which is the same mistake as
+    // reporting an unanswered probe as clean.
+    const cannot = unprobeableReason(address);
     return Response.json({
       ...STAMP,
-      error: "No recorded run for this address.",
+      error: cannot ?? "No recorded run for this address.",
+      ...(cannot ? { probeable: false } : {}),
       recordedAddresses: Object.keys(FIXTURES).length,
       forkBlock: FORK_BLOCK,
     }, { status: 404 });

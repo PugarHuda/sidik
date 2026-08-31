@@ -254,6 +254,52 @@ test.describe("numbers have to agree across surfaces", () => {
   });
 });
 
+test.describe("cannot be probed is not the same as not yet probed", () => {
+  // WETH is what every probe buys and sells with, so no WETH pool exists to
+  // trade it against and no run can ever be recorded for it. It is also the
+  // first thing a lot of people paste, which made it the worst 404 on the
+  // site: "no recorded run" implies one is coming.
+  const WETH = "0x4200000000000000000000000000000000000006";
+
+  test("the JSON says why no run can exist, not merely that none does", async ({ request }) => {
+    const res = await request.get(`/api/token/${WETH}`);
+    expect(res.status()).toBe(404);
+    const body = await res.json();
+    expect(body.probeable).toBe(false);
+    expect(body.error).toMatch(/buys and sells with|no WETH pool/i);
+    expect(body.error).not.toMatch(/^No recorded run for this address\.$/);
+  });
+
+  test("the run page explains it rather than offering a bare miss", async ({ page }) => {
+    await page.goto(`/run?token=${WETH}&instant=1`);
+    // Scoped to the error panel: the message also appears in the trace, and
+    // an unscoped match is ambiguous rather than wrong.
+    const plain = page.locator("[data-error-plain]");
+    await expect(plain).toBeVisible({ timeout: 30_000 });
+    // "Not yet" would promise a run that can never arrive.
+    await expect(plain).toContainText(/cannot trade this address at all|will ever exist/i);
+    await expect(plain).not.toContainText(/has not traded this token yet/i);
+    await expect(page.getByText(/no WETH pool to trade it against/i).first()).toBeVisible();
+    // And it still refuses to invent a verdict for it.
+    await expect(page.locator("[data-overall-verdict]")).toHaveCount(0);
+  });
+
+  test("an ordinary uncovered address keeps the 'not yet' wording", async ({ page }) => {
+    await page.goto("/run?token=0x1111111111111111111111111111111111111111&instant=1");
+    const plain = page.locator("[data-error-plain]");
+    await expect(plain).toBeVisible({ timeout: 30_000 });
+    await expect(plain).toContainText(/has not traded this token yet/i);
+  });
+
+  test("an ordinary uncovered address still gets the ordinary message", async ({ request }) => {
+    const res = await request.get("/api/token/0x1111111111111111111111111111111111111111");
+    expect(res.status()).toBe(404);
+    const body = await res.json();
+    expect(body.probeable).toBeUndefined();
+    expect(body.error).toMatch(/No recorded run/i);
+  });
+});
+
 test.describe("an N/A headline says what actually happened", () => {
   // WELL passes honeypot, hiddenFee and ownerTrap, and lands on N/A only
   // because no V3 position turned up in the search window. A bare "N/A"

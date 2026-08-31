@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import type { Hex } from "@sidik/shared";
 import type { RunEvent } from "@/lib/sse";
-import { FIXTURES, FIXTURE_BLOCK, recordedRun, safeNarration } from "@sidik/shared";
+import { FIXTURES, FIXTURE_BLOCK, recordedRun, safeNarration, unprobeableReason } from "@sidik/shared";
 
 export const runtime = "nodejs";
 // A live run is minutes long by nature. Vercel's Fluid default is fine on
@@ -177,9 +177,16 @@ function replayStream(token: Hex, instant = false): ReadableStream<Uint8Array> {
           type: "error",
           // Counted, not written down: the catalogue grows every time it is
           // re-recorded, and a hardcoded number would start lying immediately.
+          //
+          // An address that cannot be probed at all gets its own sentence.
+          // WETH is what the probes buy with, so no run for it can ever
+          // exist — telling somebody it merely has not been recorded implies
+          // one is coming, and that is the same error as calling an
+          // unanswered probe clean.
           message:
-            `No engine is configured, so this address cannot be probed live. ` +
-            `${Object.keys(FIXTURES).length} Base addresses have a recorded run — ` +
+            (unprobeableReason(token)
+              ?? `No engine is configured, so this address cannot be probed live.`) +
+            ` ${Object.keys(FIXTURES).length} Base addresses have a recorded run — ` +
             `try one of the examples.`,
         }],
       ];
