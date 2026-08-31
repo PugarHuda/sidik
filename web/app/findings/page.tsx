@@ -10,7 +10,7 @@ import {
 } from "@sidik/shared";
 
 /**
- * What executing 194 Base tokens actually established.
+ * What executing the whole catalogue actually established.
  *
  * Every other page here answers "what about this address?". This one answers
  * "what did the whole exercise find?", which is a different question and the

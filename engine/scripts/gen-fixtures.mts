@@ -461,6 +461,13 @@ function upToDate(run: FrozenRun): boolean {
       && hp.numbers.cooldownSell === undefined) return false;
   const lp = run.verdicts.find((v) => v.probe === "lpRug");
   if (lp && lp.title.startsWith("LP rug does not apply")) return false;
+  // 2026-08-31: a V3 pool funded once at launch has no Mint inside the recent
+  // window, and 98 runs said "no position" on the strength of having looked in
+  // one place. The probe now bisects for the pool's creation block and looks
+  // there too. Keyed on the old sentence, which named only the recent window:
+  // every sentence the probe can produce now names which windows it searched,
+  // so a re-recorded run cannot match this again and be swept up forever.
+  if (lp && /in the last [\d,]+ blocks \(\d+ mints? seen\)$/.test(lp.rows[0]?.proven ?? "")) return false;
   return true;
 }
 

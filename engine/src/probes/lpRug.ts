@@ -35,22 +35,10 @@ const BURNED_LP_PCT_FOR_PASS = 99;
 // came back empty for 56% of the catalogue, which is what starved lpRug's
 // candidate search and left it saying NA more often than not.
 //
-// ponytail: this window is why 91 V3 tokens report "No V3 position could be
-// found to pull" and land at NA — 9k blocks is about five hours on Base, and
-// most pools are funded once at launch, months before the pin. The obvious
-// fix is to search from the pool's birth instead: binary-search getCode on
-// the pool to find its creation block, then read Mint from there. That was
-// measured on 2026-08-31 and is NOT viable as written — the search is ~26
-// sequential archive reads per token through the fork proxy, and one token
-// had not finished in twelve minutes under the free-tier RPC. Re-recording
-// 91 of them that way is a day, not an afternoon.
-//
-// What would make it work is removing the search, not speeding it up: the
-// pool's creation block is a static fact per address, so record it once
-// (a one-off indexing pass, or read it from an explorer API) and keep it in
-// the fixture beside poolAddress. Then discovery is one getLogs from a known
-// block and the probe never binary-searches anything. Do that before touching
-// the window here.
+// This window alone left 98 V3 tokens at "No V3 position could be found to
+// pull": 9k blocks is about five hours on Base, and most pools are funded once
+// at launch, months before the pin. Fixed by looking in a second place rather
+// than by widening this one — see poolBirthBlock below.
 const LP_TRANSFER_LOOKBACK_BLOCKS = 9_000n;
 
 // Uniswap V3 NonfungiblePositionManager on Base — Blockscout-verified 2026-08-28.
@@ -362,28 +350,37 @@ async function executeV3(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
     return formatEther(await quoteV3(fork, ctx.token, WETH, bal, fee));
   };
 
-  const positions = await recentV3Positions(fork, pool, ctx.block);
-  if (positions === undefined) {
-    return { ...base_, noPositionReason: `The logs RPC could not be read for the pool's last ${LP_TRANSFER_LOOKBACK_BLOCKS.toLocaleString("en-US")} blocks` };
+  const window = LP_TRANSFER_LOOKBACK_BLOCKS.toLocaleString("en-US");
+  const recent = await v3PositionIds(pool, endingAt(ctx.block));
+  if (recent === undefined) {
+    return { ...base_, noPositionReason: `The logs RPC could not be read for the pool's last ${window} blocks` };
   }
-  let best: { tokenId: bigint; liquidity: bigint } | undefined;
-  for (const tokenId of positions) {
-    let pos: readonly [bigint, Hex, Hex, Hex, number, number, number, bigint];
-    try {
-      pos = await fork.read<readonly [bigint, Hex, Hex, Hex, number, number, number, bigint]>({
-        address: V3_NPM, abi: V3_NPM_ABI, functionName: "positions", args: [tokenId],
-      });
-    } catch {
-      // Minted and burned inside the window: the NFT is gone and positions()
-      // reverts with "Invalid token ID". Nothing to pull there.
-      continue;
-    }
-    const [, , token0, token1, posFee, , , liquidity] = pos;
-    const isThisPool = [token0.toLowerCase(), token1.toLowerCase()].includes(ctx.token.toLowerCase()) && posFee === fee;
-    if (isThisPool && liquidity > 0n && (!best || liquidity > best.liquidity)) best = { tokenId, liquidity };
-  }
+  let seen = recent.length;
+  let best = await largestPosition(fork, ctx, fee, await positionIdsIn(fork, recent));
+
+  // Finding nothing recent is the ordinary case, not the exception: a pool
+  // funded once at launch has no Mint event inside five hours of the pin. So
+  // go and find where the pool was born and look there too.
+  let birth: bigint | undefined;
   if (!best) {
-    return { ...base_, noPositionReason: `No position with liquidity was minted into this pool in the last ${LP_TRANSFER_LOOKBACK_BLOCKS.toLocaleString("en-US")} blocks (${positions.length} mint${positions.length === 1 ? "" : "s"} seen)` };
+    birth = await poolBirthBlock(pool, ctx.block);
+    if (birth !== undefined) {
+      const born = await v3PositionIds(pool, startingAt(birth));
+      if (born?.length) {
+        seen += born.length;
+        best = await largestPosition(fork, ctx, fee, await positionIdsIn(fork, born));
+      }
+    }
+  }
+
+  if (!best) {
+    // Which windows were actually searched, every time — an unsearchable pool
+    // and an empty one are different answers, and a reason that does not say
+    // which of the two this is cannot be checked by anyone reading it.
+    const where = birth === undefined
+      ? `in the last ${window} blocks before the fork, and this pool's creation block could not be established to search from`
+      : `in the ${window} blocks after this pool was created at block ${birth.toLocaleString("en-US")}, or in the last ${window} before the fork`;
+    return { ...base_, noPositionReason: `No position with liquidity was minted into this pool ${where} (${seen} mint${seen === 1 ? "" : "s"} seen)` };
   }
 
   const active = await fork.read<bigint>({ address: pool, abi: V3_POOL_ABI, functionName: "liquidity" });
@@ -427,26 +424,98 @@ async function executeV3(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
   return { ...found, holderValueAfter, pullTxHash };
 }
 
-/** Token ids of positions minted into `pool` recently; undefined when the logs could not be read. */
-async function recentV3Positions(fork: ForkClient, pool: Hex, block: bigint): Promise<bigint[] | undefined> {
-  // The public logs RPC refuses a busy pool's full window ("response too
-  // large" on USDC/WETH), and a busy pool is exactly one with mints in a
-  // shorter window. Shrink until it answers; only a refusal at 100 blocks is
-  // a failure.
-  let mints: { transactionHash: Hex }[] | undefined;
-  for (const span of [LP_TRANSFER_LOOKBACK_BLOCKS, 2_000n, 500n, 100n]) {
-    const fromBlock = block > span ? block - span : 0n;
+/**
+ * The first block `pool` had code in, found by bisection over `hasCodeAt`.
+ *
+ * Pure so the bisection can be checked without a chain: it is the part that
+ * would fail silently, and a birth block that is off by one is a search over
+ * the wrong 9,000 blocks reported as "this pool has no position".
+ */
+export async function bisectBirth(hasCodeAt: (block: bigint) => Promise<boolean>, head: bigint): Promise<bigint> {
+  let lo = 0n;
+  let hi = head;
+  while (lo < hi) {
+    const mid = (lo + hi) / 2n;
+    if (await hasCodeAt(mid)) hi = mid;
+    else lo = mid + 1n;
+  }
+  return lo;
+}
+
+/**
+ * The block `pool` was created in, or undefined if the archive could not say.
+ *
+ * Measured 2026-08-31 against mainnet.base.org: 26 sequential getCode reads,
+ * about nine seconds per pool. An earlier attempt put the same search through
+ * the fork proxy, where one token had not finished in twelve minutes, and the
+ * conclusion recorded then — that bisection is unaffordable — was really a
+ * measurement of the proxy. Asked only when the recent window found no
+ * position, so a pool with live mints never pays for it.
+ */
+async function poolBirthBlock(pool: Hex, head: bigint): Promise<bigint | undefined> {
+  try {
+    const client = logsClient();
+    const birth = await bisectBirth(async (blockNumber) => {
+      const code = await client.getCode({ address: pool, blockNumber });
+      return Boolean(code && code !== "0x");
+    }, head);
+    // No code even at the fork block means the bisection ran out of room
+    // rather than finding a birth — nothing to search from.
+    return birth < head ? birth : undefined;
+  } catch (e) {
+    log.error({ event: "lpRug.poolBirthFailed", reason: (e instanceof Error ? e.message : String(e)).slice(0, 200) });
+    return undefined;
+  }
+}
+
+/** The largest live position of `pool` among `ids`, or undefined if none is one. */
+async function largestPosition(fork: ForkClient, ctx: ProbeCtx, fee: number, ids: bigint[]) {
+  let best: { tokenId: bigint; liquidity: bigint } | undefined;
+  for (const tokenId of ids) {
+    let pos: readonly [bigint, Hex, Hex, Hex, number, number, number, bigint];
     try {
-      mints = await logsClient().getLogs({ address: pool, event: V3_MINT_EVENT, fromBlock, toBlock: block });
+      pos = await fork.read<readonly [bigint, Hex, Hex, Hex, number, number, number, bigint]>({
+        address: V3_NPM, abi: V3_NPM_ABI, functionName: "positions", args: [tokenId],
+      });
+    } catch {
+      // Minted and burned since: the NFT is gone and positions() reverts with
+      // "Invalid token ID". Nothing to pull there.
+      continue;
+    }
+    const [, , token0, token1, posFee, , , liquidity] = pos;
+    const isThisPool = [token0.toLowerCase(), token1.toLowerCase()].includes(ctx.token.toLowerCase()) && posFee === fee;
+    if (isThisPool && liquidity > 0n && (!best || liquidity > best.liquidity)) best = { tokenId, liquidity };
+  }
+  return best;
+}
+
+// The public logs RPC refuses a busy pool's full window ("response too large"
+// on USDC/WETH), and a busy pool is exactly one that also has mints in a
+// shorter window. Each list shrinks towards its anchor block; only a refusal
+// at 100 blocks is a failure.
+const SPANS = [LP_TRANSFER_LOOKBACK_BLOCKS, 2_000n, 500n, 100n];
+const endingAt = (block: bigint) => SPANS.map((s) => ({ from: block > s ? block - s : 0n, to: block }));
+const startingAt = (block: bigint) => SPANS.map((s) => ({ from: block, to: block + s }));
+
+/** Mint transactions of `pool` in the first window that answers; undefined when none did. */
+async function v3PositionIds(pool: Hex, windows: { from: bigint; to: bigint }[]): Promise<Hex[] | undefined> {
+  let mints: { transactionHash: Hex }[] | undefined;
+  for (const { from, to } of windows) {
+    try {
+      mints = await logsClient().getLogs({ address: pool, event: V3_MINT_EVENT, fromBlock: from, toBlock: to });
       break;
     } catch (e) {
-      log.error({ event: "lpRug.v3MintLogsFailed", count: Number(span), reason: (e instanceof Error ? e.message : String(e)).slice(0, 200) });
+      log.error({ event: "lpRug.v3MintLogsFailed", count: Number(to - from), reason: (e instanceof Error ? e.message : String(e)).slice(0, 200) });
     }
   }
   if (!mints) return undefined;
+  return [...new Set(mints.map((m) => m.transactionHash))].slice(-MAX_V3_MINT_RECEIPTS);
+}
+
+/** The position manager token ids those mint transactions created. */
+async function positionIdsIn(fork: ForkClient, hashes: Hex[]): Promise<bigint[]> {
   const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
   const ids = new Set<bigint>();
-  const hashes = [...new Set(mints.map((m) => m.transactionHash))].slice(-MAX_V3_MINT_RECEIPTS);
   for (const hash of hashes) {
     try {
       const receipt = await pub.getTransactionReceipt({ hash });
