@@ -4,10 +4,11 @@ import { FIXTURES } from "@sidik/shared";
 /**
  * Every recorded run, listed for indexers.
  *
- * 194 pages of executed evidence existed and none of them could be found by
- * anyone who did not already know the address. Built with Next's own sitemap
- * convention rather than a generated file, so it cannot fall out of step with
- * what is actually recorded — the list is derived from the runs themselves.
+ * Before this, a page of executed evidence existed for every recorded run and
+ * not one of them could be found by anyone who did not already know the
+ * address. Built with Next's own sitemap convention rather than a generated
+ * file, so it cannot fall out of step with what is actually recorded — the
+ * list is derived from the runs themselves.
  *
  * Server-only: this file is never part of a client bundle, so reading
  * Object.keys(FIXTURES) here costs the browser nothing.

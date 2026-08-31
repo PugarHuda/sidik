@@ -23,7 +23,7 @@ const Verdict = {
     reason: { type: "string", description: "Why, when there is more to say — typically a revert reason." },
     applicable: {
       type: "boolean",
-      description: "False when the mechanism does not exist for this token (LP rug on a V3 pool, owner switch in a contract with none). Not a failure to check.",
+      description: "False when the mechanism does not exist for this token — an owner switch in a contract that exposes none. Not a failure to check, and every verdict carrying it in this data set is an ownerTrap one.",
     },
     rows: {
       type: "array",

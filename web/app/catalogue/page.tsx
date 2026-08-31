@@ -46,7 +46,8 @@ export default async function CataloguePage({
 
   const rows = catalogueRows();
   const matching = filterRows(rows, { filter, query });
-  // Bounded on purpose: rendering all 194 rows produced a 336KB document, and
+  // Bounded on purpose: rendering every row produced a 336KB document (at 194
+  // of them; the catalogue has grown since), and
   // a response that size is read slowly enough by a browser to back up the
   // server's gzip stream — measurably, and fatally under a full test run.
   const page = paginate(matching, Number(one(params.page)) || 1);

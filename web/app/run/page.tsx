@@ -58,7 +58,7 @@ export default async function RunPage({
   // figures, no pauses between them.
   const rawInstant = params.instant;
   const instant = (Array.isArray(rawInstant) ? rawInstant[0] : rawInstant) === "1";
-  // Looked up here rather than in the client: the map covers all 194 recorded
+  // Looked up here rather than in the client: the map covers every recorded
   // addresses and the page shows exactly one of them. Handing the component
   // the whole thing is how the catalogue got shipped to the browser twice
   // before.

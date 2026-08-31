@@ -37,8 +37,9 @@ Recorded addresses: ${FIXTURE_COUNT}
   treated as the same answer.
 - A verdict is PASS, FAIL or NA. NA means a probe could not answer. A verdict
   carrying "applicable": false means the mechanism does not exist for that
-  token at all — an LP rug against a Uniswap V3 pool, an owner switch in a
-  contract that has none — and it must not be read as a failure to check.
+  token at all — an owner switch in a contract that exposes none — and it must
+  not be read as a failure to check. Every such verdict in this data set is an
+  ownerTrap one; no other probe currently produces the shape.
 - ${VERIFICATION_STATS.verified} of ${VERIFICATION_STATS.checked} recorded addresses publish verified source code, and so do
   ${VERIFICATION_STATS.failingVerified} of the ${VERIFICATION_STATS.failing} with a finding against them. Verified source is not a
   safety signal in this data set.
@@ -93,8 +94,10 @@ Recorded addresses: ${FIXTURE_COUNT}
   day later; V2 proceeds come from the router's Swap log, not the pool delta.
 - lpRug: classifies the LP holder (EOA, 7702 account, Safe, UNCX locker,
   unknown contract), impersonates it and pulls the pool; on V3 pulls the
-  largest position through the position manager. Locked LP carries its
-  unlock date.
+  largest position through the position manager. V3 positions are found from
+  the pool's Mint events near the fork block and, when a pool was funded once
+  at launch and has none there, from the block the pool was created in.
+  Locked LP carries its unlock date.
 - ownerTrap: buys, snapshots, sells to prove selling works, rolls back, lets
   the owner throw every switch in the bytecode, and sells again from identical
   state. Fee setters are tried down a ladder; for a proxy the implementation

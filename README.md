@@ -24,10 +24,16 @@ deploying one is optional (see Deployment).
 
 ## The thesis: prove by executing
 
-Every other token-safety tool is read-only analytics: it infers risk from
-bytecode or holder graphs and prints a score. Sidik crosses the line almost
-nothing crosses in a hackathon timeframe — it **executes** the attack on a
-forked copy of Base mainnet and shows you what actually happens.
+The tools a buyer actually reaches for are read-only analytics: they infer
+risk from bytecode or holder graphs and print a score. Sidik **executes** the
+attack on a forked copy of Base mainnet and shows what happens.
+
+Executing rather than inferring is not a claim Sidik has to itself — several
+other entries in this hackathon fork a chain too, and they deserve the credit.
+What is specific to Sidik is how much has been put through it: 207 addresses,
+not one protocol; the whole catalogue re-recorded end to end whenever a probe
+changed how it measures; and every disagreement with two independent scanners
+published in both directions, including the comparison Sidik loses.
 
 - Read-only tools tell you a token *might* be a honeypot.
 - Sidik forks Base at a real block, buys the token with a funded test
@@ -179,7 +185,7 @@ transaction did, never from an opinion about the code.
 |---|---|
 | `honeypot` | Buys, then sells. Measures the proceeds against the pool's own quote, so a sell that succeeds and pays nothing is not a pass. A reverted buy is retried at a tenth and a hundredth of the size and reported with its revert reason — a trading-disabled or max-tx trap is a finding, not "no liquidity". A reverted sell is retried after one hour and one day of fork time, so a cooldown reads as a cooldown. A wallet the buyer transferred to also sells, which is how a buyer-whitelist honeypot shows itself. |
 | `hiddenFee` | Measures buy, sell and `transfer()` separately, and sells again a day later in fork time, so a tax that decays or climbs is reported as two numbers. On V2 the sell proceeds are read from the router's own `Swap` log — a token's tax `swapBack` in the same transaction is no longer counted as the holder's payout. |
-| `lpRug` | Finds the LP holder, classifies it before impersonating it — an EOA, an EIP-7702 account, a Safe, the UNCX locker, or an unknown contract — and pulls the pool out from under the position. Locked LP is reported with its unlock date; burned LP is proved unpullable in two reads. On Uniswap V3 it finds the largest position NFT and pulls that through the position manager. |
+| `lpRug` | Finds the LP holder, classifies it before impersonating it — an EOA, an EIP-7702 account, a Safe, the UNCX locker, or an unknown contract — and pulls the pool out from under the position. Locked LP is reported with its unlock date; burned LP is proved unpullable in two reads. On Uniswap V3 it finds the largest position NFT and pulls that through the position manager, looking first at the pool's recent `Mint` events and then, for a pool funded once at launch, at the block the pool was created in — found by bisecting `getCode`, which costs 26 archive reads and about nine seconds. |
 | `ownerTrap` | Buys, snapshots, sells once to prove selling works, rolls back, then lets the owner pull every switch in its bytecode and sells again from identical state. Fee setters are tried down a ladder (99 → 10%) and the rung the contract accepts is the fee the owner can set on demand. For a proxy, the scan reads the implementation's bytecode, and the recorded admin is made to replace the code with a contract that reverts everything — then the sell is tried again. |
 | `approvalDrain` | For a wallet: exercises its live approvals to see what a compromised spender could take. |
 | `crossVenue` | Compares what the buy cost inside the pool against what the same asset traded at on venues with no relationship to it, in the same hour. |

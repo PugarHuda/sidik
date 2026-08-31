@@ -5,7 +5,7 @@ import LandingView, { type TrapStat } from "./LandingView";
  * The landing page's numbers, counted here rather than written down.
  *
  * Same reason RunView takes its corroboration as server props: FIXTURES holds
- * every recorded run, and importing it from a client component ships all 194
+ * every recorded run, and importing it from a client component ships all
  * of them to every visitor. Counting on the server sends four numbers and a
  * handful of symbols instead.
  *

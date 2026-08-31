@@ -262,6 +262,12 @@ Nothing in this list can be done from the repository.
 
 1. **X profile** — required field, no entry without it.
 2. **Discord or Telegram handle** — one of the two is required.
+
+   The copy for both is written and ready to paste: **[docs/ACCOUNTS.md](ACCOUNTS.md)**
+   — handle, bio, three posts for X, and the channel description and pinned
+   message for Telegram. Telegram over Discord: a channel is one field and
+   needs no moderation, where an empty Discord reads worse than none.
+
 3. **Submit from the registered wallet** (already registered as Pugar Huda
    Mantoro; registration was signature-only and is done) and pay the **~$10 ETH
    ignition fee on Base**. Platform fee, not a stake, not refundable.

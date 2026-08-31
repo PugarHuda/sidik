@@ -8,7 +8,7 @@ import type { CatalogueFilter } from "@sidik/shared";
  * The search only. The filters are the tiles above it (see page.tsx), and
  * the rows they narrow are rendered on the server.
  *
- * This component used to receive all 194 rows as props and filter them in the
+ * This component used to receive every row as props and filter them in the
  * browser, which meant the catalogue was serialised into the page twice —
  * once as HTML and once again as React props. It also kept the filter state
  * in React alone, so a filtered view could not be linked to, the back button

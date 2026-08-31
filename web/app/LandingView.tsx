@@ -209,7 +209,7 @@ export default function Home({ trap }: { trap: TrapStat }) {
           </div>
           <p className="mt-2 text-sm leading-6 text-fg-dim">
             What executing the whole catalogue established — including the one place inference wins,
-            and how to re-run any of it yourself.
+            what it means if you decide what gets listed, and how to re-run any of it yourself.
           </p>
         </a>
       </div>
