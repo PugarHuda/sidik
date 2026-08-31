@@ -155,7 +155,10 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   if (holderKind === "contract" && raw.lpHolderFound && !raw.releasedVia) {
     const tried = Number(raw.releaseTried ?? 0);
     const holderOwner = raw.holderOwner ? String(raw.holderOwner) as Hex : undefined;
-    if (tried > 0) numbers.releaseTried = `${tried} of ${raw.releasesSearched ?? RELEASES_SEARCHED}`;
+    // Always recorded, zero included. The generator re-records any
+    // contract-held run missing this figure, so omitting it when nothing was
+    // tried would put those rows in a queue they could never leave.
+    numbers.releaseTried = `${tried} of ${raw.releasesSearched ?? RELEASES_SEARCHED}`;
     if (holderOwner) numbers.holderOwner = holderOwner;
     const asked = tried > 0
       ? `; its owner ${holderOwner!.slice(0, 6)}…${holderOwner!.slice(-4)} was impersonated and ${tried === 1 ? "the one way out it exposes was" : `all ${tried} ways out it exposes were`} called, and the liquidity did not move`
