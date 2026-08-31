@@ -358,6 +358,13 @@ replay.
 Paste this into the entry description field. It is written for the AI vetting
 pass as much as for a human: concrete, counted, and explicit about its limits.
 
+**Read [SUBMIT-FORM.md](SUBMIT-FORM.md) first.** The text below describes the
+live run, which is built and pushed but was not deployed at the time of
+writing — the Vercel account hit its daily deployment limit. If you submit
+before it is live, use Version A there instead, which is this text with the
+live-run paragraph removed. Describing something a judge cannot open is the
+one mistake this entry cannot afford to make.
+
 > Sidik proves what a Base ERC-20 does to a buyer by doing it, rather than
 > inferring risk from bytecode. Given an address, it forks Base mainnet at a
 > pinned block with anvil and executes six probes as real transactions: it buys
@@ -408,11 +415,12 @@ pass as much as for a human: concrete, counted, and explicit about its limits.
 > never linked to a block explorer, because they were never broadcast. An
 > address with no recorded run returns an error, never a clean bill of health.
 > A probe with no mechanism to test returns N/A rather than PASS. The public
-> site replays recorded runs, because forking Base needs an archive RPC and
-> real compute that no free tier provides — the runs are genuine output of the
-> engine in this repository, frozen, and `pnpm --filter @sidik/engine reproduce
-> <address>` re-forks Base at the same block with your own RPC and diffs the
-> result against what is published. It runs in CI on every push.
+> site replays the recorded catalogue by default, because a replay answers
+> instantly and cannot be rate-limited, and executes a fresh run on request.
+> The recorded runs are genuine output of the engine in this repository,
+> frozen, and `pnpm --filter @sidik/engine reproduce <address>` re-forks Base
+> at the same block with your own RPC and diffs the result against what is
+> published. It runs in CI on every push.
 >
 > Reproducibility is the claim it stakes everything on, so it is stated as a
 > number rather than a promise: `reproduce --sample 3` re-forked Base at the
