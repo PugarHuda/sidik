@@ -1,6 +1,4 @@
-import { createPublicClient, encodeFunctionData, formatEther, parseAbi, parseAbiItem, toEventSelector } from "viem";
-import { base } from "viem/chains";
-import { forkTransport } from "../fork.js";
+import { encodeFunctionData, formatEther, parseAbi, parseAbiItem, toEventSelector } from "viem";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe, ForkClient } from "@sidik/shared";
 import { logsClient } from "../rpc.js";
 import { log } from "../log.js";
@@ -356,7 +354,7 @@ async function executeV3(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
     return { ...base_, noPositionReason: `The logs RPC could not be read for the pool's last ${window} blocks` };
   }
   let seen = recent.length;
-  let best = await largestPosition(fork, ctx, fee, await positionIdsIn(fork, recent));
+  let best = await largestPosition(fork, ctx, fee, await positionIdsIn(recent));
 
   // Finding nothing recent is the ordinary case, not the exception: a pool
   // funded once at launch has no Mint event inside five hours of the pin. So
@@ -368,7 +366,7 @@ async function executeV3(fork: ForkClient, ctx: ProbeCtx): Promise<RawResult> {
       const born = await v3PositionIds(pool, startingAt(birth));
       if (born?.length) {
         seen += born.length;
-        best = await largestPosition(fork, ctx, fee, await positionIdsIn(fork, born));
+        best = await largestPosition(fork, ctx, fee, await positionIdsIn(born));
       }
     }
   }
@@ -512,9 +510,20 @@ async function v3PositionIds(pool: Hex, windows: { from: bigint; to: bigint }[])
   return [...new Set(mints.map((m) => m.transactionHash))].slice(-MAX_V3_MINT_RECEIPTS);
 }
 
-/** The position manager token ids those mint transactions created. */
-async function positionIdsIn(fork: ForkClient, hashes: Hex[]): Promise<bigint[]> {
-  const pub = createPublicClient({ chain: base, transport: forkTransport(fork.rpcUrl) });
+/**
+ * The position manager token ids those mint transactions created.
+ *
+ * Read off-fork, for the same reason rpc.ts reads logs off-fork: every mint
+ * happened at or before the pinned block, so its receipt is identical either
+ * way. Going through the fork is not merely redundant, it is what made the
+ * search look unaffordable — one historical receipt asked through
+ * anvil -> fork proxy -> archive RPC hung for over six minutes on 2026-08-31,
+ * where the same receipt fetched straight from the public RPC took 403ms. The
+ * recent window rarely finds a mint, so this path was almost never exercised
+ * until the pool's birth was searched too.
+ */
+async function positionIdsIn(hashes: Hex[]): Promise<bigint[]> {
+  const pub = logsClient();
   const ids = new Set<bigint>();
   for (const hash of hashes) {
     try {
