@@ -74,8 +74,8 @@ scored well partly by publishing its own unflattering number.
 ```
 We ran the same 207 tokens through GoPlus, the scanner most wallets embed.
 
-On buy tax it matched our executed figure on 183 of 183. Perfectly.
-On whether an owner can still trap a holder, it agreed on 11 of 41.
+On buy tax it matched our executed figure on 185 of 185. Perfectly.
+On whether an owner can still trap a holder, it agreed on 12 of 42.
 
 Where inference is good it is very good. We are saying so.
 ```

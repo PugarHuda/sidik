@@ -337,7 +337,7 @@ own, say about each recorded address, and `SCANNER_STATS` counts how that
 lines up with what was executed. Both directions are listed, because a
 comparison that shows only the flattering half is not one:
 
-- Honeypots, against GoPlus (146 addresses where both answered): 140 agree.
+- Honeypots, against GoPlus (147 addresses where both answered): 141 agree.
   Execution caught three GoPlus cleared — Anastasia, ROOTED, and TZ, whose
   pool holds WETH but whose buy reverts at every size tried. GoPlus flagged
   three the fork sold: NVO, ANSEMCAT, CASHCAT.
@@ -357,7 +357,7 @@ comparison that shows only the flattering half is not one:
   (COBIE is the token whose owner Sidik proved *could* stop the sell; they
   had not.)
 - Owner traps, against GoPlus's `transfer_pausable` / `is_blacklisted` /
-  `is_mintable` flags (41): 11 agree — the widest gap in the whole comparison,
+  `is_mintable` flags (42): 12 agree — the widest gap in the whole comparison,
   and the one that says most about what inference can reach. GoPlus did not
   flag DEGEN or XYJ, whose owners' `pause()` stopped the sell on the fork, nor
   PP, whose owner minted supply and sold it — nor any of the proxies (USDC,
@@ -367,7 +367,7 @@ comparison that shows only the flattering half is not one:
   ownership renounced, the call reverted — BRETT and VIRTUAL among them. It
   flags that the code exists; Sidik reports what pulling it did.
 - Buy tax, where the scanners are on their strongest ground: GoPlus's figure
-  matched the executed one on **183 of 183** addresses, within a percentage
+  matched the executed one on **185 of 185** addresses, within a percentage
   point. honeypot.is matched on 187 of 189 and missed the two it could not
   simulate — 7SiN and ROOTED, the fee-on-transfer tokens on V3, reported at
   0% where the fork measured 2.99% and 6.99%. A comparison that only showed

@@ -4881,6 +4881,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x3aa748515e96420a0aee76fa6251d90acdb3e6e4": {
     "askedOn": "2026-08-31",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -4894,6 +4909,12 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0xa88594d404727625a9437c3f886c7643872296ae": {
     "askedOn": "2026-08-31",
+    "goplus": {
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isOpenSource": true,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -5141,6 +5162,9 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x820c137fa70c8691f0e44dc420a5e53c168921dc": {
     "askedOn": "2026-08-31",
+    "goplus": {
+      "isOpenSource": true
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -5162,8 +5186,8 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
  */
 export const SCANNER_STATS = {
   "honeypotGoplus": {
-    "total": 146,
-    "agree": 140,
+    "total": 147,
+    "agree": 141,
     "sidikOnly": [
       "Anastasia",
       "TZ",
@@ -5191,8 +5215,8 @@ export const SCANNER_STATS = {
     ]
   },
   "ownerTrapGoplus": {
-    "total": 41,
-    "agree": 11,
+    "total": 42,
+    "agree": 12,
     "sidikOnly": [
       "SPX30K",
       "SPX82K",
@@ -5229,8 +5253,8 @@ export const SCANNER_STATS = {
     ]
   },
   "buyTaxGoplus": {
-    "total": 183,
-    "agree": 183,
+    "total": 185,
+    "agree": 185,
     "sidikOnly": [],
     "scannerOnly": []
   },

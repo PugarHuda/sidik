@@ -8,8 +8,10 @@ the catalogue, re-count before reusing this:
 pnpm --filter @sidik/engine counts
 ```
 
-Last recounted: **2026-08-31**, after the catalogue was widened from 194 to
-207 addresses to cover what a judge actually pastes. Deadline: **2026-09-02 23:59 UTC**.
+Last recounted: **2026-08-31**, after the LP-rug probe was taught to find a
+V3 pool's launch position and the whole catalogue was re-recorded against it.
+A drift test now fails the build when these numbers and the catalogue part
+company: `engine/test/docsDrift.test.ts`. Deadline: **2026-09-02 23:59 UTC**.
 
 ---
 
@@ -31,9 +33,9 @@ project measured and found wanting:
   nothing.
 - **"What does the scanner say?"** GoPlus and honeypot.is were run over the
   same catalogue and the answers published in both directions. On buy tax they
-  are excellent — GoPlus matched the executed figure on **183 of 183**. On
+  are excellent — GoPlus matched the executed figure on **185 of 185**. On
   who can still stop a holder from leaving, GoPlus agreed with the fork on
-  **11 of 41**.
+  **12 of 42**.
 - **"Does it trade?"** Sidik corroborates pool pricing against **BingX and
   Gate** — one of those venues is on the judging panel — and treats the
   agreement as context, never as a verdict.
@@ -95,11 +97,11 @@ touching a verdict. 206 addresses carry a scanner reading.
 
 | Question | Agreement | Sidik-only | Scanner-only |
 |---|---|---|---|
-| Buy tax (GoPlus) | **183 / 183** | 0 | 0 |
+| Buy tax (GoPlus) | **185 / 185** | 0 | 0 |
 | Buy tax (honeypot.is) | 187 / 189 | 2 — 7SiN 2.99%, ROOTED 6.99% | 0 |
 | Honeypot (honeypot.is) | 185 / 192 | 1 — DEAI | 6 |
-| Honeypot (GoPlus) | 140 / 146 | 3 — Anastasia, TZ, ROOTED | 3 |
-| Owner can trap (GoPlus) | **11 / 41** | **21** | 9 |
+| Honeypot (GoPlus) | 141 / 147 | 3 — Anastasia, TZ, ROOTED | 3 |
+| Owner can trap (GoPlus) | **12 / 42** | **21** | 9 |
 
 Read that table honestly and it says two things at once. **Where the scanners
 are strong, they are excellent** — buy tax is a solved problem and GoPlus
@@ -123,7 +125,7 @@ arrived, Drift-d publishes that its own signal performs worse than chance.
 What separates Sidik is how many times it has been made to hold:
 
 - **207 addresses**, not one protocol or one proposal.
-- **1,816 fork transactions** mined across six probes.
+- **1,843 fork transactions** mined across six probes.
 - The whole catalogue **re-recorded end to end** after the owner-switch probe
   was added, rather than patched.
 - Every disagreement with two independent scanners **published in both
@@ -140,10 +142,10 @@ rug surface, proxy slots — are doing the thing this project measured. The
 
 ## What it found (counted, not estimated)
 
-- **207 Base addresses** probed end to end, **1,816 fork transactions** mined
-- **60 fail at least one probe**, 17 pass everything that applied, 130 come
+- **207 Base addresses** probed end to end, **1,843 fork transactions** mined
+- **68 fail at least one probe**, 18 pass everything that applied, 121 come
   back N/A
-- The findings: **29 LP rugs, 25 owner traps, 18 hidden fees, 7 honeypots,
+- The findings: **37 LP rugs, 25 owner traps, 18 hidden fees, 7 honeypots,
   1 drainable wallet** (a token can fail more than one)
 - 116 trade on Uniswap V3, 88 on V2
 - The owner-switch probe applied to 56 addresses: 25 failed, 17 passed, 14
@@ -193,22 +195,25 @@ block with your own archive RPC, re-executes the probes, and diffs the result
 against what is published for that address. `--sample N` does it for a spread
 of the catalogue. It runs in CI on every push.
 
-Run fresh on **2026-08-30**, against the deployed catalogue:
+Run fresh on **2026-08-31**, against the re-recorded catalogue:
 
 ```
 pnpm --filter @sidik/engine reproduce --sample 3
-→ 12 verdict(s) reproduced, 0 differed.
+→ 9 verdict(s) reproduced, 0 differed.
 ```
 
-Three addresses drawn across the catalogue (Anastasia, TWEAK, HODL) — including
-the honeypot whose sell reverts — every probe
-re-executed on a new fork at block 50,200,000, every verdict identical to the
-published one. Anyone with a Base archive RPC can run the same command against
-any address in the catalogue and get the same answer.
+Three addresses drawn across the catalogue, every probe re-executed on a new
+fork at block 50,200,000, every verdict identical to the published one —
+including the LP-rug verdicts the new pool-birth search produces, which is the
+part that had just changed. Anyone with a Base archive RPC can run the same
+command against any address in the catalogue and get the same answer.
 
 The catalogue was re-recorded end to end after the owner-switch probe was
-added — then widened to 207, every verdict regenerated rather than patched — so the
-published catalogue and the current probe set are the same generation of code.
+added, widened to 207, and re-recorded again when the LP-rug probe learned to
+find a pool's launch position — every verdict regenerated rather than patched,
+so the published catalogue and the current probe set are the same generation of
+code. That rule is enforced rather than remembered: the generator refuses to
+leave a run behind that was produced by an older way of measuring.
 
 ## Honest limits
 
@@ -220,18 +225,27 @@ State these; the field rewards it.
   not mock data, and the code that produced them is in the repo. **There is no
   hosted engine, and the site says so rather than naming a URL that does not
   answer.**
-- **130 of 207 addresses come back N/A**, and the single largest cause is LP
-  rug on Uniswap V3: the probe looks for a position in a 9,000-block window —
-  about five hours on Base — and 98 V3 tokens were funded once at launch,
-  months before the pinned block. It did not find a position so it does not
-  claim one, which is the right behaviour, but it is the biggest usability cost
-  in the project. The cause is known precisely, and so is the fix: record each
-  pool's creation block once and read `Mint` from there. Searching for it at
-  probe time was measured on 2026-08-31 and rejected — binary-searching
-  `getCode` costs ~26 sequential archive reads per token, and one token had not
-  finished in twelve minutes on a free-tier RPC. The note is in
-  `engine/src/probes/lpRug.ts` so the next attempt starts from the measurement
-  rather than repeating it.
+- **121 of 207 addresses come back N/A.** It used to be 130, and the single
+  largest cause was our own search window rather than anything about the
+  tokens: the LP-rug probe looked for a V3 position in a 9,000-block window —
+  about five hours on Base — and 98 pools were funded once at launch, months
+  before the pinned block. So 98 rows said "no position could be found", which
+  is a fact about where Sidik looked wearing the clothes of a fact about the
+  pool.
+
+  That is fixed. The probe now bisects `getCode` for the block the pool was
+  created in and searches there too, and the catalogue was re-recorded against
+  it: **"no position could be found" fell from 98 to 10**, 73 rows now name the
+  contract that actually holds the liquidity, and 8 more pools turned out to be
+  drainable by a single holder. This entry had previously recorded that the fix
+  was measured and unaffordable — ~26 sequential archive reads per token, one
+  token unfinished after twelve minutes. That measurement was of the fork proxy
+  the reads were routed through, not of the reads: straight at a public Base
+  RPC the same search takes about nine seconds.
+
+  What remains N/A is mostly honest: 73 pools whose position is held by a
+  contract whose own logic would have to be bypassed to pull it, which anvil
+  can do and which would prove nothing.
 - Probes trade through Uniswap V2 and V3 only. A token whose liquidity lives on
   Aerodrome comes back N/A, with the reason attached.
 - Three Base contracts (CLANKER, ELENA, WIFHAIR) hold a single byte of code,
@@ -338,20 +352,28 @@ pass as much as for a human: concrete, counted, and explicit about its limits.
 > figure that does not appear verbatim in the run data, so it cannot invent a
 > verdict, a hash or a number.
 >
-> The catalogue is 207 Base addresses and 1,816 fork transactions. 60 fail at
-> least one probe: 29 LP rugs, 25 owner traps, 18 hidden fees, 7 honeypots, 1
-> drainable wallet. 17 pass everything that applied; 130 return N/A, and the
-> largest single cause is LP-rug on Uniswap V3 finding no position in its
-> search window — reported as "not answered", never as "safe".
+> The same run is a pre-listing check. Can it be sold, does the trade get
+> skimmed, can the pool be emptied, can one address close the exit — those are
+> the questions an exchange or a launchpad answers before a token goes live,
+> and they are the four this executes rather than estimates. It never scores a
+> token or says whether to list it; it reports what happened when it tried.
+>
+> The catalogue is 207 Base addresses and 1,843 fork transactions. 68 fail at
+> least one probe: 37 LP rugs, 25 owner traps, 18 hidden fees, 7 honeypots, 1
+> drainable wallet. 18 pass everything that applied; 121 return N/A — always
+> reported as "not answered", never as "safe". The largest cause of N/A used to
+> be the LP-rug probe failing to find a V3 position in its own search window;
+> that was our limitation rather than the chain's, and fixing it turned 88 of
+> those rows into statements about the pool.
 >
 > The finding the project exists for: 203 of the 206 checkable addresses publish verified
 > source code, and so do 59 of the 60 with a finding against them. Sourcify,
 > asked independently, holds 67 exact and 39 partial matches. "Check that the
 > contract is verified" separates almost nothing on Base. The catalogue was
 > also run through GoPlus and honeypot.is, with every disagreement published in
-> both directions: on buy tax GoPlus matched the executed figure on 183 of 183
+> both directions: on buy tax GoPlus matched the executed figure on 185 of 185
 > addresses, and on whether a privileged address can still stop a holder from
-> leaving it agreed on 11 of 41. 25 tokens have such an address, and 9 of them —
+> leaving it agreed on 12 of 42. 25 tokens have such an address, and 9 of them —
 > including USDC, EURC, cbBTC and cbETH — pass every other probe. 17 of the 25 are
 > proxy admins replacing the implementation. That is a proof of capability, not
 > an accusation or a prediction, and the interface says so on the page.
@@ -368,7 +390,7 @@ pass as much as for a human: concrete, counted, and explicit about its limits.
 >
 > Reproducibility is the claim it stakes everything on, so it is stated as a
 > number rather than a promise: `reproduce --sample 3` re-forked Base at the
-> same block and returned 12 verdicts reproduced, 0 differed. All three
+> same block and returned 9 verdicts reproduced, 0 differed. All three
 > findings, each with its method and the rows behind it, are at
 > /findings — including the one comparison Sidik loses.
 >
