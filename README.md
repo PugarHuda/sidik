@@ -196,10 +196,11 @@ after you have bought. It reads the owner-only switches straight out of the
 deployed bytecode — the PUSH4 constants a solc dispatcher compares against, so
 they are there whether or not the source was ever published — and then calls
 them. 56 of the 207 recorded addresses carry something an owner can operate
-— a switch, or a proxy whose admin can replace the code outright — and 24 of
-those failed when it was operated. Sixteen are proxies: USDC, cbBTC and cbETH
-among them, where the recorded admin was made to point the proxy at a contract
-that reverts everything, and the sell that had just worked stopped working.
+— a switch, or a proxy whose admin can replace the code outright — and 25 of
+those failed when it was operated. Seventeen are proxies: USDC, EURC, cbBTC
+and cbETH among them, where the recorded admin was made to point the proxy at
+a contract that reverts everything, and the sell that had just worked stopped
+working.
 That is not an accusation, it is what the contract permits, executed. Where
 `mint` exists, Sidik has the owner print supply and sell it into the same pool
 the holder has to exit through, and reports what the exit was worth before and
@@ -336,12 +337,12 @@ own, say about each recorded address, and `SCANNER_STATS` counts how that
 lines up with what was executed. Both directions are listed, because a
 comparison that shows only the flattering half is not one:
 
-- Honeypots, against GoPlus (131 addresses where both answered): 125 agree.
+- Honeypots, against GoPlus (146 addresses where both answered): 140 agree.
   Execution caught three GoPlus cleared — Anastasia, ROOTED, and TZ, whose
   pool holds WETH but whose buy reverts at every size tried. GoPlus flagged
   three the fork sold: NVO, ANSEMCAT, CASHCAT.
-- Honeypots, against honeypot.is (179): 173 agree, and every disagreement is
-  honeypot.is flagging a token the fork sold — DGAI, FOLD, COBIE, Alpe,
+- Honeypots, against honeypot.is (192): 185 agree. Execution caught one it
+  cleared — DEAI — and it flagged six the fork sold: DGAI, FOLD, COBIE, Alpe,
   KEYCAT, VLTX. The scanners describe the chain on the day they were asked
   and the verdicts describe block 50,200,000, so a token that changed in
   between would look exactly like a scanner being wrong. Execution settles
@@ -356,16 +357,18 @@ comparison that shows only the flattering half is not one:
   (COBIE is the token whose owner Sidik proved *could* stop the sell; they
   had not.)
 - Owner traps, against GoPlus's `transfer_pausable` / `is_blacklisted` /
-  `is_mintable` flags (38): 9 agree. GoPlus did not flag DEGEN or XYJ, whose
-  owners' `pause()` stopped the sell on the fork, nor PP, whose owner minted
-  ten billion tokens and sold them — nor any of the sixteen proxies (USDC,
-  cbBTC, cbETH, USDbC among them) whose admin can replace every byte of code,
-  which Sidik did, and the sell stopped. It flagged nine whose switches are
-  dead — ownership renounced, the call reverted — BRETT among them. It flags
-  that the code exists; Sidik reports what pulling it did.
+  `is_mintable` flags (41): 11 agree — the widest gap in the whole comparison,
+  and the one that says most about what inference can reach. GoPlus did not
+  flag DEGEN or XYJ, whose owners' `pause()` stopped the sell on the fork, nor
+  PP, whose owner minted supply and sold it — nor any of the proxies (USDC,
+  EURC, cbBTC, cbETH, USDbC among them) whose admin can replace every byte of
+  code, which Sidik did, and the sell stopped. Twenty-one findings in that
+  column are execution's alone. It flagged nine whose switches are dead —
+  ownership renounced, the call reverted — BRETT and VIRTUAL among them. It
+  flags that the code exists; Sidik reports what pulling it did.
 - Buy tax, where the scanners are on their strongest ground: GoPlus's figure
-  matched the executed one on **164 of 164** addresses, within a percentage
-  point. honeypot.is matched on 175 of 177 and missed the two it could not
+  matched the executed one on **183 of 183** addresses, within a percentage
+  point. honeypot.is matched on 187 of 189 and missed the two it could not
   simulate — 7SiN and ROOTED, the fee-on-transfer tokens on V3, reported at
   0% where the fork measured 2.99% and 6.99%. A comparison that only showed
   the rows execution wins would not be one.
