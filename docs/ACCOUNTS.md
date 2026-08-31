@@ -30,6 +30,16 @@ Proves what a Base token does to you by doing it — buys, sells and rugs it on 
 
 **Location:** `Base` · **Link:** `https://sidik-eight.vercel.app`
 
+**One more post worth making, once the live run is deployed and verified:**
+
+```
+You can now paste any Base token into Sidik and it will fork the chain and
+execute the probes while you watch. Buy, sell, transfer, pull the pool, throw
+the owner switches. About thirty seconds.
+
+Not a scan. Not a score. The transactions, and what they did.
+```
+
 **Profile image:** the site's own mark — a fingerprint over the dark ground.
 Screenshot the header at `https://sidik-eight.vercel.app` at 2× and crop
 square; it matches the OG cards a judge will already have seen.

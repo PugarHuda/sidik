@@ -70,8 +70,10 @@ export default function Home({ trap }: { trap: TrapStat }) {
         <p className="mt-5 max-w-xl text-base leading-7 text-fg-dim sm:text-lg">
           No wallet, no API key, no signup. Sidik bought, sold and transferred{" "}
           <span className="text-fg">{FIXTURE_COUNT} Base addresses</span>{" "}
-          against a forked chain and recorded what each one actually did. Paste an
-          address to see whether it is covered, or open an example.
+          against a forked chain and recorded what each one actually did. Paste any
+          address: if it is in that catalogue you get the recorded run instantly, and
+          if it is not, Sidik will{" "}
+          <span className="text-fg">fork Base and execute it while you watch</span>.
         </p>
 
         <form

@@ -124,6 +124,13 @@ arrived, Drift-d publishes that its own signal performs worse than chance.
 
 What separates Sidik is how many times it has been made to hold:
 
+- **A live run, hosted.** Paste any Base address and Sidik forks the chain and
+  executes the probes while you watch. Getting there meant giving up on
+  container hosts — Fly wants a card, Hugging Face Spaces a paid tier — and
+  putting Foundry inside a serverless function instead: the release downloads
+  into `/tmp` in under a second and anvil spawns there exactly as it does on a
+  laptop. The recorded catalogue is still the default, because it answers
+  instantly and cannot be rate-limited.
 - **207 addresses**, not one protocol or one proposal.
 - **1,843 fork transactions** mined across six probes.
 - The whole catalogue **re-recorded end to end** after the owner-switch probe
@@ -364,6 +371,12 @@ pass as much as for a human: concrete, counted, and explicit about its limits.
 > model orders the probes and writes the prose; a numeric guard rejects any
 > figure that does not appear verbatim in the run data, so it cannot invent a
 > verdict, a hash or a number.
+>
+> Paste any Base address and it will fork the chain and execute the probes
+> while you watch, in about thirty seconds; the 207 already recorded answer
+> instantly instead. Hosting that meant abandoning container hosts and putting
+> Foundry inside a serverless function, which is the difference between an
+> agent you can read about and one you can point at your own token.
 >
 > The same run is a pre-listing check. Can it be sold, does the trade get
 > skimmed, can the pool be emptied, can one address close the exit — those are
