@@ -4999,6 +4999,16 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
       "sellTaxPct": 0,
       "isOpenSource": true,
       "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
     }
   },
   "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42": {
@@ -5200,8 +5210,8 @@ export const SCANNER_STATS = {
     ]
   },
   "honeypotHoneypotIs": {
-    "total": 192,
-    "agree": 185,
+    "total": 193,
+    "agree": 186,
     "sidikOnly": [
       "DEAI"
     ],
@@ -5259,8 +5269,8 @@ export const SCANNER_STATS = {
     "scannerOnly": []
   },
   "buyTaxHoneypotIs": {
-    "total": 189,
-    "agree": 187,
+    "total": 190,
+    "agree": 188,
     "sidikOnly": [
       "7SiN 2.99% vs 0%",
       "ROOTED 6.99% vs 0%"

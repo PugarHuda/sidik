@@ -449,22 +449,24 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0x9bD2…168c; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0x9bD2…168c, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "0% of LP is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "<1% of LP is held by a contract Sidik does not recognise; its owner 0x31FA…72A9 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
         "numbers": {
-          "ownerLpPct": "0%",
+          "ownerLpPct": "<1%",
           "burnedLpPct": "0%",
           "holderValueBefore": "46.61 WETH",
           "holderValueAfter": "46.61 WETH",
           "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9"
         },
         "txHashes": []
       },
@@ -491,7 +493,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "PEPETO passed both honeypot and hidden-fee checks: buying, selling, and transferring all worked, with a transferee also able to sell. Buy tax, sell tax, and later sell tax were all 0%, and a transfer of 199,962,929.53 PEPETO arrived as 199,962,920.53 PEPETO.\n\nLP rug status is not applicable: 0% of LP is owner-held, 0% burned, and the LP sits in contract 0x9bD25e67bF390437C8fAF480AC735a27BcF6168c, whose own code determines withdrawal ability.\n\nOwner-trap is not applicable: 31 known owner switches were searched, none found; one unoperated function, LOCK8605463013(), was identified but not exercised, so its effect is unproven."
+    "narration": "Token PEPETO passed both the honeypot and hidden-fee checks: buys and sells succeeded, a transferee could sell, and buy/sell/transfer taxes were all 0%. Two probes returned NA. For LP-rug, <1% of LP sits in an unrecognized contract; its owner was impersonated and the one exposed release path was called (1 of 7), and liquidity did not move — not proof it's safe, only that this path didn't open. For owner-trap, 31 known owner switches were searched and none found, but an unoperated function named LOCK8605463013() exists, so its effect on holders remains unproven."
   },
   "0x07ec06ae91ee22302c097a3781cadcf99ac98e2a": {
     "scan": {
@@ -614,7 +616,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           }
         ],
         "numbers": {
-          "ownerLpPct": "0%",
+          "ownerLpPct": "<1%",
           "burnedLpPct": "99.94%",
           "holderValueBefore": "85.9 WETH",
           "holderValueAfter": "85.9 WETH",
@@ -646,7 +648,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "txHashes": []
       }
     ],
-    "narration": "**Token safety summary (DEAI):**\n\nBuying failed outright — every buy attempt reverted with \"UniswapV2: TRANSFER_FAILED,\" despite the pool holding 89.39 WETH in liquidity. Across 3 buy attempts, 0 DEAI was ever acquired. Because no tokens could be obtained, both the hidden-fee test and owner-trap test returned no result (NA) — there was no position to evaluate.\n\nOn the positive side, the LP check passed: 99.94% of LP supply is burned, with 0% held by the owner, indicating liquidity cannot be pulled.\n\nNet result: token is currently not tradable (honeypot behavior confirmed on buy), despite locked liquidity."
+    "narration": "Honeypot probe: FAIL. Buying DEAI reverted on all 3 attempts (UniswapV2: TRANSFER_FAILED), with 0 DEAI bought against a pool holding 89.39 WETH.\n\nHidden fee probe: NA, since no tokens could be acquired (0 sent, 0 received).\n\nLP rug probe: PASS. 99.94% of LP is burned; only <1% remains with the owner. Holder value stayed at 85.9 WETH before and after.\n\nOwner trap probe: NA. 31 switches were searched, including setFee(uint256), but none were pulled since the buy failure left no position to test."
   },
   "0xdeb18e7b78ffd555d5e94ebe110e1ff2d778bd8b": {
     "scan": {
@@ -739,12 +741,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0x9bD2…168c; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0x9bD2…168c, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "1% of LP is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "1% of LP is held by a contract Sidik does not recognise; its owner 0x31FA…72A9 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -754,7 +756,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "holderValueBefore": "35.86 WETH",
           "holderValueAfter": "35.86 WETH",
           "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9"
         },
         "txHashes": []
       },
@@ -820,7 +824,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "DOS passed both the honeypot and hidden-fee checks: buying, selling, transferring, and sells from a transferee wallet all succeeded, with 0% buy/sell tax and full quoted amounts received (858,319,652.05 DOS bought; 286,106,559.68 DOS sent, 286,106,550.68 DOS received).\n\nLP-rug status is not applicable: 1% of LP sits in an unrecognized contract (0x9bD25e67bF390437C8fAF480AC735a27BcF6168c), 0% is burned, and whether it can be withdrawn is unproven; holder value stayed 35.86 WETH before and after.\n\nOwner-trap is not applicable: 31 known owner switches were searched, none found/pulled; owner is the zero address; an unoperated function named LOCK8605463013() exists but its effect is unproven."
+    "narration": "DOS passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (858,319,652.05 DOS bought). It also passed the hidden-fee check, with 0% buy/sell tax and full amounts received (286,106,559.68 sent, 286,106,550.68 received).\n\nLP-rug status is inconclusive: 1% of LP sits in an unrecognised contract (0x9bD2…168c); its owner was impersonated and the one exposed release path (1 of 7) did not move funds — not proof of safety.\n\nOwner-trap check found no known owner switches among 31 searched, but one unoperated function, LOCK8605463013(), remains unproven."
   },
   "0x3b627e17622f479e91d3a6e65846991e96c351a2": {
     "scan": {
@@ -835,9 +839,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
+      "hiddenFee",
       "lpRug",
-      "ownerTrap",
-      "hiddenFee"
+      "ownerTrap"
     ],
     "verdicts": [
       {
@@ -868,50 +872,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xa8e215b79b80fcd46db995016f893ccb7e22449996f67dc112853a873781ca27",
           "0x791fc9607eba7c3962dea9c851fa7f921652c718c8e217f853c07f32a24aeea9"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x9bD2…168c; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "0% of LP is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "0%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "1 privileged-looking function found that Sidik does not operate",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry LOCK8605463013() — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000",
-          "privilegedNotOperated": "LOCK8605463013()"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -951,9 +911,55 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xdd98d67aa372bffefb2746844ee2d31d8c3ba67d2af8503ba911e5b0b0e1fb73",
           "0xe55d9fc738a151f05c698242ea12d0a1b89aa17c185be7d79b370b05b1284547"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0x9bD2…168c, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "<1% of LP is held by a contract Sidik does not recognise; its owner 0x31FA…72A9 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "<1%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "1 privileged-looking function found that Sidik does not operate",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry LOCK8605463013() — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "privilegedNotOperated": "LOCK8605463013()"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "TEQOIN passed both honeypot and hidden-fee checks: buying, selling, and transferring all worked, with sells succeeding (1,154,266,944.75 TEQOIN bought, then sold) and transfers/trades matching quotes at 0% fee (384,755,657.25 sent, 384,755,648.25 received; buyTax 0%, sellTax 0%, sellTaxLater 0%). LP rug status is not applicable: 0% of LP is held by owner, 0% burned, with 0% held by an unrecognized contract (0x9bD25e67bF390437C8fAF480AC735a27BcF6168c), so drain risk depends on that contract's own code. Owner-trap check found no operated privileged switches among 31 searched; one unoperated function, LOCK8605463013(), was found via signature lookup only, with owner address null."
+    "narration": "Honeypot and hidden-fee checks both passed: a buy of 1,154,266,944.75 TEQOIN could be sold back, a transferred balance also sold successfully, and buy/sell/transfer taxes were all 0% (384,755,657.25 TEQOIN sent vs 384,755,648.25 TE"
   },
   "0x3798553e8225fe075198e126b64e0955909c4595": {
     "scan": {
@@ -1009,8 +1015,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
       "lpRug",
+      "ownerTrap",
       "hiddenFee"
     ],
     "verdicts": [
@@ -1044,6 +1050,30 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0x9bD2…168c, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "<1% of LP is held by a contract Sidik does not recognise; its owner 0x31FA…72A9 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "<1%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "24.38 WETH",
+          "holderValueAfter": "24.38 WETH",
+          "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9"
+        },
+        "txHashes": []
+      },
+      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "1 privileged-looking function found that Sidik does not operate",
@@ -1064,28 +1094,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
         },
         "txHashes": [],
         "applicable": false
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x9bD2…168c; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "0% of LP is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "0%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "24.38 WETH",
-          "holderValueAfter": "24.38 WETH",
-          "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -1127,7 +1135,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "LAYOOO passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (bought amount 3,792,334,467.64 LAYOOO). No hidden fees were found on buy, sell, or transfer — feePct, buyTaxPct, and sellTaxPct are all 0%, with a transfer of 1,264,111,498.21 LAYOOO sent and 1,264,111,489.21 LAYOOO received. Ownership checks found no operated privileged switches out of 31 searched, though an unoperated function named LOCK8605463013() exists. LP is held by an unrecognized contract (0x9bD2…168c), with 0% owner LP and 0% burned LP, so rug risk via that contract is unproven."
+    "narration": "LAYOOO passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (3,792,334,467.64 LAYOOO bought, sell succeeded). No hidden fees were found on buy, sell, or transfer (buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%). LP safety is unproven: under 1% of LP sits in an unrecognized contract, and the one exposed release path was tried and did not move funds — not proof it's safe. Ownership is renounced (owner is the zero address); 31 known owner switches were searched with none found, though an unoperated function named LOCK8605463013() exists."
   },
   "0x6d4e90b6d909ba295f8c6065d3f1dde0c529c477": {
     "scan": {
@@ -1220,22 +1228,24 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0x9bD2…168c; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0x9bD2…168c, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "0% of LP is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "<1% of LP is held by a contract Sidik does not recognise; its owner 0x31FA…72A9 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
         "numbers": {
-          "ownerLpPct": "0%",
+          "ownerLpPct": "<1%",
           "burnedLpPct": "0%",
           "holderValueBefore": "15.4 WETH",
           "holderValueAfter": "15.4 WETH",
           "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9"
         },
         "txHashes": []
       },
@@ -1301,7 +1311,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "Honeypot check: PASS — buying and selling both succeeded, including a sell from a transferee wallet (3,927,088,759.12 EYE bought, sell succeeded).\n\nLP rug check: NA — LP is held by a contract (0x9bD25e67bF390437C8fAF480AC735a27BcF6168c), 0% held by owner, 0% burned; whether it can be withdrawn is unproven.\n\nOwner trap check: NA — 31 known owner switches searched, none found; one unoperated function, LOCK8605463013(), was identified but not tested.\n\nHidden fee check: PASS — buy, sell, and transfer all delivered full amounts, 0% fee/buy/sell tax."
+    "narration": "Honeypot check: PASS — buying and selling both succeeded, including a sell from a transferee wallet (3,927,088,759.12 EYE bought).\n\nHidden fee check: PASS — buy tax 0%, sell tax 0%, sell tax later 0%; a transfer of 1,309,029,595.37 EYE arrived as 1,309,029,586.37 EYE.\n\nLP rug check: NA — <1% of LP sits in an unrecognized contract (0x9bD2…168c); its owner was impersonated, called its one exposed function (1 of 7), and liquidity did not move (15.4 WETH before and after), which only shows this exit didn't open.\n\nOwner trap check: NA — 31 known owner switches searched, none found; LOCK8605463013() exists but was not operated, so its effect is unproven."
   },
   "0x8baef50e259174df675a264eff3b329ae8d1c667": {
     "scan": {
@@ -2317,9 +2327,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
+      "lpRug",
       "ownerTrap",
-      "lpRug"
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -2350,6 +2360,52 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xde9544ea447819ec091b1dc2e0f4641cfe6aa5e1ae0cd0240c492b5474320e16",
           "0x957f13b43e206b25315ee53928f4ac9d1f414fa3295158c27f2f0e751b88e1f9"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0x9bD2…168c, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "<1% of LP is held by a contract Sidik does not recognise; its owner 0x31FA…72A9 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "<1%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "1 privileged-looking function found that Sidik does not operate",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry LOCK8605463013() — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "privilegedNotOperated": "LOCK8605463013()"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -2389,53 +2445,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x8009961734935a1f2c9ba10b870a338acd132a7f4149eb33f106a00fdcfadcfd",
           "0xe6e3632ff1e4240aa990b7d085ed220fc51587e7f74eeddb4bb9f7ef8b2bd8d9"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "1 privileged-looking function found that Sidik does not operate",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry LOCK8605463013() — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000",
-          "privilegedNotOperated": "LOCK8605463013()"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x9bD2…168c; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "0% of LP is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "0%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0x9bD25e67bF390437C8fAF480AC735a27BcF6168c",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       }
     ],
-    "narration": "TMX passed both executed probes. Honeypot check: buying 5,198,773,381.74 TMX and selling both from the buyer and from a transfer recipient succeeded. Hidden-fee check: sending 1,732,924,469.58 TMX resulted in 1,732,924,460.58 TMX received, with feePct, buyTaxPct, sellTaxPct and sellTaxLaterPct all at 0%.\n\nTwo probes are not applicable. ownerTrap: 31 known owner switches were searched, none found; a function named LOCK8605463013() exists but is not operated, so its effect is unproven. lpRug: 0% of LP is owner-held; LP sits in contract 0x9bD25e67bF390437C8fAF480AC735a27BcF6168c, whose withdrawal logic is unrecognised and unproven."
+    "narration": "TMX passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (bought amount 5,198,773,381.74 TMX). Hidden-fee checks also passed, with 0% buy/sell tax and full amounts received on buy, sell, and transfer (sent 1,732,924,469.58 TMX, received 1,732,924,460.58 TMX). LP rug check is inconclusive: less than 1% of LP sits in an unrecognized contract (0x9bD2…168c) whose owner was tested (1 of 7 release paths) with no movement, but this doesn't prove safety. Owner trap check found no known owner switches among 31 searched, though an unoperated function LOCK8605463013() exists and its effect is unproven."
   },
   "0xb8d528dd93fe1f94f2ef7fdd12f59bd645c07110": {
     "scan": {
@@ -6105,34 +6117,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       "topHolders": []
     },
     "ids": [
-      "ownerTrap",
       "honeypot",
-      "hiddenFee",
-      "lpRug"
+      "ownerTrap",
+      "lpRug",
+      "hiddenFee"
     ],
     "verdicts": [
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "36 privileged-looking functions found that Sidik does not operate",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry FEE_BASE(), LOCK8605463013(), MAX_PROFIT_FEE_BPS(), MAX_TRADING_FEE_BPS(), antiDumpFeeBpsByDrop(uint256), buyFoundationFeeBps(), buyNodeFeeBps(), currentAntiDumpFeeBps(), feeProcessThreshold(), foundationFeeReceiver(), nodeFeeReceiver(), pendingAntiDumpLiquidityFee(), pendingBuyFoundationFee(), pendingBuyNodeFee(), pendingProfitFoundationFee(), pendingProfitLiquidityFee(), pendingProfitNodeFee(), pendingSellFoundationFee(), pendingSellNodeFee(), processAntiDumpFees(uint256), processBuyFees(uint256), processProfitFees(uint256), processSellFees(uint256), profitFoundationFeeBps(), profitLiquidityFeeBps(), profitNodeFeeBps(), sellFoundationFeeBps(), sellNodeFeeBps(), setExcludedFromFees(address,bool), setFeeProcessThreshold(uint256), setFeeReceivers(address,address), setProfitFees(uint256,uint256,uint256), setTradingFees(uint256,uint256,uint256,uint256), setTradingOpened(bool), swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256), tradingOpened() — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000",
-          "privilegedNotOperated": "FEE_BASE(), LOCK8605463013(), MAX_PROFIT_FEE_BPS(), MAX_TRADING_FEE_BPS(), antiDumpFeeBpsByDrop(uint256), buyFoundationFeeBps(), buyNodeFeeBps(), currentAntiDumpFeeBps(), feeProcessThreshold(), foundationFeeReceiver(), nodeFeeReceiver(), pendingAntiDumpLiquidityFee(), pendingBuyFoundationFee(), pendingBuyNodeFee(), pendingProfitFoundationFee(), pendingProfitLiquidityFee(), pendingProfitNodeFee(), pendingSellFoundationFee(), pendingSellNodeFee(), processAntiDumpFees(uint256), processBuyFees(uint256), processProfitFees(uint256), processSellFees(uint256), profitFoundationFeeBps(), profitLiquidityFeeBps(), profitNodeFeeBps(), sellFoundationFeeBps(), sellNodeFeeBps(), setExcludedFromFees(address,bool), setFeeProcessThreshold(uint256), setFeeReceivers(address,address), setProfitFees(uint256,uint256,uint256), setTradingFees(uint256,uint256,uint256,uint256), setTradingOpened(bool), swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256), tradingOpened()"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
       {
         "probe": "honeypot",
         "status": "FAIL",
@@ -6156,27 +6146,26 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "reason": "Execution reverted with reason: UniswapV2: TRANSFER_FAILED."
       },
       {
-        "probe": "hiddenFee",
+        "probe": "ownerTrap",
         "status": "NA",
-        "title": "Could not acquire tokens — no liquidity to test",
+        "title": "36 privileged-looking functions found that Sidik does not operate",
         "rows": [
           {
-            "label": "Transfer the full balance",
-            "claimed": "Recipient gets 100%",
-            "proven": "No tokens acquired to test",
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry FEE_BASE(), LOCK8605463013(), MAX_PROFIT_FEE_BPS(), MAX_TRADING_FEE_BPS(), antiDumpFeeBpsByDrop(uint256), buyFoundationFeeBps(), buyNodeFeeBps(), currentAntiDumpFeeBps(), feeProcessThreshold(), foundationFeeReceiver(), nodeFeeReceiver(), pendingAntiDumpLiquidityFee(), pendingBuyFoundationFee(), pendingBuyNodeFee(), pendingProfitFoundationFee(), pendingProfitLiquidityFee(), pendingProfitNodeFee(), pendingSellFoundationFee(), pendingSellNodeFee(), processAntiDumpFees(uint256), processBuyFees(uint256), processProfitFees(uint256), processSellFees(uint256), profitFoundationFeeBps(), profitLiquidityFeeBps(), profitNodeFeeBps(), sellFoundationFeeBps(), sellNodeFeeBps(), setExcludedFromFees(address,bool), setFeeProcessThreshold(uint256), setFeeReceivers(address,address), setProfitFees(uint256,uint256,uint256), setTradingFees(uint256,uint256,uint256,uint256), setTradingOpened(bool), swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256), tradingOpened() — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
             "ok": false
           }
         ],
         "numbers": {
-          "sent": "0 TZ",
-          "received": "0 TZ",
-          "feePct": "n/a",
-          "buyTaxPct": "n/a",
-          "sellTaxPct": "n/a"
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "privilegedNotOperated": "FEE_BASE(), LOCK8605463013(), MAX_PROFIT_FEE_BPS(), MAX_TRADING_FEE_BPS(), antiDumpFeeBpsByDrop(uint256), buyFoundationFeeBps(), buyNodeFeeBps(), currentAntiDumpFeeBps(), feeProcessThreshold(), foundationFeeReceiver(), nodeFeeReceiver(), pendingAntiDumpLiquidityFee(), pendingBuyFoundationFee(), pendingBuyNodeFee(), pendingProfitFoundationFee(), pendingProfitLiquidityFee(), pendingProfitNodeFee(), pendingSellFoundationFee(), pendingSellNodeFee(), processAntiDumpFees(uint256), processBuyFees(uint256), processProfitFees(uint256), processSellFees(uint256), profitFoundationFeeBps(), profitLiquidityFeeBps(), profitNodeFeeBps(), sellFoundationFeeBps(), sellNodeFeeBps(), setExcludedFromFees(address,bool), setFeeProcessThreshold(uint256), setFeeReceivers(address,address), setProfitFees(uint256,uint256,uint256), setTradingFees(uint256,uint256,uint256,uint256), setTradingOpened(bool), swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256), tradingOpened()"
         },
-        "txHashes": [
-          "0xab2d4471934c0928e48bebbd1781b5b297c978670dbc0ac2ed5fc5f6a488b106"
-        ]
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "lpRug",
@@ -6198,9 +6187,32 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x0000000000000000000000000000000000000000"
         },
         "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "NA",
+        "title": "Could not acquire tokens — no liquidity to test",
+        "rows": [
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "No tokens acquired to test",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "sent": "0 TZ",
+          "received": "0 TZ",
+          "feePct": "n/a",
+          "buyTaxPct": "n/a",
+          "sellTaxPct": "n/a"
+        },
+        "txHashes": [
+          "0xab2d4471934c0928e48bebbd1781b5b297c978670dbc0ac2ed5fc5f6a488b106"
+        ]
       }
     ],
-    "narration": "Sidik (TZ): 31 known owner-switch functions were searched in the bytecode and none were found; owner address is 0x0000000000000000000000000000000000000000. The pool holds 2.45 WETH, but all 3 buy attempts reverted with \"UniswapV2: TRANSFER_FAILED,\" leaving 0 TZ bought. Because no tokens could be acquired, the hidden-fee check is not applicable (0 TZ sent, 0 TZ received). LP burn is only 0.10%, with 0% held by an identifiable owner and lpOwner shown as 0x0000000000000000000000000000000000000000, so drain risk could not be assessed."
+    "narration": "⚠️ Pool holds 2.45 WETH but the buy reverted (Execution reverted with reason: UniswapV2: TRANSFER_FAILED.)\n— 36 privileged-looking functions found that Sidik does not operate\n— LP is not burned (0.10%) and its holder could not be identified\n— Could not acquire tokens — no liquidity to test"
   },
   "0x901d6f4e31cad7eae70711d8bc0f1cc071ad3e54": {
     "scan": {
@@ -8345,7 +8357,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "txHashes": []
       }
     ],
-    "narration": "KYCA failed the honeypot probe: the pool holds 0.313 WETH, but all 3 buy attempts reverted with UniswapV2Library: INSUFFICIENT_LIQUIDITY, leaving 0 KYCA bought. Because no tokens could be acquired, the hiddenFee and ownerTrap probes returned NA (0 KYCA sent/received, no position to test). The lpRug probe also returned NA: burned LP is 0% and owner LP is 0%, with no identifiable LP holder. Owner switch scan found 31 switches searched, including mint(address,uint256), though none were pulled."
+    "narration": "KYCA failed the honeypot probe: the pool holds 0.313 WETH, but all 3 buy attempts reverted with \"UniswapV2Library: INSUFFICIENT_LIQUIDITY,\" leaving 0 KYCA bought. Because no tokens could be acquired, the hiddenFee and ownerTrap probes returned NA (0 KYCA sent/received, no position to test). The lpRug probe also returned NA: 0% of LP is burned and the LP holder could not be identified, so drain risk is unconfirmed. Owner scan found 31 switches searched, with mint(address,uint256) present but none pulled."
   },
   "0x867340cfc92a771cd3cffcff056a84490cade7c0": {
     "scan": {
@@ -12559,7 +12571,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "13% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "13% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -12571,7 +12583,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x158c757581230dece9eD3872C26035CE39F69aBf",
           "venue": "uniswap-v3",
           "positionId": "5812445",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -12606,7 +12619,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "reason": "every call into the token reverts after the upgrade (The contract function \"balanceOf\" reverted.)"
       }
     ],
-    "narration": "Buy and sell both succeeded, including from a transferred wallet, with no hidden fee on buy, sell, or transfer (0.03244 cbBTC bought; 0.01081 cbBTC sent/received; 0% fee, buy tax, and sell tax). LP is 13% held by an unrecognized contract, so whether it can be pulled depends on that contract's code. Critically, the proxy admin (0x5e8114643966B7FD7d5CfdD8695FfC5c51fF32c0) can upgrade the implementation: a sell that had returned 0.994 WETH later reverted entirely after the upgrade, meaning holders can be trapped."
+    "narration": "Honeypot check passed: buying and selling both succeeded, including a transferred wallet's sale. Hidden fee check passed: buy, sell, and transfer all moved 0.01081 cbBTC with 0% fee/tax. LP rug check was inconclusive: 13% of liquidity sits in an unrecognized contract, which isn't proven safe or unsafe. Owner trap check failed: the proxy admin upgraded the implementation, and a sell that previously returned 0.994 WETH then reverted entirely, meaning the owner can block exits after purchase."
   },
   "0x0578d8a44db98b23bf096a382e016e29a5ce0ffe": {
     "scan": {
@@ -13276,7 +13289,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "16% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "16% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -13288,7 +13301,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x2c9d6ec38647AcCC4F7190306Cf6BE417c2BC66a",
           "venue": "uniswap-v3",
           "positionId": "5807095",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -13322,7 +13336,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "reason": "every call into the token reverts after the upgrade (The contract function \"balanceOf\" reverted.)"
       }
     ],
-    "narration": "Buy/sell and hidden-fee checks passed: buying, selling, and full-balance transfers all worked with no fee (0%), moving 118.58 USDbC and 355.76 USDbC with proceeds matching quotes. LP rug status is inconclusive: 16% of liquidity is held by an unrecognized contract, so drainability can't be confirmed. Critically, the ownerTrap probe failed: by impersonating the proxy admin (0xd94E416cf2c7167608B2515B7e4102B41efff94f), the proxy was pointed to a new implementation that reverts all calls — a sell that had returned 0.1583 WETH then reverted entirely. This proxy upgrade capability makes the token unsafe despite passing basic trade tests."
+    "narration": "Buying, selling, and transferring all worked with no hidden fees (0% buy/sell tax; 118.58 USDbC sent and received in full). LP-rug check was inconclusive: 16% of liquidity sits in an unrecognized contract, so safety there is unproven, not confirmed. Critically, the proxy admin (0xd94E416cf2c7167608B2515B7e4102B41efff94f) upgraded the implementation and broke the token entirely — a sell that had returned 0.1583 WETH moments before reverted afterward, with balanceOf itself reverting. Overall verdict: this token failed the owner-trap test and cannot be considered safe."
   },
   "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22": {
     "scan": {
@@ -13738,14 +13752,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -13756,7 +13770,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5490947",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -13782,7 +13798,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "$COBIE passed both the honeypot and hidden-fee checks: a buy of 904,799 $COBIE could be sold, a transferred balance also sold successfully, and a transfer of 301,599.66 $COBIE arrived in full, with buy/sell/fee tax all at 0%. Two checks were not applicable: 100% of active liquidity (holder value 4.03 WETH before and after) sits in an unrecognized contract (0x25c9…Bd52), so whether it can be withdrawn depends on that contract's own code. A scan of 31 known owner-switch functions found none, though unknown privileged code may still exist."
+    "narration": "Token $COBIE passed all applicable checks. A test buy of 904,799 $COBIE was resold successfully, and a wallet that received a transfer also sold successfully, confirming it is not a honeypot. No hidden fees were found: 301,599.66 $COBIE sent equaled 301,599.66 $COBIE received, with buy, sell, and later-sell tax all at 0%. Liquidity is not at risk: 100% of LP sits in the UniV3LPLocker contract, 0% burned, and holder value stayed at 4.03 WETH before and after. An owner-trap check searched 31 known owner switches and found none, with owner address 0x0000000000000000000000000000000000000000; this probe was marked not applicable."
   },
   "0xc6cb72971c78e83022ff4fe668fa52d5d3175e6c": {
     "scan": {
@@ -14537,14 +14553,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -14555,7 +14571,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5489751",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -14581,7 +14599,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "BRIAN passed both automated checks: a buy of 2,022,195.32 BRIAN could be sold again, and a transferred balance could also be sold. No hidden fees were found on buying, selling, or transferring — buy tax, sell tax, and later sell tax were all 0%, and a transfer of 674,065.1 BRIAN arrived in full. Liquidity (100%, Uniswap v3 position 5489751, holder value 1.89 WETH before and after) is held by an unrecognized contract, so rug risk depends on code not reviewed here. A scan of 31 known owner-control switches (pause, blacklist, mint, fee/trading setters) found none present, though unnamed privileged logic can't be ruled out."
+    "narration": "BRIAN passed all three executed checks. Buying and selling both succeeded, including from a wallet that received a transfer (2,022,195.32 BRIAN bought; transferee sell succeeded). No hidden fees were found: buy tax 0%, sell tax 0%, sell tax later 0%, with 674,065.1 BRIAN sent and 674,065.1 BRIAN received in full. LP safety check passed: 100% of active liquidity sits locked in the UniV3LPLocker contract, with 0% burned and holder value unchanged at 1.89 WETH before and after. The owner-trap probe was not applicable: 31 known owner switches were searched for and none were found."
   },
   "0xe43df70a3a8067680aae799fa5171c3f473b46ed": {
     "scan": {
@@ -14880,14 +14898,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -14898,7 +14916,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5598254",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -14924,7 +14944,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "SLNA passed both the honeypot and hidden-fee checks: buying, selling, and transferring all worked, and 6,346,739.05 SLNA sent arrived as 6,346,739.05 SLNA received, with buy/sell tax at 0%. A test buy of 19,040,217.15 SLNA sold successfully, including from a transferee wallet.\n\nTwo probes returned NA rather than pass/fail. LP: 100% of liquidity sits in an unrecognized contract (0x25c9…Bd52) on uniswap-v3, so drainability depends on that contract's own code. Owner traps: 31 known owner switches were searched in the bytecode and none were found, though unknown privileged code could still exist."
+    "narration": "SLNA passed all executed checks. Honeypot probe: PASS — a buy of 19,040,217.15 SLNA was resold successfully, and a transferred balance was also sold. Hidden-fee probe: PASS — buying, selling, and transferring 6,346,739.05 SLNA showed 0% fee, 0% buy tax, and 0% sell tax. LP-rug probe: PASS — 100% of active liquidity is held in the UniV3LPLocker contract, with holder value unchanged at 1.97 WETH before and after. Owner-trap probe: marked NA — 31 known owner switches (pause, blacklist, trading/fee setters, mint) were searched in bytecode, with none found, though unnamed privileged code can't be ruled out."
   },
   "0x08eb45c0a7ec0dd112026ecc0e10169efbbc8e7f": {
     "scan": {
@@ -15168,14 +15188,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -15186,7 +15206,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5509036",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -15212,7 +15234,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "RUSSELL token checks: Honeypot probe PASSED — buying and selling both succeeded, including a sell from a transferred-to wallet (bought 4,606,081.77 RUSSELL). Hidden-fee probe PASSED — buy, sell, and full-balance transfer all matched quotes exactly (1,535,360.59 RUSSELL sent and received; 0% fee, buy tax, and sell tax). LP-rug probe is NA: 100% of liquidity sits in an unrecognized contract (0x25c9…Bd52, Uniswap v3, position 5509036), so drainability is unknown. Owner-trap probe is NA: 31 known owner switches were searched and none found, though privileged code under unknown names may still exist."
+    "narration": "RUSSELL passed all executed checks. Honeypot probe: buying and selling both succeeded, including a sell from a wallet that received a transfer (4,606,081.77 RUSSELL bought, transferee sell succeeded). Hidden-fee probe: buy, sell, and full-balance transfer all matched quoted amounts (1,535,360.59 RUSSELL sent and received, feePct 0%, buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%). LP-rug probe: 100% of active liquidity (ownerLpPct 100%) sits in the UniV3LPLocker locker contract, unpullable by the owner. Owner-trap probe was not applicable: 31 known owner switches were searched, none found, owner address is the zero address."
   },
   "0x6658884a973f522833bf98b48ce6b23e4d4e8453": {
     "scan": {
@@ -15238,8 +15260,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "lpRug",
+      "hiddenFee",
       "ownerTrap"
     ],
     "verdicts": [
@@ -15271,6 +15293,32 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x9f64ac9e070ddd88174e7d59d6c19e52c6a59f5e4352020b517632733f685342",
           "0xd9d9dc6b4872e185cd7da4c4df7ed7af55c866b08ddd0bc7133602937e02c6aa"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0.9323 WETH",
+          "holderValueAfter": "0.9323 WETH",
+          "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
+          "venue": "uniswap-v3",
+          "positionId": "5490369",
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -15312,30 +15360,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0.9323 WETH",
-          "holderValueAfter": "0.9323 WETH",
-          "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
-          "venue": "uniswap-v3",
-          "positionId": "5490369",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "No owner switch Sidik can operate is present in this bytecode",
@@ -15357,7 +15381,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "JESSE passed both trade-based checks: honeypot (buy then sell succeeded, 4,954,336.89 JESSE bought, transferee sell succeeded) and hidden fee (1,651,445.63 JESSE sent and received, 0% fee/buy tax/sell tax). LP rug status is NA: 100% of liquidity sits in contract 0x25c9…Bd52, unrecognized, so withdrawability is unknown (0% burned). Owner trap is NA: 31 known owner switches were searched in bytecode and none were found; owner address is 0x0000000000000000000000000000000000000000, but unnamed privileged code can't be ruled out."
+    "narration": "JESSE token checks: buying and selling both succeeded, including from a transferred wallet (4,954,336.89 JESSE bought, transfer sale succeeded). LP is fully locked — 100% of liquidity sits in the UniV3LPLocker contract, with holder value steady at 0.9323 WETH before and after, so the owner cannot pull it. No hidden fees were found: 1,651,445.63 JESSE sent equaled 1,651,445.63 JESSE received, with buy, sell, and later sell tax all at 0%. An owner-trap scan searched 31 known owner switches (pause, blacklist, trading/fee setters, mint) and found none, though undisclosed privileged code under an unknown name can't be ruled out."
   },
   "0x242c0c5eec80d30b5ca6537b08f9cc73288ef4a7": {
     "scan": {
@@ -15490,12 +15514,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -15507,7 +15531,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5575073",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
       },
@@ -15533,7 +15559,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "CTO passed both automated checks: buying and selling worked (bought 4,824,692.96 CTO, sold successfully) and no hidden fees were found (sent and received 1,608,230.98 CTO, with buyTaxPct, sellTaxPct, sellTaxLaterPct, and feePct all at 0%). Two checks were not applicable: 100% of liquidity is held by contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309, whose withdrawal logic is unrecognized, so LP-rug risk can't be confirmed. The bytecode was also scanned for 31 known owner switches (pause, blacklist, fee setters, mint) and none were found, though unnamed privileged code may still exist."
+    "narration": "Buy/sell testing found no honeypot behavior (bought 4,824,692.96 CTO, sold successfully) and no hidden fees (0% buy/sell/transfer tax, 1,608,230.98 CTO sent and received in full). LP status is inconclusive: 100% of liquidity sits in a contract Sidik doesn't recognize, held via Uniswap v3 position 5575073; the recognized owner's one exposed release function was called (1 of 7) and liquidity didn't move, but this doesn't prove safety. Owner-trap check found none of 31 known privileged switches (pause, blacklist, mint, etc.) in the bytecode, though unknown privileged code could still exist. Owner address is null."
   },
   "0x0a776c1c22b8b8e7eab346744daa33722b80fda4": {
     "scan": {
@@ -15777,12 +15803,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -15794,7 +15820,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5577954",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
       },
@@ -15820,7 +15848,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "POKEBALLS passed both trading probes: buy/sell succeeded (bought 4,888,917.45 POKEBALLS, transferee sell succeeded), and no hidden fees were found — sent 1,629,639.15 matched received 1,629,639.15, with buyTax 0%, sellTax 0%, sellTaxLater 0%.\n\nLP-rug check was NA: 100% of liquidity sits in an unrecognized contract (0xB190…1309, Uniswap v3 position 5577954), so drain risk depends on that contract's own code.\n\nOwner-trap check was NA: 31 known owner switches were searched and none were found; owner address is the zero address, but unnamed privileged code could still exist."
+    "narration": "Buy and sell both succeeded, including from a transferee wallet, with no hidden fees on buy, sell, or full-balance transfer (buy/sell tax 0%, sent and received 1,629,639.15 POKEBALLS matched). LP status could not be confirmed safe: 100% of liquidity sits in a contract Sidik doesn't recognize, and testing its owner's single exposed release path (1 of 7) caused no movement — not proof of safety, only that this path didn't open. No owner switches (0 of 31 known types) were found in bytecode, though unknown privileged code may still exist."
   },
   "0xb152f798b2bb54a6c51a76613127c78070e71bc6": {
     "scan": {
@@ -16632,9 +16660,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
       "hiddenFee",
-      "lpRug"
+      "lpRug",
+      "ownerTrap"
     ],
     "verdicts": [
       {
@@ -16665,27 +16693,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xc84db1b824bcbe7974e73aa030cdcf5c1c05641846c2a95a9d19812eebd48c49",
           "0x340dcd57ed942df1c9e1d0b1aa21d1882118bc723f44986e3332ca1206e36517"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -16729,12 +16736,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -16746,12 +16753,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5583232",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "Honeypot check: PASS — buying and selling both succeeded, including a sell from a wallet that received a transfer (4,665,810.78 ETHETH bought, transferee sell succeeded).\n\nOwner trap: NA — 31 known owner switches were searched, none found, owner address is 0x0000000000000000000000000000000000000000.\n\nHidden fee: PASS — 0% fee/buy tax/sell tax on buy, sell, and a full-balance transfer (1,555,270.26 ETHETH sent and received in full).\n\nLP rug: NA — 100% of liquidity (position 5583232, uniswap-v3) is held by contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309, an unrecognized contract, so withdrawability is unknown."
+    "narration": "Buy/sell and hidden-fee checks both PASS: buying, selling, and full-balance transfer all worked with 0% fee/buy tax/sell tax (amounts matched exactly, e.g. 1,555,270.26 ETHETH sent and received).\n\nLP rug status is NA: 100% of active liquidity sits in a contract the checker doesn't recognize, held via Uniswap v3 position 5583232; the recognized owner's one exposed release path was called and liquidity did not move, but this only shows that path is closed, not that liquidity is safe.\n\nOwner-trap status is NA: 31 known owner switches (pause, blacklist, trading/fee setters, mint) were searched for in the bytecode and none were found, though unknown privileged code could still exist. Owner address is the zero address."
   },
   "0x8c7568cc28ddac01ab6779daa4f6be66b1201dd0": {
     "scan": {
@@ -16918,9 +16948,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
+      "ownerTrap",
       "hiddenFee",
-      "lpRug",
-      "ownerTrap"
+      "lpRug"
     ],
     "verdicts": [
       {
@@ -16951,6 +16981,27 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x7194f1eb452682608afedb5e70f0b9d44e3e3191a80d6ece9675cdd4af03829b",
           "0x73f131775e9ac34ae080295f4c1d21c94eb9f08417e471149890b926a14a92b8"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -16994,12 +17045,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -17011,33 +17062,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5582443",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "COCK passed the honeypot and hidden-fee checks: buying, selling, and transferring all worked as expected, with 0% fee/buy/sell tax and 1,495,849.66 COCK sent and received in full. A test buy of 4,487,549 COCK was resold successfully, including from a transferred wallet. Two checks came back not applicable: 100% of LP liquidity is held by an unrecognized contract (0xB190…1309), so drainability depends on its own code, and no owner switches (0 of 31 searched) were found in the bytecode, though hidden privileged code can't be ruled out."
+    "narration": "COCK passed both the honeypot and hidden-fee checks: buying, selling, and transferring all worked as claimed, with 4,487,549 COCK bought, a transferee sell succeeding, and 1,495,849.66 COCK sent and received with 0% fee/buy/sell tax.\n\nThe owner-trap check found no owner switch among 31 searched (none found, none pulled), though this doesn't rule out an unrecognized mechanism.\n\nThe LP rug check found 100% of liquidity held by contract 0xB190…1309; its owner 0xade2…1f6f exposed one exit path (1 of 7 tried), which did not move the liquidity — not proof of safety, only that this path didn't open."
   },
   "0xe06e84bba8e3f3f50f32b90baa9cc40cdd8a8453": {
     "scan": {
@@ -17090,14 +17122,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "99% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "99% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -17108,7 +17140,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5413153",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -17173,7 +17207,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "TORO passed both honeypot and hidden-fee checks: buying, selling, and transferring all worked with no shortfall (e.g., 1,745,676.85 TORO sent and received, 0% buy/sell tax). A wallet that received a transfer was also able to sell.\n\nLP rug status is inconclusive: 99% of active liquidity sits in a contract (0x25c9…Bd52) that Sidik doesn't recognize, so whether it can be withdrawn is unknown; 0% of LP is burned.\n\nThe owner-trap check found none of 31 known owner switches (pause, blacklist, fee/trading setters, mint) in the bytecode, though unrecognized privileged code may still exist. Owner address is the zero address."
+    "narration": "TORO passed all executed checks. Honeypot test: buy and sell both succeeded, including a sell from a wallet that received a transfer (5,237,030.56 TORO bought, transferee sell succeeded). LP rug test: 99% of active liquidity sits in the UniV3LPLocker contract, 0% burned, no owner able to withdraw before unlock. Hidden fee test: buy, sell, and transfer all delivered 100% of amounts (1,745,676.85 TORO sent and received), with 0% buy tax and 0% sell tax. Owner trap probe was not applicable: 31 known owner switches were searched for and none were found, though unknown privileged code can't be ruled out."
   },
   "0x077a8a984712a41c0ec7b90cfc3e3d600ecf28e0": {
     "scan": {
@@ -17189,9 +17223,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "lpRug",
-      "ownerTrap"
+      "ownerTrap",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -17222,6 +17256,53 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x9dce13b0aadab5e2c1ec1b46f936bb461e6416592ffa38de8d0436aef424b086",
           "0xc182d0a5cece2be1f99e73f551054e4a3f2140abb4a69e20b8bb7baa45d31a8c"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5582206",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -17261,54 +17342,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x748e61bd053f96178b7687e70490dbbe8adb03d780ec6c6a15023fc009c63046",
           "0x70824bfd8ffd0080404f4c627231a7b19b5ea9eb67fd43bfbf58624b56795f77"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5582206",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "Token-safety check results: The honeypot probe PASSED — both buying and selling succeeded, including a sell from a transferee wallet. The hidden-fee probe PASSED — buy, sell, and transfer all delivered 100% of quoted amounts, with buyTaxPct, sellTaxPct, and feePct all at 0%. The LP-rug probe returned NA: 100% of liquidity (ownerLpPct 100%, burnedLpPct 0%) sits in an unrecognized contract (0xB190…1309), so drainability is unknown. The owner-trap probe returned NA: 31 known owner switches were searched and none were found, though unlisted privileged code may still exist."
+    "narration": "Token passes both honeypot and hidden-fee checks: buying, selling, and a transferee sell all succeeded, with 1,378,625.98 \"200\" sent and received (0% buy tax, 0% sell tax, 0% sellTaxLater). LP-rug status is NA: 100% of liquidity sits in an unrecognized contract owned by an impersonated address; 1 of 7 release paths was tried and liquidity did not move, which only shows that path is closed, not that funds are safe (0% burned). Owner-trap check is NA: 31 known owner switches were searched, none found, owner is the zero address."
   },
   "0x7ca0100d60adcd859db0c4260a078e5d2ef558c7": {
     "scan": {
@@ -17324,9 +17360,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
+      "ownerTrap",
       "lpRug",
-      "ownerTrap"
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -17357,6 +17393,52 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x35bab1c95bceb3a14ab82e59921155e2bb4368bb87d9499eec74d11c7c425493",
           "0x83147b3dbeb344bbb2922409e781a3d22944f632a49b97af6e2f9c25d32d668e"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0x8F2B…068d; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x8F2BE732D59697e8313D90cD97B316D5f0d1068d",
+          "venue": "uniswap-v3",
+          "positionId": "5488025",
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -17396,54 +17478,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xa2e3190cee8b3b3abf82ddbab700b857b5e08d22818b959fb6541a9ccc3874ee",
           "0x9fb16ef45c50dda2e3d982b246581574c8d5a33a4ea8bd0a8390c7f28366dd83"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x8F2B…068d; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0x8F2BE732D59697e8313D90cD97B316D5f0d1068d",
-          "venue": "uniswap-v3",
-          "positionId": "5488025",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "The token passed both the honeypot and hidden-fee probes. A wallet buying 1,660,193.28 Brian was able to sell, and a transferee sell also succeeded. Sending 553,397.76 Brian resulted in receiving 553,397.76 Brian, with buyTaxPct, sellTaxPct, sellTaxLaterPct, and feePct all at 0%. The LP-rug probe was not applicable: 100% of liquidity sits in an unrecognized contract, so drainability can't be confirmed. The owner-trap probe was also not applicable: 31 known owner switches were searched and none were found, though unnamed privileged code could still exist."
+    "narration": "Honeypot check passed: buying and selling both succeeded, including from a transferee wallet (1,660,193.28 Brian bought, sell succeeded). Hidden-fee check passed: buy, sell, and full-balance transfer all delivered 100% with 0% fee (553,397.76 Brian sent and received; buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%).\n\nOwner-trap probe is not applicable: 31 known owner switches were searched in the bytecode and none were found, though unrecognized privileged code can't be ruled out.\n\nLP-rug probe is not applicable: 100% of active liquidity (position 5488025, uniswap-v3) is held by an unrecognized contract (0x8F2BE732D59697e8313D90cD97B316D5f0d1068d) with no known way to drain it, which is not proof of safety, only that no known exploit path opened."
   },
   "0x93f8e67af68da54b6e15b352379e4f46b629ae04": {
     "scan": {
@@ -17460,9 +17497,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
+      "ownerTrap",
       "lpRug",
-      "ownerTrap"
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -17493,6 +17530,52 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x3b7282348fb0d6c566115fb89c3eeaed578c1af304ac3bdfa8944fb9b1c93821",
           "0x7f433e8bf606f57b1eee70a83da8907440d23cda2807525e34db702d79f704da"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xddF7…8C59; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xddF7dE89AD397D2Bb7f918c2e0FD64830F9e8C59",
+          "venue": "uniswap-v3",
+          "positionId": "5687766",
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -17532,54 +17615,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x05e548ff3dd622403bc3b029fb862924f3988a79c7fd60e60b42adcb18170483",
           "0x8b5383d5158ef3b23ad2a6b252f46f6d9bf342079479b10f005fd63b9861ee69"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xddF7…8C59; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xddF7dE89AD397D2Bb7f918c2e0FD64830F9e8C59",
-          "venue": "uniswap-v3",
-          "positionId": "5687766",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "EMAI passed both honeypot and hidden-fee checks: buying, selling, and full-balance transfers all worked as expected, with 0% buy/sell tax and recipients receiving 100% of transferred amounts (tested with 1,102,087.93 EMAI bought and 367,362.64 EMAI sent/received).\n\nLP status is inconclusive: 100% of active liquidity sits in an unrecognized contract (0xddF7…8C59), so whether it can be withdrawn depends on that contract's own code.\n\nOwner-trap check found no known owner switches (0 of 31 searched) in the bytecode, though privileged code under an unknown name may still exist."
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, including a sell from a wallet that received a transfer (1,102,087.93 EMAI bought, transferee sell succeeded).\n\nOwner trap: NA. 31 known owner switches were searched for in the bytecode; none were found, and none were pulled. Owner address is 0x0000000000000000000000000000000000000000.\n\nLP rug: NA. 100% of active liquidity (position 5687766, uniswap-v3) is held by contract 0xddF7dE89AD397D2Bb7f918c2e0FD64830F9e8C59, with no known way to drain it (0 of 7 release attempts). This does not prove safety.\n\nHidden fee: PASS. Buy, sell, and transfer of 367,362.64 EMAI all matched quotes exactly, with 0% fee, buy tax, and sell tax."
   },
   "0x4b572b3b7bdc25f895fc2763ab03c210db1c5e78": {
     "scan": {
@@ -17597,8 +17635,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     "ids": [
       "ownerTrap",
       "honeypot",
-      "lpRug",
-      "hiddenFee"
+      "hiddenFee",
+      "lpRug"
     ],
     "verdicts": [
       {
@@ -17652,30 +17690,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xe09F…A6Af; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xe09FC835110cA2E8cf5E112D26007D59B379A6Af",
-          "venue": "uniswap-v3",
-          "positionId": "5383505",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
         "probe": "hiddenFee",
         "status": "PASS",
         "title": "No hidden fee on buying, selling or transferring",
@@ -17713,9 +17727,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x145c6745151f4b584e449f10cf9c285a784848660ac94f4d63c6e639fd26dd13",
           "0xf98dcee0a58c608738bd6d61e6962c745f92f74abe057462fc9ec10c6b184435"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xe09F…A6Af, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0x1A47…8f22 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xe09FC835110cA2E8cf5E112D26007D59B379A6Af",
+          "venue": "uniswap-v3",
+          "positionId": "5383505",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x1A472863cF21D5Aa27F417dF9140400324C48f22"
+        },
+        "txHashes": []
       }
     ],
-    "narration": "DAGWOOD passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (bought amount 3,095,811.4 DAGWOOD). No hidden fees were found on buy, sell, or transfer — 1,031,937.13 DAGWOOD sent equaled 1,031,937.13 DAGWOOD received, with buyTax, sellTax, and sellTaxLater all at 0%. The owner-switch probe searched 31 known switches and found none, though unnamed privileged code can't be ruled out. LP-rug is not assessable: 100% of liquidity sits in an unrecognized contract (0xe09FC835110cA2E8cf5E112D26007D59B379A6Af), so withdrawal risk depends on code Sidik hasn't reviewed."
+    "narration": "No owner switch was found after searching 31 known owner-switch patterns; none were found or pulled, and the owner address is 0x0000000000000000000000000000000000000000. Buy and sell both succeeded (3,095,811.4 DAGWOOD bought, sell from a transferee also succeeded). No hidden fee was detected: 1,031,937.13 DAGWOOD sent equaled 1,031,937.13 DAGWOOD received, with feePct, buyTaxPct, sellTaxPct, and sellTaxLaterPct all at 0%. LP is 100% held by contract 0xe09F…A6Af; its owner 0x1A47…8f22 was impersonated and the one exposed release path (1 of 7) was called, and liquidity did not move, which is not proof of safety, only that this path did not open."
   },
   "0xdfc9e32dd0542d12c08ed15fefadbae8071b48a5": {
     "scan": {
@@ -17881,12 +17921,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
       "topHolders": []
     },
     "ids": [
+      "ownerTrap",
       "honeypot",
       "hiddenFee",
-      "lpRug",
-      "ownerTrap"
+      "lpRug"
     ],
     "verdicts": [
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "2 privileged-looking functions found that Sidik does not operate",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry LOCK8605463013(), SafeERC20FailedOperation(address) — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "implementation": "0x3e834Ac987635976BEb4Ab944CF683Db5c0E3E80",
+          "privilegedNotOperated": "LOCK8605463013(), SafeERC20FailedOperation(address)"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
       {
         "probe": "honeypot",
         "status": "PASS",
@@ -17963,7 +18026,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -17975,35 +18038,13 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xc54cb94E91c767374a2F23f0F2cEd698921AE22a",
           "venue": "uniswap-v3",
           "positionId": "5702240",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "2 privileged-looking functions found that Sidik does not operate",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry LOCK8605463013(), SafeERC20FailedOperation(address) — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000",
-          "implementation": "0x3e834Ac987635976BEb4Ab944CF683Db5c0E3E80",
-          "privilegedNotOperated": "LOCK8605463013(), SafeERC20FailedOperation(address)"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "PayBox passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (36,730,385.42 PayBox bought). It also passed the hidden-fee check: 12,243,461.8 PayBox sent equaled 12,243,461.8 PayBox received, with feePct 0%, buyTaxPct 0%, sellTaxPct 0%, and sellTaxLaterPct 0%. LP rug status is NA: 100% of liquidity (ownerLpPct 100%, burnedLpPct 0%) sits in an unrecognized contract, so withdrawability is unproven. Owner-trap status is NA: 31 known owner switches were searched, none were found; two unoperated functions, LOCK8605463013() and SafeERC20FailedOperation(address), remain unproven in effect."
+    "narration": "PayBox passed both honeypot and hidden-fee checks: a buy of 36,730,385.42 PayBox was sold successfully, and a transfer of 12,243,461.8 PayBox arrived in full, with buy/sell/fee tax all at 0%. Ownership checks found none of 31 known owner-switch functions, though two unoperated functions, LOCK8605463013() and SafeERC20FailedOperation(address), exist unproven. LP safety is unresolved: 100% of liquidity sits in a contract Sidik doesn't recognize, 0% is burned, and 0 of 7 release attempts succeeded, so draining risk remains unproven either way."
   },
   "0xa50e26f8a1da5819667adcaf1595deb979181554": {
     "scan": {
@@ -18019,8 +18060,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
       "ownerTrap",
+      "lpRug",
       "hiddenFee"
     ],
     "verdicts": [
@@ -18054,30 +18095,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB3E1…2e7D; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB3E124f1E2e8C1E516A221B85074628eE4542e7D",
-          "venue": "uniswap-v3",
-          "positionId": "5488073",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "No owner switch Sidik can operate is present in this bytecode",
@@ -18097,6 +18114,31 @@ export const FIXTURES: Record<string, FrozenRun> = {
         },
         "txHashes": [],
         "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB3E1…2e7D; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB3E124f1E2e8C1E516A221B85074628eE4542e7D",
+          "venue": "uniswap-v3",
+          "positionId": "5488073",
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -18138,7 +18180,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "Honeypot check: PASS — buying and selling both succeeded, including from a wallet that received a transfer (bought 1,445,877.94 Jesse, sell succeeded).\n\nHidden fee check: PASS — 0% fee on buy, sell, and transfer; 481,959.31 Jesse sent equaled 481,959.31 Jesse received.\n\nLP rug check: NA — 100% of liquidity sits in an unrecognized contract (0xB3E1…2e7D, Uniswap v3, position 5488073); whether it can be withdrawn is unknown.\n\nOwner trap check: NA — 31 known owner switches were searched, none found, and owner is the zero address, but privileged code under an unknown name can't be ruled out."
+    "narration": "Honeypot check: PASS — buying and selling both succeeded, including a sell from a wallet that received a transfer (1,445,877.94 Jesse bought).\n\nOwner trap: NA — 31 known owner switches were searched in the bytecode and none were found; owner address is 0x0000000000000000000000000000000000000000.\n\nLP rug: NA — 100% of active liquidity sits in a contract (0xB3E1…2e7D, Uniswap v3, position 5488073) with no known way to drain it (0 of 7 release attempts worked); this doesn't prove safety.\n\nHidden fee: PASS — buy tax 0%, sell tax 0%, transfer of 481,959.31 Jesse arrived at 100%."
   },
   "0x271b01cc11032a4e23f0200f8f57eb45176ab491": {
     "scan": {
@@ -18168,35 +18210,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       ]
     },
     "ids": [
-      "ownerTrap",
       "honeypot",
       "hiddenFee",
-      "lpRug"
+      "lpRug",
+      "ownerTrap"
     ],
     "verdicts": [
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "2 privileged-looking functions found that Sidik does not operate",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry LOCK8605463013(), SafeERC20FailedOperation(address) — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000",
-          "implementation": "0x3e834Ac987635976BEb4Ab944CF683Db5c0E3E80",
-          "privilegedNotOperated": "LOCK8605463013(), SafeERC20FailedOperation(address)"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
       {
         "probe": "honeypot",
         "status": "PASS",
@@ -18273,7 +18292,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -18285,12 +18304,36 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xc54cb94E91c767374a2F23f0F2cEd698921AE22a",
           "venue": "uniswap-v3",
           "positionId": "5575433",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "2 privileged-looking functions found that Sidik does not operate",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry LOCK8605463013(), SafeERC20FailedOperation(address) — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "implementation": "0x3e834Ac987635976BEb4Ab944CF683Db5c0E3E80",
+          "privilegedNotOperated": "LOCK8605463013(), SafeERC20FailedOperation(address)"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "Sidik (GNRM) checks: Ownership scan searched 31 known owner switches and found none; two unoperated functions (LOCK8605463013(), SafeERC20FailedOperation(address)) exist but their effects are unproven, so this probe is NA. Honeypot test passed — buying 32,575,244 GNRM and selling both succeeded, including from a transferee wallet. Hidden-fee check passed — buy, sell, and a 10,858,414.66 GNRM transfer all delivered 100% of quoted amounts (0% fee/buy/sell tax). LP-rug probe is NA: 100% of liquidity sits in contract 0xc54cb94E91c767374a2F23f0F2cEd698921AE22a, an unrecognized contract, so withdrawal risk depends on its own code."
+    "narration": "GNRM passed both executed checks: the honeypot probe confirmed buying and selling both succeed (32,575,244 GNRM bought, transferee sell succeeded), and the hidden-fee probe found no tax on buy, sell, or transfer (0% fee, 0% buy tax, 0% sell tax, 10,858,414.66 GNRM sent and received in full). Two probes returned NA. LP rug: 100% of liquidity sits in an unrecognized contract (0xc54cb94E91c767374a2F23f0F2cEd698921AE22a), with 0 of 7 release attempts working — safety unproven. Owner trap: 31 known owner switches were searched and none found, though two unoperated functions (LOCK8605463013(), SafeERC20FailedOperation(address)) remain unverified."
   },
   "0x1a8c9732977199562dc13f1c0e167d1e5c623217": {
     "scan": {
@@ -18306,9 +18349,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
+      "ownerTrap",
       "lpRug",
-      "ownerTrap"
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -18339,6 +18382,53 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xaa4dabf0967132aae9e8a3a739dbbcfdf2b3b8fd819e7c71b3f4d83319a4d59a",
           "0x27c04aca563a5da6e31cf1fbc5ea18f310fe05e8e45f925c216a3406445c1809"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5590851",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -18378,54 +18468,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x6d00e43c91982c7b97d9aed0491b3e9261cb2b762c9842e58d915bf9903b761a",
           "0x7034ea4e92070b646ace6649f9ea9429c8822debb4762fb23867c308e250a9c2"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5590851",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "Token-safety check results: buying and selling both succeed, including from a wallet that received a transfer (2,429,013.5 billy bought). No hidden fees found on buy, sell, or transfer — 809,671.16 billy sent and received in full, with 0% fee, buy tax, and sell tax. LP status is unresolved: 100% of liquidity (0% burned) is held by an unrecognized contract (0xB1900F41d78D330A2a35C6771b3A6088a1b51309, Uniswap v3, position 5590851), so drainability is unknown. No owner switch was found after searching 31 known mechanisms (pause, blacklist, trading/fee setters, mint), though undisclosed privileged code cannot be ruled out."
+    "narration": "Buy and sell both succeeded, including from a transferee wallet (2,429,013.5 billy bought). No hidden fees found: buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%, with 809,671.16 billy sent and received in full on transfer. No owner switch was found after searching 31 known mechanisms, though undisclosed privileged code can't be ruled out. LP is 100% held by contract 0xB190…1309; its owner 0xade2…1f6f was impersonated and the one exposed release path (1 of 7) did not move the liquidity — this does not prove the liquidity is safe."
   },
   "0x0e07e2228fa5b61e217248281654872306dbd5ba": {
     "scan": {
@@ -18441,9 +18486,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
       "ownerTrap",
-      "hiddenFee"
+      "hiddenFee",
+      "lpRug"
     ],
     "verdicts": [
       {
@@ -18474,30 +18519,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x64ac10cb7809317f8474f817651892fc130ea973ad95065852fe45df65b2f394",
           "0x3bc0c9d4b0d342bc17ef308c185b30eda2f84439565613fb554aa54d61834708"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5588017",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       },
       {
         "probe": "ownerTrap",
@@ -18558,9 +18579,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xef7e9d6078421063b6fbebb0c953d0410a0b0870b64d8805b398f4c70caef49f",
           "0xb4b460d9a9392c2c5779e9ee08f075db26a747638e1a946e2a2430bcefe29d00"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5588017",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
       }
     ],
-    "narration": "✓ Not a honeypot — buy and sell both succeed\n— LP held by contract 0xB190…1309; pulling it needs that contract's own logic\n— No owner switch Sidik can operate is present in this bytecode\n✓ No hidden fee on buying, selling or transferring"
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, including a sell from a wallet that only received a transfer; a buy of 2,411,913.68 BASE was resold without issue.\n\nHidden-fee check: PASS. A transfer of 803,971.22 BASE arrived in full, and buy/sell taxes were 0% (feePct 0%, buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%).\n\nOwner-trap check: NA. 31 known owner switches were searched and none were found; owner address is 0x0000000000000000000000000000000000000000.\n\nLP-rug check: NA. ownerLpPct is 100%, burnedLpPct is 0%; only 1 of 7 release paths was tested, and it did not move funds — this does not prove safety."
   },
   "0xa565f900777214bce3391755f3ff8da87608e1ef": {
     "scan": {
@@ -19099,14 +19146,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -19117,7 +19164,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5491146",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -19143,7 +19192,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "CRASH passed both core trade tests: buying and selling succeeded (2,613,035.74 CRASH bought, sell completed), and a transferred wallet could also sell. No hidden fees were found — 871,011.91 CRASH sent equaled 871,011.91 CRASH received, with buyTaxPct 0%, sellTaxPct 0%, and sellTaxLaterPct 0%. Two checks were inconclusive: 100% of liquidity is held by an unrecognized contract (0x25c9…Bd52), so drain risk depends on its own code, and no owner-controlled switches were found among 31 known types searched, though unnamed privileged code could still exist."
+    "narration": "CRASH (token symbol as labeled in the data) passed all applicable safety probes. Honeypot check: PASS — buying and selling both succeeded, including a sell from a wallet that received a transfer (bought amount 2,613,035.74 CRASH). Hidden fee check: PASS — buy, sell, and transfer all delivered 100% of quoted amounts (871,011.91 CRASH sent and received; buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%, feePct 0%). LP rug check: PASS — 100% of active liquidity (ownerLpPct 100%, burnedLpPct 0%) is held in the UniV3LPLocker locker contract, unlock date unknown, so it could not be pulled. Owner trap check: NA — 31 known owner switches were searched for and none were found, though unknown privileged code may still exist."
   },
   "0x17155c58fe6c27a54fbd27edbcc9dc888a3372e0": {
     "scan": {
@@ -19159,9 +19208,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "lpRug",
-      "ownerTrap"
+      "ownerTrap",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -19192,6 +19241,53 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xbe402926d0b6f806d1e82ca57d7cd5dd2c02f00f076ae455003522a24831571c",
           "0xc8a82e64933f22b0d65b8631e4308fd2a359f69f72ff09c28697a9dd95cfa6a2"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5584459",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -19231,54 +19327,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x14834b0ab183a064c077ded74ec49c31f2a07c4b56c74dae53d187eb625a47c3",
           "0x5405d89e454b8d67cdb5781f86d9926183dd4f095a299fab0cb3b223b5a924ad"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5584459",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "✓ Not a honeypot — buy and sell both succeed\n✓ No hidden fee on buying, selling or transferring\n— LP held by contract 0xB190…1309; pulling it needs that contract's own logic\n— No owner switch Sidik can operate is present in this bytecode"
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded (2,038,819.6 HODL bought), and a wallet that received a transfer was also able to sell.\n\nLP rug check: NA. 100% of active liquidity sits in a contract Sidik doesn't recognize; its owner was impersonated and the one exposed release path was called (1 of 7), and liquidity did not move — this shows only that this path didn't open, not that funds are safe.\n\nOwner trap check: NA. 31 known owner switches were searched for in bytecode; none were found, though unknown privileged code could still exist.\n\nHidden fee check: PASS. Buy, sell, and full-balance transfer (679,606.53 HODL) all delivered 100%, with 0% fee/tax throughout."
   },
   "0x260859325ef0c34ef17c6370e6feb9c08a0f1111": {
     "scan": {
@@ -19375,7 +19426,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -19387,7 +19438,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x0cf181f6Ca4260199d275f2A33EA7f5f11341435",
           "venue": "uniswap-v3",
           "positionId": "5762394",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -19413,7 +19465,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "SMOKE token checks: Honeypot probe PASSED — buying and selling both succeeded, including a sell from a transfer recipient (48,097.89 SMOKE bought, transferee sell succeeded). Hidden-fee probe PASSED — buy, sell, and transfer all delivered 100% of expected amounts (16,032.63 SMOKE sent and received, feePct 0%, buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%). LP-rug probe: NA — 100% of active liquidity (ownerLpPct 100%, burnedLpPct 0%) is held by an unrecognized contract (0x0cf1…1435), so drain risk is unknown. Owner-trap probe: NA — 31 known owner switches were searched, none found."
+    "narration": "✓ Not a honeypot — buy and sell both succeed\n✓ No hidden fee on buying, selling or transferring\n— LP held by contract 0x0cf1…1435; pulling it needs that contract's own logic\n— No owner switch Sidik can operate is present in this bytecode"
   },
   "0x75691296fcec4f1e526febb54a1646f37c3c9db4": {
     "scan": {
@@ -19429,34 +19481,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       "topHolders": []
     },
     "ids": [
-      "ownerTrap",
       "honeypot",
+      "ownerTrap",
       "hiddenFee",
       "lpRug"
     ],
     "verdicts": [
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "2 privileged-looking functions found that Sidik does not operate",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry increaseLimits(uint256,uint256), startTrading(address,uint160,(address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256)) — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000",
-          "privilegedNotOperated": "increaseLimits(uint256,uint256), startTrading(address,uint160,(address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
       {
         "probe": "honeypot",
         "status": "PASS",
@@ -19485,6 +19515,28 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x2e6ca69ee40fd44bc15650bd0722ee737b311495b1b50c31ebce79fec9ea827d",
           "0x5831b81081a84eeae588ba2f73e63464a3b125944b85ad9f984e22773bb2e38e"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "2 privileged-looking functions found that Sidik does not operate",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry increaseLimits(uint256,uint256), startTrading(address,uint160,(address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256)) — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "privilegedNotOperated": "increaseLimits(uint256,uint256), startTrading(address,uint160,(address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -19533,7 +19585,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -19545,12 +19597,13 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x75691296fceC4F1e526febB54A1646F37c3c9DB4",
           "venue": "uniswap-v3",
           "positionId": "5350028",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       }
     ],
-    "narration": "Sidik passed both honeypot and hidden-fee checks: a buy of 905.39 SHOOT was sold successfully, a transferred balance also sold, and buy/sell/transfer taxes all measured 0% (301.79 SHOOT sent and received in full). The owner-trap probe found none of 31 known owner switches in the bytecode; two functions, increaseLimits and startTrading, were identified only by name via 4byte lookup and were not operated, so their effect is unproven. LP-rug status is not applicable: 100% of liquidity sits in contract 0x75691296fceC4F1e526febB54A1646F37c3c9DB4, whose withdrawal logic was not evaluated."
+    "narration": "Sidik (SHOOT) passed both honeypot and hidden-fee checks: buying and selling succeeded, a transferred wallet could sell (905.39 SHOOT bought), and amounts matched exactly on buy, sell, and transfer (301.79 SHOOT sent and received, 0% fee/buy/sell tax). The owner-trap probe found no owner (0x0000000000000000000000000000000000000000) and none of 31 known owner switches, though increaseLimits and startTrading exist unoperated, so their effects are unproven. LP rug is not applicable: 100% of liquidity sits in an unrecognized contract (0x75691296fceC4F1e526febB54A1646F37c3c9DB4, Uniswap v3, position 5350028), with 0% burned and no release path tried (0 of 7), leaving its safety unproven."
   },
   "0xf90554c68917cc7510104162c1c85b16b78a8453": {
     "scan": {
@@ -19642,14 +19695,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -19660,7 +19713,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5394925",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -19686,7 +19741,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "MODELZERO passed both the honeypot and hidden-fee checks: a buy of 2,138,605.24 MODELZERO was sold successfully, a transferred balance also sold, and 712,868.41 MODELZERO sent equaled 712,868.41 received, with buy/sell/fee tax all at 0%. Two checks were not applicable. LP-rug: 100% of liquidity sits in contract 0x25c9…Bd52, an unrecognized contract, so drain risk depends on its own code. Owner-trap: 31 known owner switches (pause, blacklist, trading/fee setters, mint) were searched and none were found, though unnamed privileged code could still exist."
+    "narration": "MODELZERO passed all executed checks. Honeypot test: buying and selling both succeeded, including a sell from a wallet that received a transfer (2,138,605.24 MODELZERO bought, transferee sell succeeded). Hidden-fee test: buy, sell, and full-balance transfer all returned 100% of quoted amounts (712,868.41 MODELZERO sent and received, 0% fee, buy/sell tax 0%). LP-rug test: 100% of active liquidity sits locked in the UniV3LPLocker contract, with 0% burned. Owner-trap probe was not applicable: 31 known owner switches were searched for and none were found, though unnamed privileged code may still exist."
   },
   "0xe7b03d62b2352ee26ab104695a81d306a2991111": {
     "scan": {
@@ -19753,7 +19808,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -19765,7 +19820,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xbdb1b57185EEc1Ae3969BAf6A3a0ACCC805772e4",
           "venue": "uniswap-v3",
           "positionId": "5774913",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -19830,7 +19886,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "Buy and sell both succeeded (154,292.6 STOCK bought, transferee sell succeeded), so the honeypot check passes. No hidden fees were found: 51,430.86 STOCK sent equaled 51,430.86 STOCK received, with buyTax, sellTax, and sellTaxLater all at 0%. LP rug status is not applicable — 100% of liquidity sits in an unrecognized contract (0xbdb1…72e4), so drainability can't be confirmed. Owner trap is not applicable: 31 known owner switches were searched, none found, and owner address is 0x0000000000000000000000000000000000000000."
+    "narration": "Buy and sell both succeeded, including from a transferee wallet (154,292.6 STOCK bought). No hidden fees: buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%, with 51,430.86 STOCK sent and received in full on transfer. Owner is the zero address, and a scan of 31 known owner switches found none. LP is 100% held by contract 0xbdb1b57185EEc1Ae3969BAf6A3a0ACCC805772e4 (Uniswap v3, position 5774913); no known way to drain it was found (0 of 7 release attempts opened a path), but this does not prove the liquidity is safe."
   },
   "0xa0659c8860396c696baffa819e3d318b8a9f675b": {
     "scan": {
@@ -20107,7 +20163,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "88% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "88% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -20119,7 +20175,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x621E4E87677978dDAe0CeBDfdc5fCf43334693F0",
           "venue": "uniswap-v3",
           "positionId": "5808436",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -20147,7 +20204,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "Token passed both live-trade checks: buying, selling, and transferring worked normally (bought 0.02389 wtCOIN, transferred 0.007964 wtCOIN) with 0% buy/sell/fee tax and full amounts received. Two checks came back inconclusive. LP safety is unproven: 88% of liquidity sits in an unrecognized contract, with 0% burned, so whether it can be withdrawn depends on that contract's own code. Owner-trap risk is also unproven: of 31 known owner-switch functions searched, none were found, but the contract contains an unoperated function named LOCK8605463013(), whose behavior toward holders is unverified."
+    "narration": "Buy/sell and fee checks both pass: a buy, a sell, and a sell from a transfer-recipient wallet all succeeded, and a transfer plus buy/sell through the pool showed 0% fee/tax (buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%). Two probes are not applicable: LP is 88% held by an unrecognized contract (0x621E…93F0) with no known release path (0 of 7 tried), and the bytecode exposes one unoperated function, LOCK8605463013(), found via 4byte lookup among 31 known owner switches searched (none matched). Neither is proven safe or unsafe."
   },
   "0x577484f0f0448b0ffdc9ddf5abe4ced848f788b5": {
     "scan": {
@@ -20300,8 +20357,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
       "ownerTrap",
+      "lpRug",
       "hiddenFee"
     ],
     "verdicts": [
@@ -20335,30 +20392,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5582591",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "No owner switch Sidik can operate is present in this bytecode",
@@ -20378,6 +20411,32 @@ export const FIXTURES: Record<string, FrozenRun> = {
         },
         "txHashes": [],
         "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5582591",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -20419,7 +20478,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "Honeypot check passed: buying and selling both succeeded, including a sell from a wallet that only received a transfer (1,269,652.98 Buttcoin bought, transferee sell succeeded). Hidden-fee check passed: 423,217.66 Buttcoin sent equaled 423,217.66 received, with buy tax, sell tax, and later sell tax all 0%. LP-rug check is not applicable: 100% of liquidity sits in contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309, an unrecognized contract, so withdrawability is unknown. Owner-trap check is not applicable: 31 known owner switches were searched and none were found, with owner address 0x0000000000000000000000000000000000000000."
+    "narration": "Buttcoin passed both the honeypot check (bought 1,269,652.98 Buttcoin, sells succeeded, including from a transferee) and the hidden-fee check (423,217.66 Buttcoin sent and received, 0% buy/sell tax). Two probes were not applicable: no owner switch was found among 31 searched, though privileged code under an unknown name can't be ruled out. LP is 100% held by an unrecognized contract (0xB190…1309); its owner was impersonated and the one exposed release path was called without moving liquidity — this does not prove the liquidity is safe, only that this path didn't open."
   },
   "0x266faa3c91c9c936e5e6490fb32fce61673f92ae": {
     "scan": {
@@ -20435,9 +20494,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
+      "hiddenFee",
       "lpRug",
-      "ownerTrap",
-      "hiddenFee"
+      "ownerTrap"
     ],
     "verdicts": [
       {
@@ -20468,51 +20527,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xaf2f43ba5cfafed19fea29cc4e28c718eff123c6451fdebbc32a553b976f6b63",
           "0xbc2da161fd5a22ba568092316d6243901105063e60fc3231b90f275a54aa06d3"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5584002",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -20552,9 +20566,56 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x576959ff26326b76f80b9c03eec2c4295ff92a6830bf5a12b705806da0d7eb4d",
           "0x207492ba3c7befaa2f50c653589f6fb47e2215aac44ba82133dd42cefaf05a83"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5584002",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "Honeypot check passed: buying and selling both succeeded, including from a wallet that received a transfer (1,178,355.42 Quarkcoin bought). Hidden fee check passed: buy tax 0%, sell tax 0%, and a full-balance transfer of 392,785.14 Quarkcoin arrived intact — no fee found. LP rug status is not applicable: 100% of liquidity sits in an unrecognized contract (0xB1900F41d78D330A2a35C6771b3A6088a1b51309), so drainability is unknown. Owner trap is also not applicable: 31 known owner switches were searched and none were found, though unknown privileged code could still exist."
+    "narration": "✓ Not a honeypot — buy and sell both succeed\n✓ No hidden fee on buying, selling or transferring\n— LP held by contract 0xB190…1309, and its owner could not release it\n— No owner switch Sidik can operate is present in this bytecode"
   },
   "0x4f23d1c67ab2dc0358ca3c58491912b5e2df8453": {
     "scan": {
@@ -20646,14 +20707,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -20664,7 +20725,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5430962",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -20690,7 +20753,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "ANSEM passed both honeypot and hidden-fee checks: buying, selling, and full-balance transfers all worked as expected, with 0% buy tax, 0% sell tax, and 0% fee, and a transferred wallet (1,358,888.2 ANSEM bought, 452,962.73 ANSEM sent/received) could sell freely. LP rug status is not applicable/verified: 100% of liquidity sits in an unrecognized contract (0x25c9…Bd52) on uniswap-v3, so drainability is unknown. Owner-trap check found no matches among 31 known owner switches, though privileged code under an unknown name can't be ruled out. Owner address is the zero address."
+    "narration": "ANSEM passed all executed checks. Honeypot test: buying 1,358,888.2 ANSEM and selling succeeded, and a transferred wallet could also sell. Hidden-fee test: sending 452,962.73 ANSEM resulted in receiving 452,962.73 ANSEM, with buyTaxPct, sellTaxPct, sellTaxLaterPct, and feePct all at 0%. LP-rug test: 100% of active liquidity (ownerLpPct) sits in the UniV3LPLocker contract, with 0% burned, so it could not be pulled by an owner. Owner-trap check was not applicable: 31 known owner switches were searched for and none were found, though the report notes privileged code could still exist under an unrecognized name."
   },
   "0x2b71749c6bd181e572bbbf1945a0bd4f3a4fcba7": {
     "scan": {
@@ -20706,9 +20769,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
       "hiddenFee",
-      "lpRug"
+      "lpRug",
+      "ownerTrap"
     ],
     "verdicts": [
       {
@@ -20739,27 +20802,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xe05b47655b3e263f689a1cc1b2afb367b248a63a6b9b5a4e2c54a611845bc823",
           "0x87700d2cb3a9a97969875aaf2b858f59ec46df14f57a5eedefdd882136f24e02"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -20803,12 +20845,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -20820,12 +20862,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5428969",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "BRIAN passed both honeypot and hidden-fee checks: buying, selling, and full-balance transfers all worked, with 1,027,063.36 BRIAN bought and 342,354.45 BRIAN sent/received exactly, 0% fee/buy/sell tax. The owner-trap probe found none of 31 known owner switches (pause, blacklist, trading/fee setters, mint) in the bytecode, though unnamed privileged code can't be ruled out; owner address is the zero address. LP-rug check is not applicable: 100% of active liquidity (Uniswap v3, position 5428969) sits in contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309, an unrecognized contract, so withdrawal risk depends on its own logic."
+    "narration": "Token BRIAN passed both the honeypot and hidden-fee probes: a buy of 1,027,063.36 BRIAN was sold successfully, a transferee's sale succeeded, and a transfer of 342,354.45 BRIAN arrived in full, with buyTaxPct, sellTaxPct, sellTaxLaterPct and feePct all at 0%. LP-rug and owner-trap checks are marked NA. 100% of liquidity sits with an unrecognized contract (0xB190…1309); the one exposed release path (1 of 7) was tried and liquidity didn't move, which isn't proof of safety. Bytecode had 31 known owner switches searched, none found; owner address is the zero address."
   },
   "0x2543c8b3ea1f72c32c29830de04991812f67a5b8": {
     "scan": {
@@ -20841,9 +20906,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
+      "ownerTrap",
       "lpRug",
-      "hiddenFee",
-      "ownerTrap"
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -20876,14 +20941,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -20895,7 +20981,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5591056",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
       },
@@ -20937,30 +21025,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x0dfcad6cb0dede92464c1b96cb44267a98dfbbc487109e9b0e9f967072b948d9",
           "0x96625e5257710403934425a06d229827fc5d00a2d928ad1b8e3f243c4106723d"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "APEMAN passed both the honeypot check (sell after buy and sell from a transferee both succeeded, 981,464.23 APEMAN bought) and the hidden fee check (327,154.74 APEMAN sent and received, 0% fee/buy tax/sell tax). The LP rug probe is not applicable: 100% of active liquidity sits with contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309 on uniswap-v3 (position 5591056), an unrecognized contract, so drainability is unknown. The owner trap probe found none of 31 known owner switches, though unknown privileged code can't be ruled out, and owner is the zero address."
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, including from a wallet that received a transfer (981,464.23 APEMAN bought, transferee sell succeeded).\n\nOwner trap: not applicable. 31 known owner switches were searched for in the bytecode; none were found, though undisclosed privileged code can't be ruled out.\n\nLP rug: not applicable/unresolved. 100% of liquidity sits in an unrecognized contract; its owner was impersonated and the one exposed release path (1 of 7) was called without moving funds — this doesn't prove safety.\n\nHidden fee: PASS. Buy tax 0%, sell tax 0%, later sell tax 0%, and a full-balance transfer of 327,154.74 APEMAN arrived at 100%."
   },
   "0x1a9f84e6503a3d758c0727f0a6f801b9807e05c8": {
     "scan": {
@@ -20976,9 +21043,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
+      "lpRug",
       "ownerTrap",
-      "hiddenFee",
-      "lpRug"
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -21009,6 +21076,32 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x44314d55a953fb2ed1cea37d45d18e6626369e10be6a94bef99a6bbf7b75f8ec",
           "0x1fe79857232bd2755de95c8719e7824850391626e55dbea2c429527645b723b0"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5489715",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
       },
       {
         "probe": "ownerTrap",
@@ -21069,33 +21162,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x90799b77d4e7418f18aa9482d343c33e2806624dc2a6635a3b7406892af92e98",
           "0x63e0c5244a379aa7fd74038996506c86ad338d6039f782e9149f0bd14c8906fb"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5489715",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       }
     ],
-    "narration": "**BRIAN token safety check:**\n\n- **Honeypot test: PASS.** Bought 981,716.48 BRIAN and sold successfully; a wallet that received a transfer was also able to sell.\n- **Hidden fee test: PASS.** Buy, sell, and transfer of 327,238.82 BRIAN all completed with 0% fee/tax (buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%) — full amounts received each time.\n- **Owner trap: N/A.** Searched 31 known owner switches (pause, blacklist, mint, etc.) and found none; owner address is the zero address. Hidden privileged code under an unrecognized name can't be ruled out.\n- **LP rug: N/A.** 100% of liquidity (Uniswap v3, position 5489715) is held by contract 0xB190…1309, whose withdrawal logic is unrecognized and unverified."
+    "narration": "BRIAN passed both the honeypot check (bought 981,716.48 BRIAN, sold successfully, and a transferee wallet also sold) and the hidden-fee check (327,238.82 BRIAN sent and received in full, 0% buy/sell tax). No owner switch was found after searching 31 known patterns, though privileged code under an unknown name can't be ruled out. LP status is inconclusive: 100% of liquidity sits in an unrecognized contract; calling its owner's one exposed function did not release funds, which shows that path is closed but does not prove the liquidity is safe overall."
   },
   "0x205bf9f807f2a2a490314dacf19acd40a7b9efe1": {
     "scan": {
@@ -21187,12 +21256,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -21204,7 +21273,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5728996",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
       },
@@ -21230,7 +21301,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "Token safety checks: honeypot test PASSED — buying and selling both succeeded, including a sell from a transferee wallet (983,974.38 Pools.Trade bought, transferee sell succeeded). Hidden-fee test PASSED — buy, sell, and transfer of 327,991.46 Pools.Trade all matched quoted amounts, with feePct, buyTaxPct, and sellTaxPct all at 0%. LP-rug check is NA: 100% of liquidity sits in an unrecognized contract (0xB190…1309), 0% burned, so drainability is unknown. Owner-trap check is also NA: 31 known owner switches were searched and none were found, though unnamed privileged code could still exist."
+    "narration": "Token passed both executable checks: buying, selling, and transferring worked normally, and hidden-fee testing showed 0% fee on buy, sell, and sell-later (feePct 0%, buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%). LP-rug status is inconclusive: 100% of active liquidity sits in an unrecognized contract (0xB1900F41d78D330A2a35C6771b3A6088a1b51309); its owner was impersonated and the one exposed release path (1 of 7) was called without moving funds — this does not confirm safety, only that this path stayed closed. Owner-trap check found none of 31 known owner switches in bytecode; owner address is 0x0000000000000000000000000000000000000000."
   },
   "0x1b6b74bfdbb36f0f60351d1141edf41f7d81efff": {
     "scan": {
@@ -21348,7 +21419,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -21360,12 +21431,13 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xF1CaFccDC0981A15acE1A3d629C8CCa1a55ff7C7",
           "venue": "uniswap-v3",
           "positionId": "5793572",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       }
     ],
-    "narration": "BFATHER passed both the honeypot and hidden-fee checks: buying, selling, and full-balance transfers all worked, with amounts received matching amounts sent (554,122.73 BFATHER) and 0% fees on buy, sell, and transfer.\n\nThe owner-trap probe found no owner and no matching privileged functions among 31 known switches searched, though unrecognized privileged code can't be ruled out.\n\nLP status is not applicable/unresolved: 100% of liquidity (Uniswap v3 position 5793572) is held by a contract (0xF1Ca…f7C7) whose withdrawal logic wasn't analyzed, so whether it can be drained is unknown."
+    "narration": "BFATHER passed both executed checks: buying and selling succeeded, including a sell from a wallet that merely received a transfer (1,662,368.2 BFATHER bought, transferee sell succeeded), and no hidden fee appeared on buy, sell, or transfer (554,122.73 BFATHER sent and received, 0% fee/buy tax/sell tax/later sell tax).\n\nThe owner-trap probe was not applicable: 31 known owner switches were searched in the bytecode and none were found, though unknown privileged code can't be ruled out.\n\nThe LP-rug probe was also not applicable: 100% of liquidity sits in an unrecognized contract (0xF1CaFccDC0981A15acE1A3d629C8CCa1a55ff7C7), with 0 of 7 release attempts succeeding — not proof of safety, only that this path didn't open."
   },
   "0x30457a1ab7cd796d6e55e4e5ba12e09f2283e856": {
     "scan": {
@@ -21693,9 +21765,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
       "lpRug",
-      "hiddenFee"
+      "hiddenFee",
+      "ownerTrap"
     ],
     "verdicts": [
       {
@@ -21728,35 +21800,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
-      {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -21768,7 +21819,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5582955",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
       },
@@ -21810,9 +21863,30 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xfaf2c20033af031376e13df484ca907c4262116e71802241219981423cbb0221",
           "0xad124532a2a988895f66c1d5f6ae8aa237fce7654226b8812974535ae1f069b4"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "✓ Not a honeypot — buy and sell both succeed\n— No owner switch Sidik can operate is present in this bytecode\n— LP held by contract 0xB190…1309; pulling it needs that contract's own logic\n✓ No hidden fee on buying, selling or transferring"
+    "narration": "Token-safety checks: Honeypot probe PASSED — buying and selling both worked, including a sell from a transferee wallet (998,927.99 SYS bought). Hidden-fee probe PASSED — 0% fee on buy, sell, and transfer, with 332,975.99 SYS sent and received in full. LP-rug probe returned NA — 100% of liquidity sits in an unrecognized contract (0xB190…1309); its owner was impersonated and 1 of 7 release paths tried, with no funds moving, though this doesn't prove safety. Owner-trap probe returned NA — 31 known owner switches were searched with none found, though hidden privileged code can't be ruled out."
   },
   "0x8d1e302f60622d69a647b70c2d95e17ad719acd5": {
     "scan": {
@@ -22092,8 +22166,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
       "hiddenFee",
+      "ownerTrap",
       "lpRug"
     ],
     "verdicts": [
@@ -22125,27 +22199,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x43ad8ad02704597dfd9e0ab890aa9b2f8056cb0917783c6250dae8c5b09e8de0",
           "0x7b438025d0b3e7a56731f300f32ca47dbd93324b43789c377661d51f9f62c6c8"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -22187,6 +22240,27 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
         "probe": "lpRug",
         "status": "NA",
         "title": "LP held by contract 0xEB3D…0F9A; pulling it needs that contract's own logic",
@@ -22194,7 +22268,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -22206,12 +22280,13 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xEB3D17c23e33d908ed80e5CEC419e5f36A5d0F9A",
           "venue": "uniswap-v3",
           "positionId": "5721197",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       }
     ],
-    "narration": "Token AD passed both honeypot and hidden-fee checks: buying, selling, and full-balance transfers all worked as claimed, with 98.94 AD bought, 32.98 AD sent and received (0% fee/tax on buy, sell, and later sell). The owner-trap probe found no owner and none of 31 known privileged switches (pause, blacklist, trading/fee setters, mint) in the bytecode, though unnamed privileged code can't be ruled out. LP status is inconclusive: 100% of liquidity (Uniswap v3, position 5721197) is held by contract 0xEB3D17c23e33d908ed80e5CEC419e5f36A5d0F9A, an unrecognized contract, so whether it can withdraw or drain that liquidity depends on its own logic."
+    "narration": "Token AD passed both executed checks: honeypot (buy then sell succeeded, 98.94 AD, transferee sell succeeded) and hidden fee (32.98 AD sent and received, 0% fee/buy tax/sell tax/sell tax later).\n\nTwo probes were not applicable. ownerTrap: 31 known owner switches were searched in the bytecode and none were found; owner address is 0x0000000000000000000000000000000000000000, but privileged code under an unknown name can't be ruled out. lpRug: 100% of active liquidity sits in contract 0xEB3D…0F9A (uniswap-v3, position 5721197), which exposes no known way to drain it (0 of 7 release attempts) — not proof of safety, only that this path didn't open."
   },
   "0x16ab57c87860d48e18945f0a294dad418c132ada": {
     "scan": {
@@ -22227,9 +22302,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
+      "ownerTrap",
       "hiddenFee",
-      "lpRug",
-      "ownerTrap"
+      "lpRug"
     ],
     "verdicts": [
       {
@@ -22260,6 +22335,27 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x32490afb229e75c7dc7bc86d66fff9b8c568b50f14f78d38ac93528773a797fb",
           "0x30e63f32532373a5801ecd7b606325ec1c61e5860201790f2fbf07a4f9426ecb"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -22303,12 +22399,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -22320,33 +22416,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5585039",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "Token (kevin) checks: buying and selling both succeed, including from a wallet that received a transfer via transfer (honeypot check: PASS). No hidden fees found — buy tax 0%, sell tax 0%, sell tax later 0%, and a full-balance transfer delivered 100% (336,828.77 kevin sent and received). LP is 100% held by contract 0xB190…1309 on uniswap-v3 (position 5585039); whether it can be withdrawn depends on that contract's own code, so this is not verifiable (NA). No owner switch was found among 31 known patterns searched, though unknown privileged code may still exist (NA)."
+    "narration": "Token \"kevin\" passed both honeypot and hidden-fee checks: a buy of 1,010,486.32 kevin was sold successfully, a transferee's sell succeeded, and a transfer of 336,828.77 kevin arrived at 100% with 0% fee on buy, sell, and transfer.\n\nNo owner-controlled switch was found among 31 known types searched, though undetected privileged code can't be ruled out; owner address is the zero address.\n\nLP is 100% held by an unrecognized contract (0xB190…1309); its owner (0xade2…1f6f) was impersonated and its one exposed release path was called without moving liquidity — this does not prove the liquidity is safe, only that this path didn't open."
   },
   "0x11c54faeb8cfa86dad82c7f805f3789952e8b7eb": {
     "scan": {
@@ -22499,9 +22576,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
+      "hiddenFee",
       "ownerTrap",
-      "hiddenFee"
+      "lpRug"
     ],
     "verdicts": [
       {
@@ -22532,51 +22609,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xfa73afc06d429d43ce8d3ef7aad1c52fcb545b95baf90fec416b555f471ed5ea",
           "0x792b6dc25c019a7460dd1723e28ffd638ef7249dd20cb575e20d99c8dadf0428"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5584382",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -22616,9 +22648,56 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xb02924eb89195ee0f224ccb3e90cff8879eebfc9557994393e6a55d0fadc10f0",
           "0x6236456081051a0e1d295e079319e919c50d48d5a027253b6a426241b1e7854d"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5584382",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
       }
     ],
-    "narration": "Honeypot check: PASS — buying and selling both succeeded, including a sell from a transferee wallet (1,016,480.65 ECHO bought, transferee sell succeeded).\n\nHidden fee check: PASS — 0% fee on buy, sell, and transfer; buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%; 338,826.88 ECHO sent equaled 338,826.88 ECHO received.\n\nLP rug check: NA — 100% of active liquidity (ownerLpPct 100%, burnedLpPct 0%) sits in contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309 (uniswap-v3, position 5584382), an unrecognized contract, so drainability is unknown.\n\nOwner trap check: NA — 31 known owner switches searched, none found; owner address is 0x0000000000000000000000000000000000000000, but unknown privileged code can't be ruled out."
+    "narration": "Honeypot check: PASS. Buying and selling both succeeded, including a sell from a transferee wallet; 1,016,480.65 ECHO was bought and sold without issue.\n\nHidden fee check: PASS. Buy tax, sell tax, and transfer fee were all 0%; 338,826.88 ECHO sent equaled 338,826.88 ECHO received.\n\nOwner trap check: NA. 31 known owner switches were searched for in the bytecode and none were found; unknown privileged code may still exist.\n\nLP rug check: NA. 100% of liquidity is held by an unrecognized contract; 1 of 7 release paths was tried under impersonation and liquidity did not move, which is not proof of safety."
   },
   "0x0f8d46092d914c39131a48aeb5436a4c753cde65": {
     "scan": {
@@ -23150,7 +23229,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -23162,12 +23241,13 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xc54cb94E91c767374a2F23f0F2cEd698921AE22a",
           "venue": "uniswap-v3",
           "positionId": "5742419",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       }
     ],
-    "narration": "Four checks were run on SFF. Ownership-trap: not applicable — 31 known owner switches were searched with none found; two unrecognized functions, LOCK8605463013() and SafeERC20FailedOperation(address), exist but were not operated, so their effect is unproven. Honeypot: passed — a buy of 9,956,517.59 SFF was sold successfully, and a transferee wallet also sold. Hidden-fee: passed — buy, sell, and a full transfer of 3,318,839.19 SFF all completed with 0% fee, buy tax, and sell tax. LP-rug: not applicable — 100% of liquidity sits in contract 0xc54cb94E91c767374a2F23f0F2cEd698921AE22a on uniswap-v3 (position 5742419), whose own code determines withdrawal risk, which Sidik did not evaluate."
+    "narration": "Four probes were run. Ownership trap: NA — 31 known owner switches were searched, none found; two unrecognized functions, LOCK8605463013() and SafeERC20FailedOperation(address), exist but were not operated, so their effect is unproven. Honeypot: PASS — a buy of 9,956,517.59 SFF was sold successfully, including from a transferee wallet. Hidden fee: PASS — 3,318,839.19 SFF sent and received in full, with 0% fee, buy tax, and sell tax. LP rug: NA — 100% of liquidity sits in an unrecognized contract (0xc54cb94E91c767374a2F23f0F2cEd698921AE22a); 0% is burned, and 0 of 7 release attempts succeeded."
   },
   "0x8d6e13b6083c5a8c7e8d9874dc6761c45debc190": {
     "scan": {
@@ -23315,8 +23395,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
       "ownerTrap",
+      "lpRug",
       "hiddenFee"
     ],
     "verdicts": [
@@ -23350,30 +23430,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5489766",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "No owner switch Sidik can operate is present in this bytecode",
@@ -23393,6 +23449,32 @@ export const FIXTURES: Record<string, FrozenRun> = {
         },
         "txHashes": [],
         "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5489766",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -23434,7 +23516,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "BRIAN passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (1,031,162.84 BRIAN bought, transferee sell succeeded). Hidden-fee check also passed, with 0% buy tax, 0% sell tax, and 343,720.94 BRIAN sent matching 343,720.94 BRIAN received. LP rug status is NA: 100% of active liquidity sits with contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309, an unrecognized contract, so drain risk is unknown. Owner-trap status is also NA: 31 known owner switches were searched and none were found, though unknown privileged code could still exist."
+    "narration": "BRIAN passed the honeypot check: a buy of 1,031,162.84 BRIAN was sold successfully, and a transferred wallet also sold. Hidden-fee checks passed with 0% buy/sell/transfer tax; 343,720.94 BRIAN sent equaled 343,720.94 BRIAN received. Owner-trap check is not applicable: 31 known owner switches were searched and none found, with owner address 0x0000000000000000000000000000000000000000. LP-rug check is also not applicable: 100% of liquidity sits in an unrecognized contract (0xB190…1309); only 1 of 7 release paths was tested and liquidity did not move, which is not proof of safety."
   },
   "0x852e896161931bb9f785bf75365927e70f47b988": {
     "scan": {
@@ -23725,9 +23807,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "ownerTrap",
-      "lpRug"
+      "lpRug",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -23758,6 +23840,52 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xb93afc092d47ac3818072a3aabed1e2684335b03b242ce0e3ff25d2f65aa663a",
           "0xfcc6fb46fad283287e1179fa55a79a4ee69c9ac9daf922c8bbcfa7273cad5ce8"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xEB3D…0F9A; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xEB3D17c23e33d908ed80e5CEC419e5f36A5d0F9A",
+          "venue": "uniswap-v3",
+          "positionId": "5328437",
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -23797,54 +23925,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x191f9d2a2c9752796ad13293aea218fd15f7753f3ce40d717562162bc3d81745",
           "0x0f595af27e13777d92ec1f6b53d0af1c57ca161cde319530e1864eb85be48f7c"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xEB3D…0F9A; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xEB3D17c23e33d908ed80e5CEC419e5f36A5d0F9A",
-          "venue": "uniswap-v3",
-          "positionId": "5328437",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       }
     ],
-    "narration": "Buy and sell both succeeded (bought 95.37 RoyalHOW), including from a transferee wallet, so it's not a honeypot. No hidden fees: buy tax 0%, sell tax 0% (later 0%), and a full transfer of 31.79 RoyalHOW arrived at 100%. No owner-side trap was found after searching 31 known switches, though privileged code under an unknown name can't be ruled out; owner address is the zero address. LP is 100% held by contract 0xEB3D…0F9A (Uniswap v3, position 5328437), an unrecognized contract, so whether liquidity can be pulled depends on its own logic."
+    "narration": "**Token safety summary — RoyalHOW**\n\nHoneypot check: PASS. Buying and selling both succeeded, including a sell from a wallet that received a transfer (95.37 RoyalHOW bought, transferee sell succeeded).\n\nOwner trap check: N/A. 31 known owner switches (pause, blacklist, trading/fee setters, mint) were searched for and none were found; owner address is 0x0000000000000000000000000000000000000000. This doesn't rule out unknown privileged code.\n\nLP rug check: N/A. 100% of active liquidity (Uniswap v3, position 5328437) is held by contract 0xEB3D…0F9A, with no known way to drain it (0 of 7 release attempts worked) — not proof of safety, just no known exit.\n\nHidden fee check: PASS. Buy, sell, and transfer (31.79 RoyalHOW) all delivered 100%, with 0% fee/tax on buy and sell."
   },
   "0x332452924aa6b1491f8bbeb36276132938e18ecb": {
     "scan": {
@@ -23860,9 +23943,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
       "hiddenFee",
-      "lpRug"
+      "lpRug",
+      "ownerTrap"
     ],
     "verdicts": [
       {
@@ -23893,27 +23976,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xc94e945dbefebc7226658fc2646ff19a0034dcccbd685bbd4e82059fc89f1f92",
           "0x7b5040434e276956c7a84d9b70cd89259f1b48bcc1fc371f8f483f1ea1fe303e"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -23957,12 +24019,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -23974,12 +24036,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5568049",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "Honeypot check: PASS — buying and selling both succeeded, including from a wallet that received a transfer (1,038,741.17 ABCs bought, sell succeeded).\n\nOwner trap: N/A — 31 known owner switches were searched for and none found; owner address is 0x0000000000000000000000000000000000000000, though unknown privileged code could still exist.\n\nHidden fee: PASS — buy, sell, and transfer all delivered 100% of quoted/sent amounts (346,247.05 ABCs sent and received), with 0% buy, sell, and later-sell tax.\n\nLP rug: N/A — 100% of liquidity (Uniswap v3, position 5568049) is held by contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309, an unrecognized contract, so withdrawability depends on its own code; burned LP is 0%."
+    "narration": "Token passed both trading checks: buy/sell succeeded (1,038,741.17 ABCs bought, sell from a transferee also succeeded), and no hidden fees were found (346,247.05 ABCs sent and received in full; buy/sell/later-sell tax all 0%).\n\nTwo checks were inconclusive. LP ownership: 100% of liquidity sits in a contract unrecognized by Sidik; its owner was impersonated, 1 of 7 release paths was tried, and no liquidity moved — this only shows that one path didn't open, not that funds are safe. Owner-trap check: 31 known owner switches (pause, blacklist, trading/fee setters, mint) were searched, none found, but unknown privileged code may still exist."
   },
   "0x067839cf58aa1e7ee99da6e4ff8269686388bd01": {
     "scan": {
@@ -23995,8 +24080,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
       "hiddenFee",
+      "ownerTrap",
       "lpRug"
     ],
     "verdicts": [
@@ -24028,27 +24113,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xe72c4ddf4a8f94c0a7789e78dc737f2fffd94ebc4c169b822529f245fe1df05a",
           "0xf37fad1663b785636a1d1185ac3e7694e8341a24c9408b98840d3c23c7dfc998"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -24090,14 +24154,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -24109,12 +24194,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5582980",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
       }
     ],
-    "narration": "ZETA passed the honeypot check: buying and selling both succeeded, including a sell from a transferee wallet (bought 1,038,962.84 ZETA). No hidden fees were found on buy, sell, or transfer (0% fee/tax; 346,320.94 ZETA sent and received in full). The owner-trap probe found no known owner switches among 31 searched, though unrecognized privileged code can't be ruled out; owner address is the zero address. LP risk is inconclusive: 100% of liquidity (Uniswap v3, position 5582980) is held by contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309, whose withdrawal logic was not evaluated."
+    "narration": "Token-safety results: buying and selling both succeed (honeypot PASS), including a resale from a transferee wallet (1,038,962.84 ZETA bought, transferee sell succeeded). No hidden fees found — buy, sell, and transfer of 346,320.94 ZETA all matched quotes, with feePct, buyTaxPct, sellTaxPct, and sellTaxLaterPct all 0%. Owner-trap check is not applicable: 31 known owner switches were searched, none found, though unnamed privileged code can't be ruled out. LP-rug check is also not applicable: 100% of liquidity sits in an unrecognized contract; its impersonated owner's single exposed release path (1 of 7) was tried and liquidity did not move, which is not proof of safety."
   },
   "0x75bb363282efee82de7db6db91874a01ef5b4d99": {
     "scan": {
@@ -24211,7 +24298,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -24223,7 +24310,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x005f72deb3512Fd0159Eb8d85f36D4b3E7F26eaB",
           "venue": "uniswap-v3",
           "positionId": "5488176",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -24249,7 +24337,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "✓ Not a honeypot — buy and sell both succeed\n✓ No hidden fee on buying, selling or transferring\n— LP held by contract 0x005f…6eaB; pulling it needs that contract's own logic\n— No owner switch Sidik can operate is present in this bytecode"
+    "narration": "Buy/sell and transfer tests both passed: sells succeeded (including from a transferee), and amounts sent/received matched exactly (216,018.92 0xDeployer, 0% fee, 0% buy/sell tax). LP ownership check is inconclusive: 100% of liquidity sits in an unrecognized contract (0x005f…6eaB, uniswap-v3, position 5488176), with no known release path found (0 of 7 tried). Owner-trap check found no operable switches among 31 searched, though hidden logic under unknown names can't be ruled out; owner address is the zero address."
   },
   "0x2331ab2dd5b638ea0654a351fbc9a3798621708b": {
     "scan": {
@@ -24265,9 +24353,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "lpRug",
-      "ownerTrap"
+      "ownerTrap",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -24298,6 +24386,53 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x7e18f6a394a652a4dfc2eff1b17e60c8f79849eb1345a02c1d8e8326a0cc9e56",
           "0x0f711685865efa556a08434071ae3fc68a70698ab08ff0af5a56c9c099557623"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5327664",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -24337,54 +24472,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x70346fb830406c55f0f139f9f6bec7e98af50ca5b3229003347dde85f30a7044",
           "0x9cb1cbc0395c044da08a9e9d5e754ae978cba2dc1ce242b60421d7a51626a82e"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5327664",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "Token passed both the honeypot and hidden-fee checks: a buy of 1,041,220.19 b20 sold successfully, a transferee's sale also succeeded, and a transfer of 347,073.39 b20 arrived in full, with buy/sell/fee percentages all at 0%. LP safety is unresolved: 100% of active liquidity sits in an unrecognized contract (0xB1900F41d78D330A2a35C6771b3A6088a1b51309), so withdrawal risk depends on code not evaluated here. Owner-trap check found none of 31 known privileged switches, with owner set to the zero address, though unknown mechanisms could still exist."
+    "narration": "✓ Not a honeypot — buy and sell both succeed\n— LP held by contract 0xB190…1309, and its owner could not release it\n— No owner switch Sidik can operate is present in this bytecode\n✓ No hidden fee on buying, selling or transferring"
   },
   "0x0cb42678ea285c2e630b3b4bece67b78c409371e": {
     "scan": {
@@ -24400,8 +24490,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
       "ownerTrap",
+      "lpRug",
       "hiddenFee"
     ],
     "verdicts": [
@@ -24435,30 +24525,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5582051",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "No owner switch Sidik can operate is present in this bytecode",
@@ -24478,6 +24544,32 @@ export const FIXTURES: Record<string, FrozenRun> = {
         },
         "txHashes": [],
         "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5582051",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -24519,7 +24611,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "✓ Not a honeypot — buy and sell both succeed\n— LP held by contract 0xB190…1309; pulling it needs that contract's own logic\n— No owner switch Sidik can operate is present in this bytecode\n✓ No hidden fee on buying, selling or transferring"
+    "narration": "ONEPOUND passed the honeypot check: buying and selling both succeeded (1,045,153.62 ONEPOUND bought, transferee sell succeeded). No hidden fees were found on buy, sell, or transfer (0% fee/buy tax/sell tax; 348,384.54 ONEPOUND sent and received in full). The owner-trap probe found no known owner switches among 31 searched, though privileged code under an unknown name can't be ruled out. LP rug status is unresolved: 100% of liquidity sits in an unrecognized contract, and testing one of seven release paths (via the impersonated owner) did not move the funds — not proof of safety."
   },
   "0x915ce8b817cb7f73961c26e4e8f8cad8f055b2e7": {
     "scan": {
@@ -24672,8 +24764,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
       "hiddenFee",
+      "lpRug",
       "ownerTrap"
     ],
     "verdicts": [
@@ -24705,30 +24797,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x7f7f0716e2e59d6af1c8b22c223ada906aa988767ea3077d50847f6a4f686c97",
           "0xb9dbbb91038c9f56d117ccf0b11fcb6bd746913a023d0c19702b6230548f9932"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xEB3D…0F9A; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xEB3D17c23e33d908ed80e5CEC419e5f36A5d0F9A",
-          "venue": "uniswap-v3",
-          "positionId": "5619076",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -24770,6 +24838,31 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xEB3D…0F9A; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xEB3D17c23e33d908ed80e5CEC419e5f36A5d0F9A",
+          "venue": "uniswap-v3",
+          "positionId": "5619076",
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
+        },
+        "txHashes": []
+      },
+      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "No owner switch Sidik can operate is present in this bytecode",
@@ -24791,7 +24884,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "ROAD passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (96,758,563.12 ROAD bought). No hidden fees were found on buy, sell, or transfer — 32,252,854.37 ROAD sent and received in full, with buyTaxPct, sellTaxPct, and sellTaxLaterPct all at 0%. The ownerTrap probe searched 31 known owner switches and found none. The lpRug probe is inconclusive: 100% of liquidity sits in an unrecognized contract (0xEB3D…0F9A), so whether it can be drained is unknown."
+    "narration": "Token ROAD passed both executed checks: buying, selling, and transferring all worked (96,758,563.12 ROAD bought, transfereeSell succeeded), and no hidden fees appeared (32,252,854.37 ROAD sent equaled 32,252,854.37 ROAD received; feePct 0%, buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%).\n\nTwo checks were not applicable. LP rug: 100% of liquidity sits in contract 0xEB3D…0F9A, unrecognized, with releaseTried 0 of 7 — this only shows no known exit was found, not that funds are safe. Owner trap: 31 known owner switches were searched, none found, owner address is the zero address, but unknown privileged code could still exist."
   },
   "0x040feecececb79fdcc0c7aa2685391c4e09f9049": {
     "scan": {
@@ -24807,9 +24900,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
+      "ownerTrap",
       "hiddenFee",
-      "lpRug",
-      "ownerTrap"
+      "lpRug"
     ],
     "verdicts": [
       {
@@ -24840,6 +24933,27 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xe1fbb7a3627d75e587d1fde3852502c50e1b65bbb81e41db315dd642570fe90b",
           "0xa3ec75e3d0ea3644919136d68ce4136769b190cde6359c709f00ce6703f18ddb"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -24888,7 +25002,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -24900,33 +25014,13 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xCd184dA429F74CFEb735E367044fd9cDbd8150aA",
           "venue": "uniswap-v3",
           "positionId": "5539794",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "BALLS passed both the honeypot and hidden-fee checks: a buy of 2,381,935,774.56 BALLS was sold successfully, a transferee sale succeeded, and a transfer of 793,978,591.52 BALLS arrived in full, with feePct, buyTaxPct, sellTaxPct, and sellTaxLaterPct all at 0%. LP rug status is NA: 100% of liquidity (ownerLpPct 100%, burnedLpPct 0%) sits in contract 0xCd184dA429F74CFEb735E367044fd9cDbd8150aA (uniswap-v3, positionId 5539794), an unrecognized contract, so drainability is unknown. Owner-trap check is NA: 31 known owner switches were searched, none found, owner address is the zero address."
+    "narration": "BALLS token checks: buying and selling both succeeded, including a sell from a wallet that only received a transfer (2,381,935,774.56 BALLS bought, transferee sell succeeded). No hidden fees were found on buy, sell, or transfer — 793,978,591.52 BALLS sent and received in full, with buyTax, sellTax, and sellTaxLater all at 0%. No owner switch was found among 31 known patterns, though privileged code under an unknown name can't be ruled out. LP is 100% held by an unrecognized contract (0xCd18…50aA) with no known way to withdraw; this does not prove liquidity is safe."
   },
   "0x36c81d7e1966310f305ea637e761cf77f90852f0": {
     "scan": {
@@ -25326,12 +25420,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xe09F…A6Af; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xe09F…A6Af, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0x1A47…8f22 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -25343,7 +25437,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xe09FC835110cA2E8cf5E112D26007D59B379A6Af",
           "venue": "uniswap-v3",
           "positionId": "5361990",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x1A472863cF21D5Aa27F417dF9140400324C48f22"
         },
         "txHashes": []
       },
@@ -25369,7 +25465,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "Token USOT passed both executed checks: no honeypot behavior (buy and sell succeeded, including a sell from a transferee wallet, with 36,316.34 USOT bought) and no hidden fees (0% fee/buy/sell tax, 12,105.44 USOT sent and received in full, full balance transferred at 100%).\n\nTwo checks were not applicable. LP rug: 100% of active liquidity is held by contract 0xe09FC835110cA2E8cf5E112D26007D59B379A6Af, an unrecognized contract, so drainability depends on its own code. Owner trap: 31 known owner switches were searched for and none were found, though privileged code under an unknown name may still exist."
+    "narration": "Token safety checks: Honeypot probe PASSED — buying and selling both succeeded, including a sell from a wallet that received a transfer (36,316.34 USOT bought). Hidden-fee probe PASSED — 0% fee on buy, sell, and transfer; 12,105.44 USOT sent equaled 12,105.44 USOT received. LP-rug probe returned NA: 100% of liquidity sits in an unrecognized contract; only 1 of 7 possible release paths was tested and it did not release funds, so safety is unproven. Owner-trap probe returned NA: 31 known owner switches were searched in the bytecode, none were found, but unknown privileged code may still exist."
   },
   "0xac46d20d160d04ee76369e787ce5fa16d3bc8453": {
     "scan": {
@@ -25386,8 +25482,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
       "hiddenFee",
+      "lpRug",
       "ownerTrap"
     ],
     "verdicts": [
@@ -25419,30 +25515,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x002bc52c302d3d57d093269aa67c167501f0d83474710dfdb257c0ee409be746",
           "0xb3e56211e51e89d38b23a08e669ebd83a276432753914a42d7f74a4ad1ac6b69"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
-          "venue": "uniswap-v3",
-          "positionId": "5491090",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -25484,6 +25556,32 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
+          "venue": "uniswap-v3",
+          "positionId": "5491090",
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
+        },
+        "txHashes": []
+      },
+      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "No owner switch Sidik can operate is present in this bytecode",
@@ -25505,7 +25603,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "ANGELA passes the honeypot check: buying and selling both succeed, including a sell from a wallet that received a transfer (1,363,281.42 ANGELA bought, transfer sell succeeded). No hidden fees were found on buy, sell, or transfer (454,427.14 ANGELA sent and received, 0% fee/buy tax/sell tax). LP rug status is not applicable: 100% of liquidity sits in an unrecognized contract (0x25c9…Bd52), so drainability is unknown. Owner trap check is not applicable: 31 known owner switches were searched, none found, though hidden privileged code can't be ruled out."
+    "narration": "ANGELA passed all executable checks. Honeypot probe: buy of 1,363,281.42 ANGELA succeeded, and a transferee could sell (PASS). Hidden fee probe: 454,427.14 ANGELA sent and received in full, with buyTaxPct, sellTaxPct, sellTaxLaterPct, and feePct all at 0% (PASS). LP rug probe: 100% of active liquidity (position 5491090 on uniswap-v3) sits in the UniV3LPLocker contract, ownerLpPct 100%, burnedLpPct 0%, unlock date unknown (PASS). Owner trap probe was not applicable: 31 known owner switches were searched, none found, owner address is the zero address."
   },
   "0x41b057e98709d6da20b12e947a73a9f27f7ead7b": {
     "scan": {
@@ -25521,9 +25619,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "ownerTrap",
-      "lpRug"
+      "lpRug",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -25554,6 +25652,53 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xccaa18e75da5f566d4fb2c1dbbc9eed1b5b6bcc33cd3ac8df5c8072c3ff26ff2",
           "0x99271d97acee4a9f2ec3d40cfea0ad012e055f73fba2f7dad0be3ff1f9c7a3b2"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5583369",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -25593,54 +25738,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xb792290cf9280ffac8e1f09d05bffcc25dee66927cd1b454384bb8bc11ad1324",
           "0xe81753475cd23c9dbb8d1c6277951618a07c6b6c7c4c35b3b4785d93e5417d5a"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5583369",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       }
     ],
-    "narration": "Token checks: buying and selling both succeeded, including a resale from a wallet that received a transfer of 1,061,341.79 COBIE — no honeypot behavior found. Fee checks passed: a buy/sell/transfer cycle moved 353,780.59 COBIE with 0% fee, 0% buy tax, and 0% sell tax. No owner-controlled switches (pause, blacklist, fee setters, mint) were found among 31 checked, though undisclosed privileged code can't be ruled out. Liquidity is 100% held by an unrecognized contract (0xB1900F41d78D330A2a35C6771b3A6088a1b51309) on uniswap-v3, with 0% burned — its withdrawal risk is unverified."
+    "narration": "COBIE passed the honeypot check: a buy of 1,061,341.79 COBIE was sold successfully, and a transferred balance was also sold. The hidden-fee check passed with 0% fee on buy, sell, and transfer (353,780.59 COBIE sent and received in full). The owner-trap probe found no applicable owner switch: 31 known switches were searched, none found, though undisclosed privileged code may still exist. The LP-rug probe is not fully resolved: 100% of liquidity sits in an unrecognized contract (0xB190…1309) owned by 0xade2…1f6f; one of seven exposed release paths was tried and did not move funds, which does not prove the liquidity is safe."
   },
   "0x16afbf183d5b041352b2df720205a79810051111": {
     "scan": {
@@ -25669,9 +25769,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "lpRug",
-      "ownerTrap"
+      "ownerTrap",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -25702,6 +25802,52 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xf4ca7a2979af8f5609951ae231697fe54e22a3e6326472762a15cea98d84490b",
           "0x177efb246d28bf2692f41a76a4604543e32b222c63a1e36ed100eca64a2a5c45"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0x0cf1…1435; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0.01303 WETH",
+          "holderValueAfter": "0.01303 WETH",
+          "lpOwner": "0x0cf181f6Ca4260199d275f2A33EA7f5f11341435",
+          "venue": "uniswap-v3",
+          "positionId": "5775540",
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -25741,54 +25887,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x5b00f2105bc97fdaa6b1ea61cf2ab7480a884c23e675a53a293c4b5970233988",
           "0xf907ee66688bb960b70b45bc2f2b313291a979bf56d6f36e64d56190ed858bab"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x0cf1…1435; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0.01303 WETH",
-          "holderValueAfter": "0.01303 WETH",
-          "lpOwner": "0x0cf181f6Ca4260199d275f2A33EA7f5f11341435",
-          "venue": "uniswap-v3",
-          "positionId": "5775540",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "Honeypot probe: PASS — buy and sell both succeeded, including a sell from a transferee wallet; 24,699.91 ULAUNCH was bought and sold without issue.\n\nHidden-fee probe: PASS — 8,233.3 ULAUNCH sent equaled 8,233.3 ULAUNCH received, with buyTaxPct, sellTaxPct, and sellTaxLaterPct all at 0%.\n\nLP-rug probe: NA — 100% of liquidity (ownerLpPct: 100%, burnedLpPct: 0%) is held by contract 0x0cf181f6Ca4260199d275f2A33EA7f5f11341435 on uniswap-v3, position 5775540; whether it can be withdrawn depends on that contract's own code.\n\nOwner-trap probe: NA — 31 known owner switches were searched and none were found; owner address is 0x0000000000000000000000000000000000000000, though privileged code under an unknown name could still exist."
+    "narration": "ULAUNCH passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (24,699.91 ULAUNCH bought). No hidden fees were found on buy, sell, or transfer (0% fee, 8,233.3 ULAUNCH sent and received in full). The owner-trap check found none of 31 known owner switches in the bytecode. The LP-rug check is inconclusive: 100% of liquidity sits in an unrecognized contract (0x0cf1…1435) with no known way to drain it, but this doesn't prove it's safe — only that no known exploit path was found."
   },
   "0x151236a82f9386ed8d30ed0a7f3fcdea3b9eb372": {
     "scan": {
@@ -25805,9 +25906,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
       "hiddenFee",
-      "lpRug"
+      "lpRug",
+      "ownerTrap"
     ],
     "verdicts": [
       {
@@ -25838,27 +25939,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xc0e173f796446a3e87d5322ad0ca333e32ff2aba5b6dff458bd5a113d28b5d03",
           "0xa62eacac0f8a58ff3da0d52ea8ebe973cf2c367412d0ee4361b153911a3b79be"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -25902,12 +25982,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xe09F…A6Af; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xe09F…A6Af, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0x1A47…8f22 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -25919,12 +25999,35 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xe09FC835110cA2E8cf5E112D26007D59B379A6Af",
           "venue": "uniswap-v3",
           "positionId": "5582504",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x1A472863cF21D5Aa27F417dF9140400324C48f22"
         },
         "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "CHESTER passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (960,324.36 CHESTER bought). No hidden fees were found on buy, sell, or transfer — 320,108.12 CHESTER sent equaled 320,108.12 received, with buy, sell, and later-sell tax all at 0%. The owner-trap probe found none of 31 known owner switches in the bytecode, though unknown privileged code can't be ruled out; owner address is the zero address. LP status is unresolved: 100% of liquidity sits in an unrecognized contract (0xe09F…A6Af, Uniswap v3, position 5582504), so withdrawal risk depends on that contract's own logic."
+    "narration": "CHESTER passed both trading checks: buying, selling, and transferring worked with no hidden fees (buy/sell tax 0%, 320,108.12 CHESTER sent and received in full, 960,324.36 CHESTER bought and resold successfully).\n\nLP safety is inconclusive: 100% of liquidity sits in an unrecognized contract (0xe09F…A6Af); its owner (0x1A47…8f22) was impersonated and the one exposed release path (1 of 7) was tried without moving funds — not proof of safety, only that this path didn't open.\n\nNo owner switches were found among 31 checked, though unknown privileged code may still exist."
   },
   "0x0e07ad9dcb9506abe239ac9c23e44f212c56ecc8": {
     "scan": {
@@ -25940,9 +26043,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "lpRug",
-      "ownerTrap"
+      "ownerTrap",
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -25973,6 +26076,53 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xe9284a2a72727aac8920a5f6f4ec6329062e35ffbf37e1f30e3dbe1de7ec03ca",
           "0x91408f3c8de25702aedb316d13842e305ddb0424f3b0dd8ec30367cc1056b1cc"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5582511",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       },
       {
         "probe": "hiddenFee",
@@ -26012,54 +26162,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x87487546252f0bf4612d95c61b8b935aedd8b8dd9def8f32858dab26370bbdd1",
           "0xa6be1b75349146b910cf99540c19a784f7f76aac42460046706f92d7226c10c6"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5582511",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "HOT passed both the honeypot and hidden-fee checks: a buy of 1,058,800.43 HOT could be sold, a transferred balance also sold successfully, and a transfer/buy/sell of 352,933.47 HOT showed 0% fee, 0% buy tax, and 0% sell tax (also 0% later). LP rug status is NA: 100% of liquidity sits in contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309 (Uniswap v3, position 5582511), an unrecognized contract, so drainability is unknown; burned LP is 0%. Owner-trap check is NA: 31 known owner switches were searched and none were found, though unnamed privileged code could still exist."
+    "narration": "The token passed both the honeypot and hidden-fee checks: a buy of 1,058,800.43 HOT was sold successfully, including from a transferee wallet, and a transfer of 352,933.47 HOT arrived in full with 0% buy/sell tax. Liquidity safety could not be confirmed: 100% of liquidity sits in an unrecognized contract (0xB1900F41d78D330A2a35C6771b3A6088a1b51309), 0% is burned, and only 1 of 7 release paths was tested without moving funds — this does not prove safety. No owner-controlled trap functions were found after searching 31 known switches, though undisclosed logic can't be ruled out."
   },
   "0x47067c69c03a39b9d46f5a1a6003d80c412fbed5": {
     "scan": {
@@ -26426,14 +26531,14 @@ export const FIXTURES: Record<string, FrozenRun> = {
       },
       {
         "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x25c9…Bd52; pulling it needs that contract's own logic",
+        "status": "PASS",
+        "title": "LP is held by the UniV3LPLocker locker — could not be pulled",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
+            "proven": "100% of active liquidity sits in UniV3LPLocker's locker contract; no owner can withdraw it before then",
+            "ok": true
           }
         ],
         "numbers": {
@@ -26444,7 +26549,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x25c9C4B56E820e0DEA438b145284F02D9Ca9Bd52",
           "venue": "uniswap-v3",
           "positionId": "5491701",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "uncx-locker",
+          "lockUnlockDate": "unknown",
+          "locker": "UniV3LPLocker"
         },
         "txHashes": []
       },
@@ -26470,7 +26577,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "CRASH passed both honeypot and hidden-fee checks: buys, sells, and transfers all completed as expected, with 1,371,684.18 CRASH bought and 457,228.06 CRASH sent/received at 0% fee, buy tax, and sell tax.\n\nLP rug status is not applicable: 100% of active liquidity (Uniswap v3 position 5491701) is held by an unrecognized contract (0x25c9…Bd52), so drainability can't be confirmed.\n\nOwner trap is also not applicable: 31 known owner switches were searched with none found, though unknown privileged code may still exist. Owner address is the zero address."
+    "narration": "CRASH token verdicts: No honeypot detected — buying (1,371,684.18 CRASH) and selling both succeeded, and a transferred wallet was also able to sell. No hidden fees found on buy, sell, or transfer (0% fee/tax across the board; 457,228.06 CRASH sent equaled 457,228.06 CRASH received). LP is locked 100% in the UniV3LPLocker contract, so it cannot be pulled by the owner. Owner-trap check found no known owner switches (31 searched, none found) in the bytecode, though this check is marked not applicable and privileged code under an unknown name can't be ruled out."
   },
   "0x621e9069787ba60d30b2a4ac4bdfaca138b82063": {
     "scan": {
@@ -26486,9 +26593,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "ownerTrap",
+      "hiddenFee",
       "lpRug",
-      "hiddenFee"
+      "ownerTrap"
     ],
     "verdicts": [
       {
@@ -26519,51 +26626,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x9c5444fab37685fd0e3fb37c16e587f0e2531ff7e78bbb38cbd301ceeb081816",
           "0xd986b723c80a5ebbe847979043aa2c59eb40ef06bf05fccb050f337b73fe3e74"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0x621E…2063; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0x621E9069787Ba60D30b2A4aC4bDfaCA138B82063",
-          "venue": "uniswap-v3",
-          "positionId": "5323748",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -26603,9 +26665,55 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xf5e2909e5168ce50be704f7024a03c35c8586a3938efcb95caa8b12d04d113c6",
           "0x9c32e56109ab87a9a7bd9fa178e8d475cfedf8ebf1a3f51741d6ca48e55fdf31"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0x621E…2063; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x621E9069787Ba60D30b2A4aC4bDfaCA138B82063",
+          "venue": "uniswap-v3",
+          "positionId": "5323748",
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "Honeypot check: PASS — buying and selling both succeeded, including from a wallet that received a transfer (3,031,145.99 Ethereum bought).\n\nOwner trap: NA — 31 known owner switches were searched for and none were found; owner address is 0x0000000000000000000000000000000000000000.\n\nLP rug: NA — 100% of liquidity is held by contract 0x621E9069787Ba60D30b2A4aC4bDfaCA138B82063 (Uniswap v3, position 5323748); whether it can be withdrawn depends on that contract's own logic.\n\nHidden fee: PASS — 0% fee on buy, sell, and transfer; 1,010,381.99 Ethereum sent equaled 1,010,381.99 Ethereum received."
+    "narration": "Buy/sell and transfer tests both passed: trades executed with 0% fee (buy, sell, and later-sell tax all 0%), and a full-balance transfer delivered 100% to the recipient. Liquidity (100%) is held by a contract at 0x621E…2063 whose exit logic is unrecognized — this isn't proof it's safe, only that no known drain path opened (0 of 7 release attempts). A bytecode scan for 31 known owner-control switches (pause, blacklist, trading/fee setters, mint) found none, though privileged code under an unknown name could still exist."
   },
   "0x0c7db32361af489a2822755bd98eafefcea2af78": {
     "scan": {
@@ -26621,8 +26729,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "lpRug",
       "hiddenFee",
+      "lpRug",
       "ownerTrap"
     ],
     "verdicts": [
@@ -26654,30 +26762,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xac56864959fde488ea6b65b35f83399f377edce234554209d978a27c60012edd",
           "0x1fb34d8e35d5c4f78eb38556fe4395ead2d6488248a0a85ffecb13ecb486d892"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
-          "venue": "uniswap-v3",
-          "positionId": "5499688",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -26719,6 +26803,32 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
+          "venue": "uniswap-v3",
+          "positionId": "5499688",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
+        },
+        "txHashes": []
+      },
+      {
         "probe": "ownerTrap",
         "status": "NA",
         "title": "No owner switch Sidik can operate is present in this bytecode",
@@ -26740,7 +26850,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "Honeypot check: PASS — buying and selling both succeeded, including from a wallet that received a transfer (1,077,642.54 tokens bought, sell succeeded).\n\nHidden fee check: PASS — 0% fee on buy, sell, and transfer; amounts sent and received matched exactly (359,214.18 tokens, feePct 0%).\n\nLP rug check: NA — 100% of liquidity sits in an unrecognized contract (0xB1900F41d78D330A2a35C6771b3A6088a1b51309, Uniswap v3, position 5499688); whether it can be withdrawn is unknown.\n\nOwner trap check: NA — 31 known owner switches were searched, none found; owner address is the zero address, but unknown privileged code may still exist."
+    "narration": "Token-safety check results: buying and selling both succeed (honeypot probe: PASS), including from a transferred wallet. No hidden fees were found — buy tax, sell tax, and transfer fee all measured at 0%, with amounts sent (359,214.18) matching amounts received exactly.\n\nTwo checks were inconclusive. LP is 100% held by an unrecognized contract (0xB190…1309); its owner was impersonated and the one exposed release function was called, but liquidity did not move — this doesn't confirm safety, only that this path didn't work. Separately, 31 known owner-switch patterns (pause, blacklist, mint, etc.) were searched for in bytecode and none were found, though unknown privileged code may still exist."
   },
   "0x15c9e9151e89e24fd076d6cad0ccf860f3773d4d": {
     "scan": {
@@ -26832,12 +26942,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "NA",
-        "title": "LP held by contract 0xB190…1309; pulling it needs that contract's own logic",
+        "title": "LP held by contract 0xB190…1309, and its owner could not release it",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0xade2…1f6f was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -26849,7 +26959,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xB1900F41d78D330A2a35C6771b3A6088a1b51309",
           "venue": "uniswap-v3",
           "positionId": "5750701",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0xade256E1c2763B8766eFE1eEb7C578D93f621f6f"
         },
         "txHashes": []
       },
@@ -26875,7 +26987,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "OMOF passed both executable checks: honeypot (buy then sell succeeded, including from a transferee wallet, e.g. 1,078,259.96 OMOF bought and sold) and hiddenFee (0% fee/buy/sell tax, 359,419.98 OMOF sent and received in full, full balance transfer at 100%).\n\nTwo checks returned NA. LP ownership: 100% of active liquidity sits in contract 0xB1900F41d78D330A2a35C6771b3A6088a1b51309 (Uniswap v3, position 5750701), an unrecognized contract, so drainability depends on its own code. Owner trap: 31 known owner switches were searched for and none were found; owner address is the zero address, but unknown privileged code could still exist."
+    "narration": "OMOF passed both live-trade probes: buy-then-sell succeeded (1,078,259.96 OMOF bought), a transferred wallet sold successfully, and buying, selling, and full-balance transfer all showed 0% fee (359,419.98 OMOF sent = received).\n\nLP rug status is NA: 100% of active liquidity sits in a contract Sidik doesn't recognize; its owner was impersonated and the one exposed release path didn't move funds — not proof the liquidity is safe, only that this path didn't open.\n\nOwner-trap probe is NA: 31 known owner switches were searched for and none found, though unknown privileged code could still exist."
   },
   "0x79334c3e64d85173bd875dc72843f2df7387cd16": {
     "scan": {
@@ -27038,9 +27150,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
+      "ownerTrap",
       "lpRug",
-      "ownerTrap"
+      "hiddenFee"
     ],
     "verdicts": [
       {
@@ -27071,6 +27183,53 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xf71812fc4810da0264d9caad60e199083e782408e4bb4d1a018b0e97b0ee379b",
           "0xb485982f69f30b2cef3acba5ca43e594106127c7a4231e126ccb008be79724f6"
         ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xe09F…A6Af, and its owner could not release it",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; its owner 0x1A47…8f22 was impersonated and the one way out it exposes was called, and the liquidity did not move. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0xe09FC835110cA2E8cf5E112D26007D59B379A6Af",
+          "venue": "uniswap-v3",
+          "positionId": "5429332",
+          "lpHolderKind": "contract",
+          "releaseTried": "1 of 7",
+          "holderOwner": "0x1A472863cF21D5Aa27F417dF9140400324C48f22"
+        },
+        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -27110,54 +27269,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xed48e4d8870ef11e8c6ccfa74d5dc6cfc8f8c85a184f7d1ed3244cfc1f58ee7a",
           "0x96cd21be17c23b6d06ce1f828d0ae404a4d17fe9b5d2dc3c2763f63bbdf60629"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xe09F…A6Af; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "0 WETH",
-          "holderValueAfter": "0 WETH",
-          "lpOwner": "0xe09FC835110cA2E8cf5E112D26007D59B379A6Af",
-          "venue": "uniswap-v3",
-          "positionId": "5429332",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000"
-        },
-        "txHashes": [],
-        "applicable": false
       }
     ],
-    "narration": "JPC token verdicts: Honeypot probe PASSED — buying 755,330.58 JPC and selling both succeeded, including a sell from a transferee wallet. HiddenFee probe PASSED — buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%, feePct 0%; a transfer of 251,776.86 JPC arrived with the recipient receiving 100%. LpRug probe returned NA — 100% of liquidity (ownerLpPct 100%, burnedLpPct 0%) sits in an unrecognized contract (0xe09FC835110cA2E8cf5E112D26007D59B379A6Af), so drainability is unknown. OwnerTrap probe returned NA — 31 known owner switches were searched, none found, though unnamed privileged code could still exist."
+    "narration": "JPC passed the honeypot check: a buy of 755,330.58 JPC was resold successfully, and a transferred balance also sold. Hidden-fee testing passed too, with 0% buy/sell/transfer tax and 251,776.86 JPC sent and received in full. No owner-controlled switches were found after searching 31 known mechanisms, though undisclosed privileged code can't be ruled out. Liquidity is fully (100%) held by an unrecognized contract; one of seven release paths was tried under its owner and liquidity did not move, which shows only that this path is closed, not that funds are safe."
   },
   "0x28b73a5c4efafb970a5c9adee3033e63de7d6bd2": {
     "scan": {
@@ -27366,7 +27480,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "100% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -27378,7 +27492,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x02aAeeA324bE41185540E03B7803aE44C7438aA2",
           "venue": "uniswap-v3",
           "positionId": "5612979",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -27444,7 +27559,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "SEEDALTAR passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (9,050,038.49 SEEDALTAR bought, transferee sell succeeded). Hidden-fee check also passed, with 0% buy tax, 0% sell tax, and a full-balance transfer of 3,016,679.49 SEEDALTAR received in full. LP-rug status is not applicable: 100% of liquidity sits in an unrecognized contract (0x02aAeeA324bE41185540E03B7803aE44C7438aA2), so drainability is unproven. Owner-trap is also not applicable: 31 known owner switches were searched and none found, though 4 unoperated functions (CLOCK_MODE(), LOCK8605463013(), clock(), crosschainMint) remain unproven in effect."
+    "narration": "SEEDALTAR passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (9,050,038.49 SEEDALTAR bought). No hidden fees were found on buy, sell, or transfer (0% fee, 0% buy tax, 0% sell tax, 3,016,679.49 SEEDALTAR sent and received in full). LP rug status is not applicable: 100% of liquidity sits in a contract Sidik doesn't recognize, with 0 of 7 release attempts working — not proven safe, just unopened. Owner trap check found 31 known switches searched, none found, and 4 unoperated functions (CLOCK_MODE(), LOCK8605463013(), clock(), crosschainMint(address,uint256)) whose effects remain unproven."
   },
   "0x8686939ace7cb4541379f8bc073b9de6d4d3c70f": {
     "scan": {
@@ -27677,19 +27792,20 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "0% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "<1% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
         "numbers": {
-          "ownerLpPct": "0%",
+          "ownerLpPct": "<1%",
           "burnedLpPct": "0%",
           "holderValueBefore": "0 WETH",
           "holderValueAfter": "0 WETH",
           "lpOwner": "0x59a451122ce7f0f24AD091dc54bf09B66852bF82",
           "venue": "uniswap-v3",
           "positionId": "5812138",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -27756,7 +27872,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "reason": "every call into the token reverts after the upgrade (The contract function \"balanceOf\" reverted.)"
       }
     ],
-    "narration": "Buy/sell worked with no hidden fees (750.47 USDC sent and received, 0% tax on buy/sell/transfer), and pool pricing matched external venues within +0.52%/+0.53% against BingX and Gate. LP is held by a contract (0x59a4…bF82) whose withdrawal logic wasn't assessed, so that check is inconclusive. Critically, the proxy admin (0x4fc7850364958d97B4d3f5A08f79db2493f8cA44) was able to upgrade the implementation to one that reverts all calls, breaking a previously successful sell that had returned 0.994 WETH. This is a failing result: holders can be trapped by an admin-controlled upgrade."
+    "narration": "Buy/sell tested with 2,251.43 USDC and no honeypot behavior was found; a transferred balance also sold successfully. No hidden fees appeared: 750.47 USDC sent and 750.47 USDC received, with feePct, buyTaxPct, sellTaxPct, and sellTaxLaterPct all 0%. LP rug check was inconclusive: <1% of liquidity sits in an unrecognized contract, releaseTried 0 of 7. Pool pricing matched BingX and Gate within +0.52%. Critically, the proxy admin (0x4fc7850364958d97B4d3f5A08f79db2493f8cA44) upgraded the implementation, and a sell that previously returned 0.994 WETH then reverted, confirming an owner trap."
   },
   "0x532f27101965dd16442e59d40670faf5ebb142e4": {
     "scan": {
@@ -28277,7 +28393,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "2% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "2% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -28289,7 +28405,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0xcbf7681C519cBB2b79A3e5a60b07F1DC8716Aaab",
           "venue": "uniswap-v3",
           "positionId": "5805418",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -28350,7 +28467,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "reason": "mint(address,uint256): reverted"
       }
     ],
-    "narration": "AERO passed the core token-safety checks. Honeypot: buying and selling both succeeded, including a sell from a transferee wallet, with 5,005.77 AERO bought. Hidden fee: buy, sell, and full-balance transfer all returned 100% of amounts (1,668.59 AERO sent and received), with 0% fee/buy/sell tax. Cross-venue: pool price of $0.4524 matched BingX ($0.4525, -0.01%) and Gate ($0.4516, +0.18%). Two checks were inconclusive: LP rug (2% of liquidity held by an unrecognized contract, 0xcbf7…Aaab) and owner trap (no owner() found; mint(address,uint256) reverted from an unrelated address)."
+    "narration": "AERO passed both honeypot and hidden-fee checks: a buy of 5,005.77 AERO sold successfully, a transferred balance sold too, and 1,668.59 AERO was sent and received with 0% fee, buy tax, and sell tax. Cross-venue pricing matched: onchain $0.4524 vs. BingX $0.4525 (-0.01%) and Gate $0.4516 (+0.18%). Two checks were inconclusive: 2% of liquidity is held by an unrecognized contract with no known withdrawal path (0 of 7 release attempts), and no owner() exists to test trap risk, though mint(address,uint256) reverted when called by an unrelated address (31 switches searched, none pulled)."
   },
   "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b": {
     "scan": {
@@ -29005,7 +29122,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "62% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "62% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -29017,7 +29134,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x7b8D33A136Df00Ed39EEE7c50EF35E3b3ac788A5",
           "venue": "uniswap-v3",
           "positionId": "5805246",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -29048,7 +29166,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "reason": "mint(address,uint256): reverted"
       }
     ],
-    "narration": "Honeypot check: PASS — buying and selling both succeeded, including a sell from a transferee wallet (815.86 MORPHO bought, transferee sell succeeded).\n\nHidden fee check: PASS — 271.95 MORPHO sent equaled 271.95 MORPHO received; buy tax, sell tax, and later sell tax all measured 0%.\n\nLP rug check: NA — 62% of active liquidity is held by an unrecognized contract (0x7b8D…88A5), 0% burned; whether it's withdrawable depends on that contract's own code.\n\nOwner trap check: PASS — of 31 switches searched, only mint(address,uint256) was found, and calling it as the owner reverted; none were pulled."
+    "narration": "Buying and selling both succeeded, including from a wallet that received a transfer, so this is not a honeypot. No hidden fees were found: buy tax, sell tax, and later sell tax were all 0%, and a full-balance transfer delivered 100% to the recipient. The owner's mint(address,uint256) switch reverted when called, so no trap was pulled. LP status is unresolved: 62% of active liquidity sits in a contract Sidik doesn't recognize, with 0% burned and 0 of 7 release attempts working — this only shows one way in didn't open, not that funds are safe."
   },
   "0x4f9fd6be4a90f2620860d680c0d4d5fb53d1a825": {
     "scan": {
@@ -29285,34 +29403,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       ]
     },
     "ids": [
-      "ownerTrap",
       "honeypot",
+      "hiddenFee",
       "lpRug",
-      "hiddenFee"
+      "ownerTrap"
     ],
     "verdicts": [
-      {
-        "probe": "ownerTrap",
-        "status": "NA",
-        "title": "No owner switch Sidik can operate is present in this bytecode",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "none",
-          "switchesPulled": "none",
-          "owner": "0x0000000000000000000000000000000000000000",
-          "implementation": "0x69ce2505CE515C0203160450157366F927243309"
-        },
-        "txHashes": [],
-        "applicable": false
-      },
       {
         "probe": "honeypot",
         "status": "PASS",
@@ -29341,30 +29437,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x9cda48027675fdba091f916d8cb124a5a9ee0cd4c8e8cce415049b5e4af121e9",
           "0x3bf8953ac8dcf78d63375eec0f60cec38378ff64f3c500950fd4907ba96c7577"
         ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "NA",
-        "title": "LP held by contract 0xD392…7470; pulling it needs that contract's own logic",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "1% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
-            "ok": false
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "1%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "17.46 WETH",
-          "holderValueAfter": "17.46 WETH",
-          "lpOwner": "0xD3923BeCCb6e1DdB048ed00a0A9Bd602d16B7470",
-          "venue": "uniswap-v3",
-          "positionId": "5803137",
-          "lpHolderKind": "contract"
-        },
-        "txHashes": []
       },
       {
         "probe": "hiddenFee",
@@ -29404,9 +29476,56 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x6664a5cdcfe3aae9a14d39fb7cab2692b494518c9ff1aebde2793bd6e792c1a4",
           "0xa92c7841a897dbe3a8f2394c682037019e1b10212c3ff20f90962aea5b704e75"
         ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xD392…7470; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "1% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "1%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "17.46 WETH",
+          "holderValueAfter": "17.46 WETH",
+          "lpOwner": "0xD3923BeCCb6e1DdB048ed00a0A9Bd602d16B7470",
+          "venue": "uniswap-v3",
+          "positionId": "5803137",
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "implementation": "0x69ce2505CE515C0203160450157366F927243309"
+        },
+        "txHashes": [],
+        "applicable": false
       }
     ],
-    "narration": "No owner-switch was found after searching 31 known mechanisms (pause, blacklist, trading/fee setters, mint); owner address is 0x0000000000000000000000000000000000000000. Buy and sell both succeeded (0.2814 wstETH bought), including from a wallet that received a transfer. No hidden fees on buy, sell, or transfer: sent 0.09382 wstETH, received 0.09382 wstETH, feePct 0%, buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%. LP is 1% held by an unrecognized contract (0xD3923BeCCb6e1DdB048ed00a0A9Bd602d16B7470); whether it can be withdrawn is unverified. 0% of LP is burned."
+    "narration": "Token passed both honeypot and hidden-fee checks: a buy of 0.2814 wstETH was resold successfully, a transferred balance also sold, and sending 0.09382 wstETH in and out showed 0% buy/sell tax. Two checks were inconclusive. LP: 1% of liquidity sits in an unrecognized contract (0% burned), and no exit path was found in 0 of 7 release attempts, so safety of that share is unproven. Owner check: 31 known owner switches (pause, blacklist, mint, fee/trading setters) were searched and none were found, though undocumented privileged code can't be ruled out."
   },
   "0x236aa50979d5f3de3bd1eeb40e81137f22ab794b": {
     "scan": {
@@ -29838,7 +29957,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "22% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "proven": "22% of active liquidity is held by a contract Sidik does not recognise; it exposes no way out that Sidik knows how to operate. That is not proof the liquidity is safe — only that this way in did not open.",
             "ok": false
           }
         ],
@@ -29850,7 +29969,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "lpOwner": "0x4D840d8ff3fc283401d3F366d372365173523122",
           "venue": "uniswap-v3",
           "positionId": "5800619",
-          "lpHolderKind": "contract"
+          "lpHolderKind": "contract",
+          "releaseTried": "0 of 7"
         },
         "txHashes": []
       },
@@ -29877,7 +29997,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "applicable": false
       }
     ],
-    "narration": "Token passes both trading probes: buy/sell succeeded (23,674.48 ZORA bought, sold fine, including from a transferee wallet), and no hidden fees were found (buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%; 7,891.49 ZORA sent and received in full on transfer).\n\nTwo checks are not applicable/unresolved. LP: 22% of active liquidity sits in an unrecognized contract (0x4D84…3122, Uniswap v3 position 5800619); whether it can be withdrawn depends on that contract's own code. Owner traps: none of 31 known owner switches were found; three unoperated functions (CLOCK_MODE(), LOCK8605463013(), clock()) exist but their effects are unproven. Owner address is the zero address."
+    "narration": "Buy, sell, and full-balance transfer all worked as claimed: honeypot check PASS (bought 23,674.48 ZORA, transferee sell succeeded), and hiddenFee check PASS with 0% fee/buy tax/sell tax (7,891.49 ZORA sent and received in full).\n\nTwo checks are NA. LP: 22% of active liquidity sits in an unrecognized contract (0x4D84…3122, Uniswap v3, position 5800619); no drain path was found, but none was ruled out either (0 of 7 release attempts). OwnerTrap: owner is the zero address; 31 known owner switches were searched and none found, though CLOCK_MODE(), LOCK8605463013(), and clock() exist unoperated, so their effect is unproven."
   },
   "0xb6fe221fe9eef5aba221c348ba20a1bf5e73624c": {
     "scan": {
@@ -30780,7 +30900,7 @@ export const FIXTURE_META: {
   probes: string[];
 } = {
   "recordedThrough": "2026-08-31",
-  "engineCommit": "88d8530aa8a8a798c6efce0d19d686f1a2594a83",
+  "engineCommit": "b64d21c39d4354969236b0d29ff9f6e40a1a58de",
   "anvil": "anvil Version: 1.8.0\nCommit SHA: 61ae26af36320d4fa1020f7db53785885e29eeb5\nBuild Timestamp: 2026-08-26T13:16:35.013767800Z (1787750195)\nBuild Profile: dist",
   "probes": [
     "honeypot",

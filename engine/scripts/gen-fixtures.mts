@@ -451,7 +451,15 @@ function upToDate(run: FrozenRun): boolean {
   // token skims transfers (which is what makes a Uniswap V3 sell revert with
   // IIA). A FAIL recorded before that carries neither answer.
   const hp = run.verdicts.find((v) => v.probe === "honeypot");
+  // ...unless the buy never landed. DEAI, TZ and KYCA fail because every buy
+  // size reverts, so there is no position to sell a tenth of and partialSell
+  // can never appear -- they were re-recorded on every single pass, produced
+  // the identical verdict, and stayed in the queue. buyAttempts is the marker
+  // that a run came from the current probe (the rule below uses it the same
+  // way), so a run carrying it is current whether or not it got as far as a
+  // sell.
   if (hp && hp.status === "FAIL" && hp.numbers.partialSell === undefined
+      && hp.numbers.buyAttempts === undefined
       && !hp.title.includes("pays almost nothing")) return false;
   // 2026-08-28: the honeypot probe now records how many buy sizes it tried
   // and sells from a transferee; V2 proceeds come from the Swap log; lpRug

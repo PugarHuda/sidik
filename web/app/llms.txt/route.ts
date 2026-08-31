@@ -92,8 +92,11 @@ Recorded addresses: ${FIXTURE_COUNT}
   buyer transferred to also sells.
 - hiddenFee: measures buy, sell and transfer() separately, and sells again a
   day later; V2 proceeds come from the router's Swap log, not the pool delta.
-- lpRug: classifies the LP holder (EOA, 7702 account, Safe, UNCX locker,
-  unknown contract), impersonates it and pulls the pool; on V3 pulls the
+- lpRug: classifies the LP holder (EOA, 7702 account, Safe, a recognised
+  locker, unknown contract), impersonates it and pulls the pool; where the
+  holder is a contract it impersonates that contract's owner instead and calls
+  the contract's own ways out, because impersonating the contract would bypass
+  the rules being tested; on V3 pulls the
   largest position through the position manager. V3 positions are found from
   the pool's Mint events near the fork block and, when a pool was funded once
   at launch and has none there, from the block the pool was created in.

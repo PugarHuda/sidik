@@ -185,7 +185,7 @@ transaction did, never from an opinion about the code.
 |---|---|
 | `honeypot` | Buys, then sells. Measures the proceeds against the pool's own quote, so a sell that succeeds and pays nothing is not a pass. A reverted buy is retried at a tenth and a hundredth of the size and reported with its revert reason — a trading-disabled or max-tx trap is a finding, not "no liquidity". A reverted sell is retried after one hour and one day of fork time, so a cooldown reads as a cooldown. A wallet the buyer transferred to also sells, which is how a buyer-whitelist honeypot shows itself. |
 | `hiddenFee` | Measures buy, sell and `transfer()` separately, and sells again a day later in fork time, so a tax that decays or climbs is reported as two numbers. On V2 the sell proceeds are read from the router's own `Swap` log — a token's tax `swapBack` in the same transaction is no longer counted as the holder's payout. |
-| `lpRug` | Finds the LP holder, classifies it before impersonating it — an EOA, an EIP-7702 account, a Safe, the UNCX locker, or an unknown contract — and pulls the pool out from under the position. Locked LP is reported with its unlock date; burned LP is proved unpullable in two reads. On Uniswap V3 it finds the largest position NFT and pulls that through the position manager, looking first at the pool's recent `Mint` events and then, for a pool funded once at launch, at the block the pool was created in — found by bisecting `getCode`, which costs 26 archive reads and about nine seconds. |
+| `lpRug` | Finds the LP holder, classifies it before impersonating it — an EOA, an EIP-7702 account, a Safe, a recognised locker, or an unknown contract — and pulls the pool out from under the position. Where the holder is a contract, impersonating it would prove nothing (anvil runs the caller, not the contract's rules), so the probe reads that contract's `owner()`, impersonates them instead, calls the contract's own ways out, and reads whether the liquidity actually moved. Locked LP is reported with its unlock date; burned LP is proved unpullable in two reads. On Uniswap V3 it finds the largest position NFT and pulls that through the position manager, looking first at the pool's recent `Mint` events and then, for a pool funded once at launch, at the block the pool was created in — found by bisecting `getCode`, which costs 26 archive reads and about nine seconds. |
 | `ownerTrap` | Buys, snapshots, sells once to prove selling works, rolls back, then lets the owner pull every switch in its bytecode and sells again from identical state. Fee setters are tried down a ladder (99 → 10%) and the rung the contract accepts is the fee the owner can set on demand. For a proxy, the scan reads the implementation's bytecode, and the recorded admin is made to replace the code with a contract that reverts everything — then the sell is tried again. |
 | `approvalDrain` | For a wallet: exercises its live approvals to see what a compromised spender could take. |
 | `crossVenue` | Compares what the buy cost inside the pool against what the same asset traded at on venues with no relationship to it, in the same hour. |
@@ -341,7 +341,7 @@ comparison that shows only the flattering half is not one:
   Execution caught three GoPlus cleared — Anastasia, ROOTED, and TZ, whose
   pool holds WETH but whose buy reverts at every size tried. GoPlus flagged
   three the fork sold: NVO, ANSEMCAT, CASHCAT.
-- Honeypots, against honeypot.is (192): 185 agree. Execution caught one it
+- Honeypots, against honeypot.is (193): 186 agree. Execution caught one it
   cleared — DEAI — and it flagged six the fork sold: DGAI, FOLD, COBIE, Alpe,
   KEYCAT, VLTX. The scanners describe the chain on the day they were asked
   and the verdicts describe block 50,200,000, so a token that changed in
@@ -368,7 +368,7 @@ comparison that shows only the flattering half is not one:
   flags that the code exists; Sidik reports what pulling it did.
 - Buy tax, where the scanners are on their strongest ground: GoPlus's figure
   matched the executed one on **185 of 185** addresses, within a percentage
-  point. honeypot.is matched on 187 of 189 and missed the two it could not
+  point. honeypot.is matched on 188 of 190 and missed the two it could not
   simulate — 7SiN and ROOTED, the fee-on-transfer tokens on V3, reported at
   0% where the fork measured 2.99% and 6.99%. A comparison that only showed
   the rows execution wins would not be one.

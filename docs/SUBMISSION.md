@@ -98,8 +98,8 @@ touching a verdict. 206 addresses carry a scanner reading.
 | Question | Agreement | Sidik-only | Scanner-only |
 |---|---|---|---|
 | Buy tax (GoPlus) | **185 / 185** | 0 | 0 |
-| Buy tax (honeypot.is) | 187 / 189 | 2 — 7SiN 2.99%, ROOTED 6.99% | 0 |
-| Honeypot (honeypot.is) | 185 / 192 | 1 — DEAI | 6 |
+| Buy tax (honeypot.is) | 188 / 190 | 2 — 7SiN 2.99%, ROOTED 6.99% | 0 |
+| Honeypot (honeypot.is) | 186 / 193 | 1 — DEAI | 6 |
 | Honeypot (GoPlus) | 141 / 147 | 3 — Anastasia, TZ, ROOTED | 3 |
 | Owner can trap (GoPlus) | **12 / 42** | **21** | 9 |
 
@@ -143,7 +143,7 @@ rug surface, proxy slots — are doing the thing this project measured. The
 ## What it found (counted, not estimated)
 
 - **207 Base addresses** probed end to end, **1,843 fork transactions** mined
-- **68 fail at least one probe**, 18 pass everything that applied, 121 come
+- **68 fail at least one probe**, 29 pass everything that applied, 110 come
   back N/A
 - The findings: **37 LP rugs, 25 owner traps, 18 hidden fees, 7 honeypots,
   1 drainable wallet** (a token can fail more than one)
@@ -225,7 +225,7 @@ State these; the field rewards it.
   not mock data, and the code that produced them is in the repo. **There is no
   hosted engine, and the site says so rather than naming a URL that does not
   answer.**
-- **121 of 207 addresses come back N/A.** It used to be 130, and the single
+- **110 of 207 addresses come back N/A.** It used to be 130, and the single
   largest cause was our own search window rather than anything about the
   tokens: the LP-rug probe looked for a V3 position in a 9,000-block window —
   about five hours on Base — and 98 pools were funded once at launch, months
@@ -243,9 +243,18 @@ State these; the field rewards it.
   the reads were routed through, not of the reads: straight at a public Base
   RPC the same search takes about nine seconds.
 
-  What remains N/A is mostly honest: 73 pools whose position is held by a
-  contract whose own logic would have to be bypassed to pull it, which anvil
-  can do and which would prove nothing.
+  What remains is 62 pools whose position sits inside a contract. Impersonating
+  that contract would prove nothing — anvil runs the caller, not the contract's
+  rules — so the probe knocks on the front door instead: it reads the
+  contract's `owner()`, impersonates them, calls the contract's own ways out,
+  and reads whether the liquidity moved. On **36** of those it did not, and the
+  verdict says so. **11 more turned out to be a real locker** — a Sourcify-
+  verified `UniV3LPLocker` whose `unlock()` requires a deadline the contract
+  enforces — and those are now a PASS rather than a shrug.
+
+  None of the 36 became a finding. That is the result, reported as it came:
+  the launchpad contract holding 26 of them exposes a `withdraw`, its owner was
+  made to call it, and the position did not move.
 - Probes trade through Uniswap V2 and V3 only. A token whose liquidity lives on
   Aerodrome comes back N/A, with the reason attached.
 - Three Base contracts (CLANKER, ELENA, WIFHAIR) hold a single byte of code,
@@ -360,7 +369,7 @@ pass as much as for a human: concrete, counted, and explicit about its limits.
 >
 > The catalogue is 207 Base addresses and 1,843 fork transactions. 68 fail at
 > least one probe: 37 LP rugs, 25 owner traps, 18 hidden fees, 7 honeypots, 1
-> drainable wallet. 18 pass everything that applied; 121 return N/A — always
+> drainable wallet. 29 pass everything that applied; 110 return N/A — always
 > reported as "not answered", never as "safe". The largest cause of N/A used to
 > be the LP-rug probe failing to find a V3 position in its own search window;
 > that was our limitation rather than the chain's, and fixing it turned 88 of
