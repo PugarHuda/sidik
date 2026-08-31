@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interpretCrossVenue, usd } from "../src/probes/crossVenue.js";
+import { interpretCrossVenue, usd } from "../src/probes/crossVenue";
 const ctx = {} as any;
 
 const asked = [{ name: "BingX", ticker: "BRETT" }, { name: "Gate", ticker: "BRETT" }];

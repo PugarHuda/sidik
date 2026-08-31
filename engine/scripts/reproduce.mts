@@ -22,8 +22,8 @@
 // and every row of its assumed-vs-proven table — is compared exactly.
 import { FIXTURES, recordedRun } from "@sidik/shared";
 import type { Hex, Verdict } from "@sidik/shared";
-import { runSidik } from "../src/orchestrator.js";
-import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
+import { runSidik } from "../src/orchestrator";
+import { BASE_FORK_BLOCK } from "../src/forkBlock";
 
 if (!process.env.BASE_ARCHIVE_RPC) {
   process.stderr.write(

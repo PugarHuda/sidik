@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { bingx } from "../src/bingx.js";
-import { gate } from "../src/gate.js";
-import { baseListings } from "../src/gate.js";
-import { isTraded, MIN_QUOTE_VOLUME_USD, midPrice, type Venue } from "../src/venue.js";
+import { bingx } from "../src/bingx";
+import { gate } from "../src/gate";
+import { baseListings } from "../src/gate";
+import { isTraded, MIN_QUOTE_VOLUME_USD, midPrice, type Venue } from "../src/venue";
 
 // Hits the venues' public endpoints for real. Gated on the archive RPC only
 // because it belongs with the other suites that reach the network.

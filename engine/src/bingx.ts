@@ -1,4 +1,4 @@
-import { covering, HOUR_MS, VENUE_TIMEOUT_MS, type Candle, type Venue } from "./venue.js";
+import { covering, HOUR_MS, VENUE_TIMEOUT_MS, type Candle, type Venue } from "./venue";
 
 // BingX public market data. No key, no account — the spot symbol list and the
 // candle history are open endpoints.

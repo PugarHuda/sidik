@@ -3,11 +3,11 @@ import type { Hex, Verdict } from "@sidik/shared";
 import {
   CATALOGUE_FILTERS, FIXTURE_BLOCK, FIXTURE_COUNT, catalogueRows, filterRows, headlineOf, isCatalogueFilter, paginate,
 } from "@sidik/shared";
-import { getCached } from "./cache.js";
-import { BASE_FORK_BLOCK } from "./forkBlock.js";
-import { acquireRunSlot, MAX_CONCURRENT_RUNS } from "./concurrency.js";
-import { runSidik, type RunEvent } from "./orchestrator.js";
-import { log } from "./log.js";
+import { getCached } from "./cache";
+import { BASE_FORK_BLOCK } from "./forkBlock";
+import { acquireRunSlot, MAX_CONCURRENT_RUNS } from "./concurrency";
+import { runSidik, type RunEvent } from "./orchestrator";
+import { log } from "./log";
 
 /**
  * Sidik as a tool another agent can call.

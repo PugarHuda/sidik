@@ -1,9 +1,9 @@
 import { encodeFunctionData } from "viem";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
-import { buyBudget, buyExactEth, sellAll } from "../dex.js";
-import { amount } from "../format.js";
-import { ERC20_ABI } from "../abi.js";
-import { PROBE_RECIPIENT } from "../base.js";
+import { buyBudget, buyExactEth, sellAll } from "../dex";
+import { amount } from "../format";
+import { ERC20_ABI } from "../abi";
+import { PROBE_RECIPIENT } from "../base";
 
 // ponytail: distinct from testWallet, never needs to hold anything real — a
 // fixed burn-ish EOA on the fork is enough to measure the transfer delta.

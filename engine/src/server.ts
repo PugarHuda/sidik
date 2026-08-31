@@ -4,13 +4,13 @@ import { cors } from "hono/cors";
 import { streamSSE } from "hono/streaming";
 import { serve } from "@hono/node-server";
 import type { Hex } from "@sidik/shared";
-import { runSidik, type RunEvent } from "./orchestrator.js";
-import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "./concurrency.js";
-import { cacheSize, getCached } from "./cache.js";
-import { BASE_FORK_BLOCK } from "./forkBlock.js";
-import { log } from "./log.js";
-import { forkProxyStats } from "./forkProxy.js";
-import { mcpGet, mcpPost } from "./mcp.js";
+import { runSidik, type RunEvent } from "./orchestrator";
+import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "./concurrency";
+import { cacheSize, getCached } from "./cache";
+import { BASE_FORK_BLOCK } from "./forkBlock";
+import { log } from "./log";
+import { forkProxyStats } from "./forkProxy";
+import { mcpGet, mcpPost } from "./mcp";
 
 const TOKEN_RE = /^0x[0-9a-fA-F]{40}$/;
 

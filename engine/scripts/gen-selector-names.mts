@@ -17,7 +17,7 @@ import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 import { FIXTURES, FIXTURE_BLOCK } from "@sidik/shared";
 import type { Hex } from "@sidik/shared";
-import { selectorsIn } from "../src/selectors.js";
+import { selectorsIn } from "../src/selectors";
 
 const OUT = fileURLToPath(new URL("../src/selectorNames.ts", import.meta.url));
 const LOOKUP = "https://api.4byte.sourcify.dev/signature-database/v1/lookup";

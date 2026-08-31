@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { untrustedText, SYMBOL_MAX } from "../src/untrusted.js";
+import { untrustedText, SYMBOL_MAX } from "../src/untrusted";
 
 // symbol() and the revert reason are chosen by the token author, and both are
 // pasted into the LLM prompts. A multi-line name is how an instruction block

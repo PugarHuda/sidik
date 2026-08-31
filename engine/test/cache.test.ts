@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIXTURES, FIXTURE_BLOCK } from "@sidik/shared";
-import { cacheSize, getCached, setCached } from "../src/cache.js";
+import { cacheSize, getCached, setCached } from "../src/cache";
 
 const BLOCK = BigInt(FIXTURE_BLOCK);
 const anyRecorded = Object.keys(FIXTURES)[0]!;

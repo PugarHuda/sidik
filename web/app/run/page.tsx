@@ -49,7 +49,7 @@ export async function generateMetadata(
 export default async function RunPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string | string[]; instant?: string | string[] }>;
+  searchParams: Promise<{ token?: string | string[]; instant?: string | string[]; live?: string | string[] }>;
 }) {
   const params = await searchParams;
   const raw = params.token;
@@ -58,6 +58,12 @@ export default async function RunPage({
   // figures, no pauses between them.
   const rawInstant = params.instant;
   const instant = (Array.isArray(rawInstant) ? rawInstant[0] : rawInstant) === "1";
+  // ?live=1 executes the probes now, against a fork of Base, instead of
+  // replaying a recorded run. It is the one thing on this site that is not
+  // frozen, so it is opt-in rather than the default: a replay answers in
+  // milliseconds and cannot be rate-limited.
+  const rawLive = params.live;
+  const live = (Array.isArray(rawLive) ? rawLive[0] : rawLive) === "1";
   // Looked up here rather than in the client: the map covers every recorded
   // addresses and the page shows exactly one of them. Handing the component
   // the whole thing is how the catalogue got shipped to the browser twice
@@ -72,5 +78,5 @@ export default async function RunPage({
   // relies on being remounted — so changing only `instant` (which is exactly
   // what the "skip the replay" link does) would re-run the stream effect and
   // append a second copy of the trace to the first.
-  return <RunView key={`${token ?? ""}:${instant}`} token={token ?? ""} instant={instant} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
+  return <RunView key={`${token ?? ""}:${instant}:${live}`} token={token ?? ""} instant={instant} live={live} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
 }

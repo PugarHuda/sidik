@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { allowedHex, allowedNumbers, allowedSignatures, guardProse } from "../src/narrator.js";
+import { allowedHex, allowedNumbers, allowedSignatures, guardProse } from "../src/narrator";
 
 const verdicts = [{ probe: "hiddenFee", numbers: { sent: "1000", feePct: "10%" }, rows: [], txHashes: [] }] as any;
 

@@ -1,14 +1,14 @@
 import type { Hex, PreScan, Verdict, Probe, ForkClient, ProbeCtx, EngineEvent } from "@sidik/shared";
 import { headlineOf } from "@sidik/shared";
-import { openFork } from "./fork.js";
-import { prescan as realPrescan } from "./prescan.js";
-import { planProbes as realPlanProbes } from "./planner.js";
-import { narrate as realNarrate } from "./narrator.js";
-import { PROBES } from "./probes/registry.js";
-import { BASE_FORK_BLOCK } from "./forkBlock.js";
-import { ANVIL_ACCOUNT_0 } from "./base.js";
-import { getCached, setCached } from "./cache.js";
-import { log, since } from "./log.js";
+import { openFork } from "./fork";
+import { prescan as realPrescan } from "./prescan";
+import { planProbes as realPlanProbes } from "./planner";
+import { narrate as realNarrate } from "./narrator";
+import { PROBES } from "./probes/registry";
+import { BASE_FORK_BLOCK } from "./forkBlock";
+import { ANVIL_ACCOUNT_0 } from "./base";
+import { getCached, setCached } from "./cache";
+import { log, since } from "./log";
 
 // Defined in @sidik/shared so the page that renders these frames and the
 // engine that emits them cannot drift apart. Re-exported under the name the

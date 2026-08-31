@@ -18,10 +18,10 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
-import { withFork } from "../src/fork.js";
-import { prescan } from "../src/prescan.js";
-import { honeypotProbe } from "../src/probes/honeypot.js";
-import { ANVIL_ACCOUNT_0 } from "../src/base.js";
+import { withFork } from "../src/fork";
+import { prescan } from "../src/prescan";
+import { honeypotProbe } from "../src/probes/honeypot";
+import { ANVIL_ACCOUNT_0 } from "../src/base";
 import { FIXTURES, scannersOf } from "@sidik/shared";
 import type { Hex, ProbeCtx, Recheck } from "@sidik/shared";
 

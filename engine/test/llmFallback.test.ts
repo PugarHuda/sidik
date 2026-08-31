@@ -8,8 +8,8 @@ vi.mock("ai", () => ({
   generateText: () => Promise.reject(new Error("401 Unauthorized: invalid API key")),
 }));
 
-const { planProbes } = await import("../src/planner.js");
-const { narrate } = await import("../src/narrator.js");
+const { planProbes } = await import("../src/planner");
+const { narrate } = await import("../src/narrator");
 
 const scan: PreScan = {
   token: "0x48F617e5b1B214a90800348D7944bBc0E9290Fbb",

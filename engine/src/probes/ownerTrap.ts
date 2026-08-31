@@ -1,13 +1,13 @@
 import { createPublicClient, createTestClient, encodeFunctionData, getAddress, parseAbi } from "viem";
 import { base } from "viem/chains";
-import { forkTransport } from "../fork.js";
+import { forkTransport } from "../fork";
 import type { ForkClient, Hex, Probe, ProbeCtx, RawResult, Verdict } from "@sidik/shared";
-import { ERC20_ABI } from "../abi.js";
-import { BURN_ADDRESSES, ZERO_ADDRESS } from "../base.js";
-import { buyBudget, buyExactEth, sellAll } from "../dex.js";
-import { amount } from "../format.js";
-import { OWNER_SWITCHES, SWITCHES_SEARCHED, UNLOCK_SELECTOR, UPGRADE_SELECTORS, callData, selectorsIn, switchesIn } from "../selectors.js";
-import { nameOf } from "../selectorNames.js";
+import { ERC20_ABI } from "../abi";
+import { BURN_ADDRESSES, ZERO_ADDRESS } from "../base";
+import { buyBudget, buyExactEth, sellAll } from "../dex";
+import { amount } from "../format";
+import { OWNER_SWITCHES, SWITCHES_SEARCHED, UNLOCK_SELECTOR, UPGRADE_SELECTORS, callData, selectorsIn, switchesIn } from "../selectors";
+import { nameOf } from "../selectorNames";
 
 // Names that read as privileged, among the functions the bytecode carries
 // that Sidik has no hostile arguments for. Reported, never operated: "found

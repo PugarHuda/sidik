@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interpretHiddenFee } from "../src/probes/hiddenFee.js";
+import { interpretHiddenFee } from "../src/probes/hiddenFee";
 const ctx = {} as any;
 describe("interpretHiddenFee", () => {
   it("FAILs when received < sent (hidden tax)", () => {

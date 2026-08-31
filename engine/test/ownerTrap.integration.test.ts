@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { withFork } from "../src/fork.js";
-import { ownerTrapProbe } from "../src/probes/ownerTrap.js";
-import { switchesIn } from "../src/selectors.js";
-import { ANVIL_ACCOUNT_0 } from "../src/base.js";
-import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
+import { withFork } from "../src/fork";
+import { ownerTrapProbe } from "../src/probes/ownerTrap";
+import { switchesIn } from "../src/selectors";
+import { ANVIL_ACCOUNT_0 } from "../src/base";
+import { BASE_FORK_BLOCK } from "../src/forkBlock";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 import type { Hex, PreScan, ProbeCtx } from "@sidik/shared";

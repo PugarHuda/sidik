@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { filterApplicable, orderedByPlan } from "../src/planner.js";
-import { PROBES } from "../src/probes/registry.js";
+import { filterApplicable, orderedByPlan } from "../src/planner";
+import { PROBES } from "../src/probes/registry";
 
 describe("filterApplicable", () => {
   it("drops probe ids that fail applicableWhen and dedupes", () => {

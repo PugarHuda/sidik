@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { isAddress, toFunctionSelector } from "viem";
-import { OWNER_SWITCHES, callData, selectorsIn, switchesIn } from "../src/selectors.js";
+import { OWNER_SWITCHES, callData, selectorsIn, switchesIn } from "../src/selectors";
 import {
   ANVIL_ACCOUNT_0, BURN_ADDRESSES, UNISWAP_V2, UNISWAP_V3, WETH, ZERO_ADDRESS,
-} from "../src/base.js";
-import { STRANGER } from "../src/probes/ownerTrap.js";
+} from "../src/base";
+import { STRANGER } from "../src/probes/ownerTrap";
 
 /** Assemble PUSH4 <selector> the way a solc dispatcher does. */
 const push4 = (sel: string) => "63" + sel.slice(2);

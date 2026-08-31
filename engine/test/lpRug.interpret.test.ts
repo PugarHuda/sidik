@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interpretLpRug } from "../src/probes/lpRug.js";
+import { interpretLpRug } from "../src/probes/lpRug";
 const ctx = {} as any;
 
 describe("interpretLpRug", () => {

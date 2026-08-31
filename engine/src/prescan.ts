@@ -1,14 +1,14 @@
 import { createPublicClient, getAddress } from "viem";
 import { base } from "viem/chains";
-import { forkTransport } from "./fork.js";
+import { forkTransport } from "./fork";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
-import { logsClient } from "./rpc.js";
-import { findV3Pool } from "./dexV3.js";
-import { ANVIL_ACCOUNT_0, UNISWAP_V2, WETH, ZERO_ADDRESS } from "./base.js";
-import { ERC20_ABI, OWNER_ABI, TRANSFER_EVENT, V2_FACTORY_ABI } from "./abi.js";
-import { SYMBOL_MAX, untrustedText } from "./untrusted.js";
-import { mapLimit } from "./pool.js";
-import { log } from "./log.js";
+import { logsClient } from "./rpc";
+import { findV3Pool } from "./dexV3";
+import { ANVIL_ACCOUNT_0, UNISWAP_V2, WETH, ZERO_ADDRESS } from "./base";
+import { ERC20_ABI, OWNER_ABI, TRANSFER_EVENT, V2_FACTORY_ABI } from "./abi";
+import { SYMBOL_MAX, untrustedText } from "./untrusted";
+import { mapLimit } from "./pool";
+import { log } from "./log";
 
 // balanceOf is probed with the wallet the probes will actually trade from,
 // NOT the zero address. Plenty of real tokens revert on the zero address —

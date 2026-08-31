@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isAddress, toFunctionSelector } from "viem";
-import { classifyHolder, isoDate, UNCX_V2_LOCKER, UNCX_V3_LOCKER } from "../src/lockers.js";
-import { interpretLpRug } from "../src/probes/lpRug.js";
+import { classifyHolder, isoDate, UNCX_V2_LOCKER, UNCX_V3_LOCKER } from "../src/lockers";
+import { interpretLpRug } from "../src/probes/lpRug";
 
 const ctx = {} as any;
 const EOA = "0x1111111111111111111111111111111111111111" as const;

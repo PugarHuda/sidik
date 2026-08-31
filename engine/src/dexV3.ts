@@ -1,10 +1,10 @@
 import { createPublicClient, encodeFunctionData } from "viem";
 import { base } from "viem/chains";
-import { forkTransport } from "./fork.js";
+import { forkTransport } from "./fork";
 import type { ForkClient, Hex } from "@sidik/shared";
-import { UNISWAP_V3, WETH, ZERO_ADDRESS } from "./base.js";
-import { ERC20_ABI, V3_FACTORY_ABI, V3_QUOTER_ABI, V3_ROUTER_ABI } from "./abi.js";
-import { log } from "./log.js";
+import { UNISWAP_V3, WETH, ZERO_ADDRESS } from "./base";
+import { ERC20_ABI, V3_FACTORY_ABI, V3_QUOTER_ABI, V3_ROUTER_ABI } from "./abi";
+import { log } from "./log";
 
 // Uniswap V3 on Base. Most of the Base tokens anyone has heard of left V2 for
 // V3 — BRETT holds ~300 WETH here and under 0.2 on V2 — so probing only V2

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { encodeFunctionData, parseAbi, toFunctionSelector, type Hex } from "viem";
-import { RELEASE_SWITCHES, RELEASES_SEARCHED, releaseData, releasesIn } from "../src/lpRelease.js";
-import { lockerName } from "../src/lockers.js";
+import { RELEASE_SWITCHES, RELEASES_SEARCHED, releaseData, releasesIn } from "../src/lpRelease";
+import { lockerName } from "../src/lockers";
 
 const OWNER = "0x1111111111111111111111111111111111111111" as Hex;
 const TOKEN = "0x2222222222222222222222222222222222222222" as Hex;

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { encodeAbiParameters, encodeEventTopics, parseAbiItem, pad } from "viem";
 import type { Hex } from "@sidik/shared";
-import { wethOutOfSwapLogs } from "../src/dex.js";
+import { wethOutOfSwapLogs } from "../src/dex";
 
 const SWAP = parseAbiItem(
   "event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to)",

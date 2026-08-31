@@ -1,11 +1,11 @@
-import { ANVIL_ACCOUNT_0 } from "../src/base.js";
+import { ANVIL_ACCOUNT_0 } from "../src/base";
 import { describe, it, expect } from "vitest";
-import { withFork } from "../src/fork.js";
-import { prescan } from "../src/prescan.js";
-import { honeypotProbe } from "../src/probes/honeypot.js";
-import { hiddenFeeProbe } from "../src/probes/hiddenFee.js";
-import { lpRugProbe } from "../src/probes/lpRug.js";
-import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
+import { withFork } from "../src/fork";
+import { prescan } from "../src/prescan";
+import { honeypotProbe } from "../src/probes/honeypot";
+import { hiddenFeeProbe } from "../src/probes/hiddenFee";
+import { lpRugProbe } from "../src/probes/lpRug";
+import { BASE_FORK_BLOCK } from "../src/forkBlock";
 import type { Hex, ProbeCtx } from "@sidik/shared";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;

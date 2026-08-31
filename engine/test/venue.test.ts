@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { covering, isTraded, midPrice, MIN_QUOTE_VOLUME_USD, type Candle } from "../src/venue.js";
+import { covering, isTraded, midPrice, MIN_QUOTE_VOLUME_USD, type Candle } from "../src/venue";
 
 const HOUR = 3_600_000;
 const at = (openTimeMs: number, over: Partial<Candle> = {}): Candle => ({

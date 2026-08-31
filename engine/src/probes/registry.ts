@@ -1,9 +1,9 @@
 import type { Probe } from "@sidik/shared";
-import { honeypotProbe } from "./honeypot.js";
-import { hiddenFeeProbe } from "./hiddenFee.js";
-import { approvalDrainProbe } from "./approvalDrain.js";
-import { lpRugProbe } from "./lpRug.js";
-import { crossVenueProbe } from "./crossVenue.js";
-import { ownerTrapProbe } from "./ownerTrap.js";
+import { honeypotProbe } from "./honeypot";
+import { hiddenFeeProbe } from "./hiddenFee";
+import { approvalDrainProbe } from "./approvalDrain";
+import { lpRugProbe } from "./lpRug";
+import { crossVenueProbe } from "./crossVenue";
+import { ownerTrapProbe } from "./ownerTrap";
 
 export const PROBES: Probe[] = [honeypotProbe, hiddenFeeProbe, approvalDrainProbe, lpRugProbe, crossVenueProbe, ownerTrapProbe];

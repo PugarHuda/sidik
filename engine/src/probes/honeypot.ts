@@ -1,9 +1,9 @@
 import { encodeFunctionData } from "viem";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe, ForkClient } from "@sidik/shared";
-import { buyBudget, buyExactEth, sellAll, type DexResult } from "../dex.js";
-import { amount } from "../format.js";
-import { ERC20_ABI } from "../abi.js";
-import { PROBE_RECIPIENT, WETH } from "../base.js";
+import { buyBudget, buyExactEth, sellAll, type DexResult } from "../dex";
+import { amount } from "../format";
+import { ERC20_ABI } from "../abi";
+import { PROBE_RECIPIENT, WETH } from "../base";
 
 // A sell that goes through but hands back a sliver of what the pool owes you
 // is a honeypot by any measure that matters — your money is still gone. Above

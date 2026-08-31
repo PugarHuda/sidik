@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { anvilCommand } from "./anvilBin";
 import getPort from "get-port";
 import {
   createTestClient, createPublicClient, createWalletClient, http, parseEther,
@@ -6,9 +7,9 @@ import {
 } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, Hex } from "@sidik/shared";
-import { REVERT_MAX, untrustedText } from "./untrusted.js";
-import { forkProxyStats, startForkProxy, type ForkProxy } from "./forkProxy.js";
-import { log } from "./log.js";
+import { REVERT_MAX, untrustedText } from "./untrusted";
+import { forkProxyStats, startForkProxy, type ForkProxy } from "./forkProxy";
+import { log } from "./log";
 
 // One proxy per engine process, started the first time a fork is opened and
 // kept for every fork after it. See forkProxy.ts for why anvil is not handed
@@ -52,7 +53,9 @@ const PROBE_PING_TIMEOUT_MS = 2_000;
 async function spawnAnvil(rpc: string, block: bigint, port: number) {
   // ponytail: spawn("anvil", ...) resolves anvil.exe via PATH on Windows same as any
   // other binary — no shell:true needed unless PATH resolution proves otherwise.
-  const proc = spawn("anvil", [
+  // anvilCommand() returns exactly that name unless the host has no Foundry
+  // and asked for one to be fetched; see anvilBin.ts.
+  const proc = spawn(await anvilCommand(), [
     "--fork-url", rpc, "--fork-block-number", String(block),
     "--port", String(port), "--silent",
   ]);

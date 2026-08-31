@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mapLimit } from "../src/pool.js";
+import { mapLimit } from "../src/pool";
 
 describe("mapLimit", () => {
   it("never runs more than the limit at once", async () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interpretOwnerTrap, STRANGER } from "../src/probes/ownerTrap.js";
+import { interpretOwnerTrap, STRANGER } from "../src/probes/ownerTrap";
 
 const ctx = {
   token: "0xtok",

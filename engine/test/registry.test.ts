@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PROBES } from "../src/probes/registry.js";
+import { PROBES } from "../src/probes/registry";
 
 describe("registry", () => {
   // These ids are not internal labels. They key every recorded run in

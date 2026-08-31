@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "../src/concurrency.js";
+import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "../src/concurrency";
 
 describe("run slots", () => {
   it("hands out exactly the configured number and then refuses", () => {

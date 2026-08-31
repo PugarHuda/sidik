@@ -1,8 +1,8 @@
 import { generateText } from "ai";
-import { llm, LLM_TIMEOUT_MS, VENICE_OPTIONS } from "./llm.js";
+import { llm, LLM_TIMEOUT_MS, VENICE_OPTIONS } from "./llm";
 import { z } from "zod";
 import type { PreScan } from "@sidik/shared";
-import { PROBES } from "./probes/registry.js";
+import { PROBES } from "./probes/registry";
 
 export function filterApplicable(ids: string[], scan: PreScan): string[] {
   const byId = new Map(PROBES.map((p) => [p.id, p]));

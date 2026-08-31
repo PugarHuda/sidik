@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { toFunctionSelector } from "viem";
-import { nameOf, SELECTOR_NAMES } from "../src/selectorNames.js";
+import { nameOf, SELECTOR_NAMES } from "../src/selectorNames";
 
 // The generated table is data; this only proves the generator resolved the
 // selectors the owner-trap probe already knows by name.

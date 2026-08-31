@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FIXTURES } from "@sidik/shared";
-import { createApp } from "../src/server.js";
+import { createApp } from "../src/server";
 
 /**
  * The MCP surface, spoken end to end through Hono: initialize, the

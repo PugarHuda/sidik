@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { ProbeCtx } from "@sidik/shared";
-import { interpretOwnerTrap } from "../src/probes/ownerTrap.js";
-import { OWNER_SWITCHES, UNLOCK_SELECTOR, UPGRADE_SELECTORS, callData } from "../src/selectors.js";
-import { parseOtherVenues } from "../src/prescan.js";
+import { interpretOwnerTrap } from "../src/probes/ownerTrap";
+import { OWNER_SWITCHES, UNLOCK_SELECTOR, UPGRADE_SELECTORS, callData } from "../src/selectors";
+import { parseOtherVenues } from "../src/prescan";
 
 /**
  * The interpretations added for proxies, fee ladders and fake renounces.

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { bisectBirth } from "../src/probes/lpRug.js";
+import { bisectBirth } from "../src/probes/lpRug";
 
 /** A chain where `pool` was created at `birth`, counting how often it was asked. */
 const chain = (birth: bigint) => {

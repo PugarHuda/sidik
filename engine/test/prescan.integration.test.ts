@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { withFork } from "../src/fork.js";
-import { prescan } from "../src/prescan.js";
+import { withFork } from "../src/fork";
+import { prescan } from "../src/prescan";
 import type { Hex } from "@sidik/shared";
-import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
+import { BASE_FORK_BLOCK } from "../src/forkBlock";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
 const BLOCK = BASE_FORK_BLOCK;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interpretHoneypot } from "../src/probes/honeypot.js";
+import { interpretHoneypot } from "../src/probes/honeypot";
 
 const ctx = { token: "0xtok", scan: { decimals: 18, symbol: "T" } as any, testWallet: "0xw", block: 1n } as any;
 const bought = { boughtAmount: "1000", buyTxHash: "0xbuy" };

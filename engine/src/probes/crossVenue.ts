@@ -1,12 +1,12 @@
 import { createPublicClient, formatUnits } from "viem";
 import { base } from "viem/chains";
-import { forkTransport } from "../fork.js";
+import { forkTransport } from "../fork";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
 import { venueListings } from "@sidik/shared";
-import { buyBudget, buyExactEth } from "../dex.js";
-import { bingx } from "../bingx.js";
-import { gate } from "../gate.js";
-import { isTraded, midPrice, type Venue } from "../venue.js";
+import { buyBudget, buyExactEth } from "../dex";
+import { bingx } from "../bingx";
+import { gate } from "../gate";
+import { isTraded, midPrice, type Venue } from "../venue";
 
 // What a buy actually costs inside the pool, against what the same asset cost
 // on venues that have never heard of that pool, at the same moment.

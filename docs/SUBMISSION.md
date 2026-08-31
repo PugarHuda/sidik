@@ -219,12 +219,16 @@ leave a run behind that was produced by an older way of measuring.
 
 State these; the field rewards it.
 
-- The public site **replays recorded runs**. Forking Base needs an archive RPC
-  and real compute, and no free tier runs it — Fly wants a card, Hugging Face
-  wants PRO. The runs were executed here and frozen. They are genuine output,
-  not mock data, and the code that produced them is in the repo. **There is no
-  hosted engine, and the site says so rather than naming a URL that does not
-  answer.**
+- The public site **replays recorded runs by default, and can execute a new
+  one on request**: `/run?token=0x…&live=1` forks Base and runs the probes
+  while you watch, in about thirty seconds, for any address at all. It took
+  until the last day to find a host that would do it. Fly wants a card and
+  Hugging Face Spaces wants a paid tier, so the answer was not a container
+  host: a serverless function downloads the Foundry release into `/tmp` in
+  under a second and spawns anvil there. The recorded catalogue stays the
+  default because a replay answers instantly and cannot be rate-limited, and
+  because 207 runs executed under controlled conditions are a better body of
+  evidence than one run executed under a judge's impatience.
 - **110 of 207 addresses come back N/A.** It used to be 130, and the single
   largest cause was our own search window rather than anything about the
   tokens: the LP-rug probe looked for a V3 position in a 9,000-block window —

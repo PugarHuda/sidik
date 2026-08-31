@@ -1,5 +1,5 @@
 import { encodeFunctionData, parseAbi, toFunctionSelector, type Abi, type Hex } from "viem";
-import { selectorsIn } from "./selectors.js";
+import { selectorsIn } from "./selectors";
 
 /**
  * How a contract that holds someone's LP might be made to give it back.

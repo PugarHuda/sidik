@@ -1,6 +1,6 @@
 import { createPublicClient, parseAbi } from "viem";
 import { base } from "viem/chains";
-import { forkTransport } from "./fork.js";
+import { forkTransport } from "./fork";
 import type { ForkClient, Hex } from "@sidik/shared";
 
 /**

@@ -1,9 +1,9 @@
-import { ANVIL_ACCOUNT_0 } from "../src/base.js";
+import { ANVIL_ACCOUNT_0 } from "../src/base";
 import { describe, it, expect } from "vitest";
-import { withFork } from "../src/fork.js";
-import { honeypotProbe } from "../src/probes/honeypot.js";
+import { withFork } from "../src/fork";
+import { honeypotProbe } from "../src/probes/honeypot";
 import type { PreScan, ProbeCtx, Hex } from "@sidik/shared";
-import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
+import { BASE_FORK_BLOCK } from "../src/forkBlock";
 
 const RUN = !!process.env.BASE_ARCHIVE_RPC;
 const BLOCK = BASE_FORK_BLOCK;

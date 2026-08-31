@@ -33,6 +33,10 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  // The engine is TypeScript source in the workspace, imported only by the
+  // live-run route. Next has to compile it the same way it already compiles
+  // @sidik/shared.
+  transpilePackages: ["@sidik/engine", "@sidik/shared"],
   async headers() {
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },

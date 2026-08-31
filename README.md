@@ -15,12 +15,22 @@ If you read one page, read
 results of executing the whole catalogue, each with its method, the rows
 behind it, and the one comparison Sidik loses.
 
-The live site replays runs that already happened: every token in it was
-bought, sold and transferred against a fork of Base at a pinned block, and
-what you see is that run's own event stream, tx hashes and all. It carries no
-engine, so an address outside the recorded set is answered with an error
-rather than a guess — the engine is what probes arbitrary addresses live, and
-deploying one is optional (see Deployment).
+The live site does both. By default it replays runs that already happened:
+every token in the catalogue was bought, sold and transferred against a fork
+of Base at a pinned block, and what you see is that run's own event stream, tx
+hashes and all.
+
+For anything else, **`/run?token=0x…&live=1` executes the probes there and
+then**, against a fork of Base, and streams the trace as it happens. It takes
+about half a minute. An address outside the recorded catalogue now offers that
+instead of only an error.
+
+Hosting it was the hard part, and the answer turned out not to be a container
+host at all — Fly wants a card, Hugging Face Spaces wants a paid tier. Forking
+Base needs an archive RPC and a Foundry binary, and a serverless function can
+have both: the release tarball downloads into `/tmp` in under a second and the
+engine spawns it exactly as it does on a laptop. See
+`engine/src/anvilBin.ts` and `web/app/api/live/route.ts`.
 
 ## The thesis: prove by executing
 
@@ -445,7 +455,7 @@ also available as data:
 | `GET /api/run?token=<address>` | The same run as a Server-Sent Event stream, in the order the probes produced it. |
 | `GET /llms.txt` | What the data means, and the two things a consumer will otherwise get wrong. |
 | `GET /openapi.json` | OpenAPI 3.1 for the JSON endpoints, Verdict schema included. Every JSON body carries `schemaVersion`, `chainId` and `provenance` (recording date, engine commit, catalogue sha256, site commit). CORS-open. |
-| `POST /mcp` (engine, self-hosted) | The engine as a [Model Context Protocol](https://modelcontextprotocol.io) server over Streamable HTTP — `pnpm dev:engine`, then `claude mcp add --transport http sidik http://localhost:8787/mcp`. Tools: `sidik_token` (executed verdicts for an address), `sidik_catalogue` (paged, filtered), `sidik_run` (execute the probes now on a fresh fork). No SDK: the protocol Sidik speaks is `engine/src/mcp.ts`, tested end to end through Hono. There is no hosted engine: forking Base needs an archive RPC and real compute, and no free tier runs it — see [Deployment](#deployment) to stand one up. |
+| `POST /mcp` (engine, self-hosted) | The engine as a [Model Context Protocol](https://modelcontextprotocol.io) server over Streamable HTTP — `pnpm dev:engine`, then `claude mcp add --transport http sidik http://localhost:8787/mcp`. Tools: `sidik_token` (executed verdicts for an address), `sidik_catalogue` (paged, filtered), `sidik_run` (execute the probes now on a fresh fork). No SDK: the protocol Sidik speaks is `engine/src/mcp.ts`, tested end to end through Hono. The MCP server itself is still self-hosted — `GET /api/live` is the hosted way to execute a run. |
 | `GET /api/og?token=<address>` | The 1200x630 card a shared link unfurls into, carrying that token's verdict. |
 
 Corroboration always travels in its own `corroboration` field, never inside a

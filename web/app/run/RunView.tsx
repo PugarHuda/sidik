@@ -374,7 +374,7 @@ function listOf(items: string[]): string {
 }
 
 export default function RunView(
-  { token, instant = false, source, scanners, recheck }: { token: string; instant?: boolean; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
+  { token, instant = false, live = false, source, scanners, recheck }: { token: string; instant?: boolean; live?: boolean; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
 ) {
   const tokenValid = TOKEN_RE.test(token);
   const [events, setEvents] = useState<RunEvent[]>([]);
@@ -389,7 +389,10 @@ export default function RunView(
     (async () => {
       let settled = false;
       try {
-        for await (const event of streamRunEvents(`/api/run?token=${token}${instant ? "&instant=1" : ""}`, controller.signal)) {
+        const url = live
+          ? `/api/live?token=${token}`
+          : `/api/run?token=${token}${instant ? "&instant=1" : ""}`;
+        for await (const event of streamRunEvents(url, controller.signal)) {
           if (event.type === "done" || event.type === "error") settled = true;
           setEvents((prev) => [...prev, event]);
         }
@@ -411,7 +414,7 @@ export default function RunView(
     })();
 
     return () => controller.abort();
-  }, [token, tokenValid, instant]);
+  }, [token, tokenValid, instant, live]);
 
   if (!tokenValid) {
     return (
@@ -494,6 +497,17 @@ export default function RunView(
           {pill.text}
         </span>
       </header>
+
+      {/* The counterpart to the replay note below. Everything else on this
+          site is frozen output; this one is not, and a reader deserves to be
+          told which they are looking at without having to infer it from the
+          URL. */}
+      {live && (
+        <p className="-mt-4 font-mono text-xs text-accent" data-live-banner>
+          <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true" />
+          Executing now on a fork of Base — not a replay. Nothing here is broadcast.
+        </p>
+      )}
 
       {replay && (
         // Informational, so neutral. It used to be a three-line uppercase
@@ -598,6 +612,27 @@ export default function RunView(
               : <>Sidik has not traded this token yet. It only shows results for addresses it actually bought and sold on a fork.</>}
           </p>
           <p className="wrap-anywhere mt-1 text-sm text-fg-dim">{errorEvent?.message}</p>
+          {/* The recorded catalogue cannot cover an address nobody has probed
+              yet, and until now that was the end of the conversation. It is
+              not any more: this executes the probes against a fork of Base on
+              the spot. Offered only where a run is possible at all — an
+              address the probes trade *with* can never have one. */}
+          {!unprobeableReason(token) && !live && (
+            <div className="mt-4 rounded-md border border-accent/40 bg-accent/5 px-4 py-3">
+              <a
+                href={`/run?token=${token}&live=1`}
+                className="font-mono text-sm font-semibold text-accent underline-offset-4 hover:underline"
+                data-live-cta
+              >
+                Execute it now, on a fork of Base →
+              </a>
+              <p className="mt-1 text-sm text-fg-dim">
+                Buys it, sells it, transfers it and tries to pull the pool, against Base at a
+                recent block. Takes about half a minute, and nothing is broadcast.
+              </p>
+            </div>
+          )}
+
           <div className="mt-4">
             <div className="mb-2 font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">Open a recorded run instead</div>
             <div className="flex flex-wrap gap-2">

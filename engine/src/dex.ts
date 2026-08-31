@@ -1,11 +1,11 @@
 import { createPublicClient, encodeFunctionData, decodeEventLog, parseAbi, parseAbiItem } from "viem";
 import { base } from "viem/chains";
 import type { ForkClient, ProbeCtx, Hex } from "@sidik/shared";
-import { FORK_GAS_LIMIT, isRevertError, forkTransport } from "./fork.js";
-import { UNISWAP_V2, WETH } from "./base.js";
-import { ERC20_ABI, V2_ROUTER_ABI } from "./abi.js";
-import { REVERT_MAX, untrustedText } from "./untrusted.js";
-import { approveV3Data, quoteV3, swapV3Data, V3_ROUTER } from "./dexV3.js";
+import { FORK_GAS_LIMIT, isRevertError, forkTransport } from "./fork";
+import { UNISWAP_V2, WETH } from "./base";
+import { ERC20_ABI, V2_ROUTER_ABI } from "./abi";
+import { REVERT_MAX, untrustedText } from "./untrusted";
+import { approveV3Data, quoteV3, swapV3Data, V3_ROUTER } from "./dexV3";
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
 

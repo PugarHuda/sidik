@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interpretHiddenFee } from "../src/probes/hiddenFee.js";
+import { interpretHiddenFee } from "../src/probes/hiddenFee";
 const ctx = {} as any;
 const base = { sent: "1000", received: "1000", feeBps: 0, buyTaxBps: 0, sellMeasured: true, xferTxHash: "0xh", sellTxHash: "0xs" };
 

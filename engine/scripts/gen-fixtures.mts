@@ -21,9 +21,9 @@ import { createPublicClient, http, parseAbi, parseAbiItem, formatEther } from "v
 import { base } from "viem/chains";
 import { EXAMPLES } from "@sidik/shared";
 import type { Hex, PreScan, Verdict } from "@sidik/shared";
-import { isProbeFailure, runSidik } from "../src/orchestrator.js";
-import { BASE_FORK_BLOCK } from "../src/forkBlock.js";
-import { PROBES } from "../src/probes/registry.js";
+import { isProbeFailure, runSidik } from "../src/orchestrator";
+import { BASE_FORK_BLOCK } from "../src/forkBlock";
+import { PROBES } from "../src/probes/registry";
 
 const CATALOG_SIZE = Number(process.env.SIDIK_CATALOG ?? "0");
 // ~70 days of Base blocks. The factory holds over 3M pairs, so enumerating it

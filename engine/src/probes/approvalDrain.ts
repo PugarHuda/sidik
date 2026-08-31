@@ -1,11 +1,11 @@
 import { createPublicClient, encodeFunctionData } from "viem";
 import { base } from "viem/chains";
-import { forkTransport } from "../fork.js";
+import { forkTransport } from "../fork";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe } from "@sidik/shared";
-import { logsClient } from "../rpc.js";
-import { amount } from "../format.js";
-import { UNISWAP_V2, WETH } from "../base.js";
-import { APPROVAL_EVENT, ERC20_ABI, V2_ROUTER_ABI } from "../abi.js";
+import { logsClient } from "../rpc";
+import { amount } from "../format";
+import { UNISWAP_V2, WETH } from "../base";
+import { APPROVAL_EVENT, ERC20_ABI, V2_ROUTER_ABI } from "../abi";
 
 // 9k blocks — the logs RPC caps a single eth_getLogs at 10k, so this takes
 // the window right up to what one request allows. At 3k the holder sample

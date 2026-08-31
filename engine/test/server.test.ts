@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { createApp } from "../src/server.js";
-import type { RunEvent } from "../src/orchestrator.js";
+import { createApp } from "../src/server";
+import type { RunEvent } from "../src/orchestrator";
 import type { Hex } from "@sidik/shared";
-import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "../src/concurrency.js";
+import { acquireRunSlot, MAX_CONCURRENT_RUNS, runsInFlight } from "../src/concurrency";
 
 const VALID_TOKEN = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Hex; // 40 hex chars
 

@@ -26,8 +26,8 @@
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { FIXTURES, type Hex } from "@sidik/shared";
-import { BINGX_SYMBOLS } from "../src/bingx.js";
-import { baseListings } from "../src/gate.js";
+import { BINGX_SYMBOLS } from "../src/bingx";
+import { baseListings } from "../src/gate";
 
 // address -> the BingX ticker that is unambiguously this same asset.
 const BY_HAND: [Hex, string][] = [

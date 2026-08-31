@@ -1,6 +1,6 @@
-import { ANVIL_ACCOUNT_0 } from "../src/base.js";
+import { ANVIL_ACCOUNT_0 } from "../src/base";
 import { describe, it, expect } from "vitest";
-import { runSidik, type RunEvent } from "../src/orchestrator.js";
+import { runSidik, type RunEvent } from "../src/orchestrator";
 import type { ForkClient, Hex, PreScan } from "@sidik/shared";
 
 const TOKEN = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Hex; // checksum-valid (USDC on Base)

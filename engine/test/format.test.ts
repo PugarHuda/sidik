@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { amount } from "../src/format.js";
+import { amount } from "../src/format";
 
 describe("amount", () => {
   it("reads a raw 18-decimal balance as a person would", () => {

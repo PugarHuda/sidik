@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { llm, LLM_TIMEOUT_MS, VENICE_OPTIONS } from "./llm.js";
+import { llm, LLM_TIMEOUT_MS, VENICE_OPTIONS } from "./llm";
 import type { Verdict } from "@sidik/shared";
 import { contradictsVerdicts, templateNarration } from "@sidik/shared";
 

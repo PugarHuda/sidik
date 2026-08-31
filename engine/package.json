@@ -33,5 +33,9 @@
     "tsx": "^4",
     "typescript": "^5",
     "vitest": "^3.2.6"
+  },
+  "exports": {
+    "./orchestrator": "./src/orchestrator.ts",
+    "./concurrency": "./src/concurrency.ts"
   }
 }

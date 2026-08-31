@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { interpretApprovalDrain } from "../src/probes/approvalDrain.js";
+import { interpretApprovalDrain } from "../src/probes/approvalDrain";
 const ctx = {} as any;
 
 const ONE_WETH = "1000000000000000000";

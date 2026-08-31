@@ -1,13 +1,13 @@
 import { encodeFunctionData, formatEther, parseAbi, parseAbiItem, toEventSelector } from "viem";
 import type { RawResult, ProbeCtx, Verdict, Hex, Probe, ForkClient } from "@sidik/shared";
-import { logsClient } from "../rpc.js";
-import { log } from "../log.js";
-import { amount } from "../format.js";
-import { BURN_ADDRESSES, UNISWAP_V2, WETH } from "../base.js";
-import { ERC20_ABI, TRANSFER_EVENT, V2_ROUTER_ABI } from "../abi.js";
-import { quoteV3 } from "../dexV3.js";
-import { classifyHolder, codeAt, isoDate, lockerName, UNCX_V2_LOCKER, uncxV2Lock, type HolderKind } from "../lockers.js";
-import { OWNABLE_ABI, RELEASES_SEARCHED, releaseData, releasesIn } from "../lpRelease.js";
+import { logsClient } from "../rpc";
+import { log } from "../log";
+import { amount } from "../format";
+import { BURN_ADDRESSES, UNISWAP_V2, WETH } from "../base";
+import { ERC20_ABI, TRANSFER_EVENT, V2_ROUTER_ABI } from "../abi";
+import { quoteV3 } from "../dexV3";
+import { classifyHolder, codeAt, isoDate, lockerName, UNCX_V2_LOCKER, uncxV2Lock, type HolderKind } from "../lockers";
+import { OWNABLE_ABI, RELEASES_SEARCHED, releaseData, releasesIn } from "../lpRelease";
 
 const DEADLINE = 9_999_999_999n; // fork-only, far future is fine
 

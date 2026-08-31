@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createServer, type Server } from "node:http";
-import { startForkProxy, type ForkProxy } from "../src/forkProxy.js";
+import { startForkProxy, type ForkProxy } from "../src/forkProxy";
 
 /**
  * A stand-in for the gateway that broke every fork: answers the methods a
