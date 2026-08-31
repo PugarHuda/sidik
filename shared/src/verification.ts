@@ -1554,6 +1554,133 @@ export const VERIFIED_SOURCE: Record<string, Verification> = {
     },
     "deployer": "0x97cF38bB06Da57b6418083998b09976eC40A90a3",
     "deployerSource": "sourcify"
+  },
+  "0x3aa748515e96420a0aee76fa6251d90acdb3e6e4": {
+    "verified": true,
+    "name": "SimpleERC20Token",
+    "compiler": "v0.8.26+commit.8a97fa7a",
+    "sourcify": null
+  },
+  "0xa88594d404727625a9437c3f886c7643872296ae": {
+    "verified": true,
+    "name": "TransparentUpgradeableProxy",
+    "compiler": "0.8.19+commit.7dd6d404",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T12:47:31Z"
+    },
+    "deployer": "0xdDbf679d6332d9E5b409865b9671d1927255B52A",
+    "deployerSource": "sourcify"
+  },
+  "0xbaa5cc21fd487b8fcc2f632f3f4e8d37262a0842": {
+    "verified": true,
+    "name": "ERC1967Proxy",
+    "compiler": "0.8.27+commit.40a35a09",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-11-21T16:48:25Z"
+    },
+    "deployer": "0x937Ce2d6c488b361825D2DB5e8A70e26d48afEd5",
+    "deployerSource": "sourcify"
+  },
+  "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452": {
+    "verified": true,
+    "name": "OssifiableProxy",
+    "compiler": "0.8.10+commit.fc410830",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T13:23:47Z"
+    },
+    "deployer": "0xfa8123fE01e71ec5e749b66B71821B4Ee2BA4Ed2",
+    "deployerSource": "sourcify"
+  },
+  "0x236aa50979d5f3de3bd1eeb40e81137f22ab794b": {
+    "verified": true,
+    "name": "TransparentUpgradeableProxy",
+    "compiler": "0.8.9+commit.e5eed63a",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T11:18:18Z"
+    },
+    "deployer": "0x123694886DBf5Ac94DDA07135349534536D14cAf",
+    "deployerSource": "sourcify"
+  },
+  "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42": {
+    "verified": true,
+    "name": "FiatTokenProxy",
+    "compiler": "v0.6.12+commit.27d51765",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2025-09-01T09:00:56Z"
+    },
+    "deployer": "0x71b749F58f63008672eEd55396151DC0C7493A78",
+    "deployerSource": "sourcify"
+  },
+  "0x1111111111166b7fe7bd91427724b487980afc69": {
+    "verified": true,
+    "name": "Zora",
+    "compiler": "0.8.28+commit.7893614a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2025-04-23T03:09:54Z"
+    },
+    "deployer": "0xBEBe537eFb8377629A1dFB1aC5c0568036E32712",
+    "deployerSource": "sourcify"
+  },
+  "0xb6fe221fe9eef5aba221c348ba20a1bf5e73624c": {
+    "verified": true,
+    "name": "OptimismMintableERC20",
+    "compiler": "0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-08T10:32:49Z"
+    },
+    "deployer": "0x35A94b6319F0BA9Ec930e02Cb64ec6BB170bD3F1",
+    "deployerSource": "sourcify"
+  },
+  "0xfa980ced6895ac314e7de34ef1bfae90a5add21b": {
+    "verified": true,
+    "name": "PrimeToken",
+    "compiler": "0.8.17+commit.8df45f5f",
+    "sourcify": {
+      "match": "exact",
+      "verifiedAt": "2024-08-08T13:38:41Z"
+    },
+    "deployer": "0xbebd60D2985594c36eBfa66e44b0856807E9DD32",
+    "deployerSource": "sourcify"
+  },
+  "0x0fd7a301b51d0a83fcaf6718628174d527b373b6": {
+    "verified": true,
+    "name": "Token",
+    "compiler": "0.8.26+commit.8a97fa7a",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-11-09T13:28:17Z"
+    },
+    "deployer": "0xC204af95b0307162118f7Bc36a91c9717490AB69",
+    "deployerSource": "sourcify"
+  },
+  "0x2da56acb9ea78330f947bd57c54119debda7af71": {
+    "verified": true,
+    "name": "OptimismMintableERC20",
+    "compiler": "0.8.15+commit.e14f2714",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2024-08-08T15:56:38Z"
+    },
+    "deployer": "0x20E12a9a5c738E265EC81D6F2a8E77785B6Aa8B8",
+    "deployerSource": "sourcify"
+  },
+  "0x820c137fa70c8691f0e44dc420a5e53c168921dc": {
+    "verified": true,
+    "name": "ERC1967Proxy",
+    "compiler": "v0.8.21+commit.d9974bed",
+    "sourcify": {
+      "match": "partial",
+      "verifiedAt": "2026-07-07T20:06:19Z"
+    },
+    "deployer": "0x94d82D5D4C2fe48a55Ad44131184b458334739b0",
+    "deployerSource": "sourcify"
   }
 };
 
@@ -1565,14 +1692,14 @@ export const VERIFIED_SOURCE: Record<string, Verification> = {
  * every recorded run to every visitor.
  */
 export const VERIFICATION_STATS = {
-  checked: 194,
-  verified: 191,
-  failing: 59,
-  failingVerified: 58,
+  checked: 206,
+  verified: 203,
+  failing: 60,
+  failingVerified: 59,
 } as const;
 
 /** Sourcify's independent count over the same addresses, and how many deployers are on record. */
-export const SOURCIFY_STATS = {"exact":61,"partial":37,"none":96,"deployerKnown":92} as const;
+export const SOURCIFY_STATS = {"exact":67,"partial":42,"none":97,"deployerKnown":103} as const;
 
 /**
  * What is known about one address, or undefined if it was never checked.

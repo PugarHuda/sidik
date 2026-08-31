@@ -92,6 +92,16 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
     "askedOn": "2026-08-28",
     "goplus": {
       "isOpenSource": true
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 4.99,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
     }
   },
   "0xdeb18e7b78ffd555d5e94ebe110e1ff2d778bd8b": {
@@ -2744,6 +2754,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x077a8a984712a41c0ec7b90cfc3e3d600ecf28e0": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -2757,6 +2782,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x7ca0100d60adcd859db0c4260a078e5d2ef558c7": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "high",
@@ -2772,6 +2812,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x93f8e67af68da54b6e15b352379e4f46b629ae04": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -3295,6 +3350,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x266faa3c91c9c936e5e6490fb32fce61673f92ae": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -3308,6 +3378,20 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x4f23d1c67ab2dc0358ca3c58491912b5e2df8453": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -3321,6 +3405,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x2b71749c6bd181e572bbbf1945a0bd4f3a4fcba7": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -3334,6 +3433,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x2543c8b3ea1f72c32c29830de04991812f67a5b8": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -3870,6 +3984,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x05cfb29e2df2b8bd9209d6fbf425e8a4c75fa4df": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -3883,6 +4012,21 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
   },
   "0x332452924aa6b1491f8bbeb36276132938e18ecb": {
     "askedOn": "2026-08-28",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
     "honeypotIs": {
       "isHoneypot": false,
       "risk": "low",
@@ -4734,6 +4878,279 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
     "goplus": {
       "isOpenSource": false
     }
+  },
+  "0x3aa748515e96420a0aee76fa6251d90acdb3e6e4": {
+    "askedOn": "2026-08-31",
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0xa88594d404727625a9437c3f886c7643872296ae": {
+    "askedOn": "2026-08-31",
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0xbaa5cc21fd487b8fcc2f632f3f4e8d37262a0842": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isOpenSource": true,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0x4f9fd6be4a90f2620860d680c0d4d5fb53d1a825": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0.99,
+      "sellTaxPct": 0.99,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isOpenSource": true,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0x236aa50979d5f3de3bd1eeb40e81137f22ab794b": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isOpenSource": true,
+      "cannotSellAll": false
+    }
+  },
+  "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isOpenSource": true,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0x1111111111166b7fe7bd91427724b487980afc69": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0xb6fe221fe9eef5aba221c348ba20a1bf5e73624c": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": true,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": true,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0x0fd7a301b51d0a83fcaf6718628174d527b373b6": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": false,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0x2da56acb9ea78330f947bd57c54119debda7af71": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": true,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": true,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0xfa980ced6895ac314e7de34ef1bfae90a5add21b": {
+    "askedOn": "2026-08-31",
+    "goplus": {
+      "isHoneypot": false,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "isMintable": true,
+      "transferPausable": false,
+      "isBlacklisted": false,
+      "ownerChangeBalance": false,
+      "canTakeBackOwnership": false,
+      "hiddenOwner": false,
+      "isOpenSource": true,
+      "tradingCooldown": false,
+      "isAntiWhale": false,
+      "cannotSellAll": false
+    },
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
+  },
+  "0x820c137fa70c8691f0e44dc420a5e53c168921dc": {
+    "askedOn": "2026-08-31",
+    "honeypotIs": {
+      "isHoneypot": false,
+      "risk": "low",
+      "riskLevel": 1,
+      "buyTaxPct": 0,
+      "sellTaxPct": 0,
+      "transferTaxPct": 0,
+      "flags": [],
+      "simulationSuccess": true
+    }
   }
 };
 
@@ -4745,8 +5162,8 @@ export const SCANNER_READINGS: Record<string, ScannerReadings> = {
  */
 export const SCANNER_STATS = {
   "honeypotGoplus": {
-    "total": 131,
-    "agree": 125,
+    "total": 146,
+    "agree": 140,
     "sidikOnly": [
       "Anastasia",
       "TZ",
@@ -4759,9 +5176,11 @@ export const SCANNER_STATS = {
     ]
   },
   "honeypotHoneypotIs": {
-    "total": 179,
-    "agree": 173,
-    "sidikOnly": [],
+    "total": 192,
+    "agree": 185,
+    "sidikOnly": [
+      "DEAI"
+    ],
     "scannerOnly": [
       "DGAI",
       "FOLD",
@@ -4772,8 +5191,8 @@ export const SCANNER_STATS = {
     ]
   },
   "ownerTrapGoplus": {
-    "total": 38,
-    "agree": 9,
+    "total": 41,
+    "agree": 11,
     "sidikOnly": [
       "SPX30K",
       "SPX82K",
@@ -4794,7 +5213,8 @@ export const SCANNER_STATS = {
       "cbETH",
       "E3D",
       "PP",
-      "USDC"
+      "USDC",
+      "EURC"
     ],
     "scannerOnly": [
       "ASTROVERSE",
@@ -4809,14 +5229,14 @@ export const SCANNER_STATS = {
     ]
   },
   "buyTaxGoplus": {
-    "total": 164,
-    "agree": 164,
+    "total": 183,
+    "agree": 183,
     "sidikOnly": [],
     "scannerOnly": []
   },
   "buyTaxHoneypotIs": {
-    "total": 177,
-    "agree": 175,
+    "total": 189,
+    "agree": 187,
     "sidikOnly": [
       "7SiN 2.99% vs 0%",
       "ROOTED 6.99% vs 0%"

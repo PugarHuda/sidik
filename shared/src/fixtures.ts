@@ -28391,6 +28391,2254 @@ export const FIXTURES: Record<string, FrozenRun> = {
       }
     ],
     "narration": "Buy/sell tests passed: the token is not a honeypot (bought 3,646.96 VIRTUAL, transferee sell succeeded). No hidden fees were found on buy, sell, or transfer (1,215.65 VIRTUAL sent and received, 0% fee/buy tax/sell tax). LP is not burned (0% burned, 0% owner-held) and no holder could be identified, so this remains unverified. Pool price aligned with the market: $0.6209 onchain vs Gate's $0.6162 (+0.75%). Ownership is renounced (owner 0x00000000000000000000000000000000005A1Dec), and a mint(address,uint256) call reverted every time it was tried."
+  },
+  "0x3aa748515e96420a0aee76fa6251d90acdb3e6e4": {
+    "scan": {
+      "token": "0x3aA748515e96420a0AEe76fa6251d90ACdb3e6e4",
+      "isErc20": true,
+      "symbol": "cbXRP",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x2090b2EAB2e756f83441e9c2f1E240922ac808FA",
+      "venue": "v3",
+      "poolFee": 100,
+      "owner": "0x0000000000000000000000000000000000000000",
+      "topHolders": [
+        {
+          "address": "0xaAbA8e9c7038a9E1224Bb51150546242A1f64E5C",
+          "balance": "99918889192388663122289313238"
+        },
+        {
+          "address": "0x2090b2EAB2e756f83441e9c2f1E240922ac808FA",
+          "balance": "26945915952523583652020"
+        },
+        {
+          "address": "0x5AaFc1f252d544f744d17a4E734afd6efC47edE4",
+          "balance": "22741413799516665310389"
+        },
+        {
+          "address": "0xC427eB594bF7e6F83A522bC47007d6276EbAed14",
+          "balance": "15495941726229652012299"
+        },
+        {
+          "address": "0xC06ebbefD94032B85424D51906e2A335EFAe264B",
+          "balance": "4668176611977853892"
+        },
+        {
+          "address": "0x2aa7D880B7aD5964c02b919074fB27a71a7DDd07",
+          "balance": "169"
+        },
+        {
+          "address": "0x78e0a685840Cb2926FCC6EcF860B0F5f4D940B63",
+          "balance": "2"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "hiddenFee",
+      "ownerTrap"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,782.33 cbXRP",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0xb01c5a2ff0503aa35a11091a2cdc0e9a7388969521e0fa60ecc35edc1adcb4e3",
+          "0x146a6b47db5e60e433edb50c037718a9aa401be9c2c51d4718cdd7d57fb42150",
+          "0xb3088e3b29e9c36a08c626c28c14e8b4c85fab7ebf1bf14f8f2c57f72e9312f4",
+          "0x356051c11dab6f9325dc5e246d46699386f1408266220e25f599434684e3545a"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No V3 position could be found to pull",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "No position with liquidity was minted into this pool in the last 9,000 blocks (0 mints seen)",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000",
+          "venue": "uniswap-v3",
+          "positionId": ""
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "594.11 cbXRP",
+          "received": "594.11 cbXRP",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0xb01c5a2ff0503aa35a11091a2cdc0e9a7388969521e0fa60ecc35edc1adcb4e3",
+          "0x963d4bce07fa64be1222f5a7e0789aad7c7cbce8f05c7e9eb2e4901ae4a3b70d",
+          "0x51fdc652bac06a0db918113c677be16d7192655eef7115f2853477478a719aad",
+          "0x0ca10074e92a50defd4324e7837b728d28ce920a2d9ab328e1713aada493a7f7"
+        ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      }
+    ],
+    "narration": "Token cbXRP passed both the honeypot and hidden-fee checks. A buy of 1,782.33 cbXRP was sold successfully, and a transferee's sell also succeeded. In the fee test, 594.11 cbXRP sent resulted in 594.11 cbXRP received, with buy, sell, and later sell tax all at 0%. The LP-rug check returned NA: no liquidity position was minted into the pool over the last 9,000 blocks (0 mints seen), so no drain could be tested. The owner-trap check also returned NA: 31 known owner switches were searched in the bytecode, and none were found."
+  },
+  "0xa88594d404727625a9437c3f886c7643872296ae": {
+    "scan": {
+      "token": "0xA88594D404727625A9437C3f886C7643872296AE",
+      "isErc20": true,
+      "symbol": "WELL",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x722BcF6c16dAdcC29914E4E64290C46aa1406DE8",
+      "venue": "v3",
+      "poolFee": 10000,
+      "owner": "0x8b621804a7637b781e2BbD58e256a591F2dF7d51",
+      "implementation": "0xBe08A91ADe130aD61193bE2321ea06c4c39E124A",
+      "proxyAdmin": "0x8D7d2230A2d195F023588eDd13dBAd56dd69770F",
+      "proxyKind": "eip1967",
+      "topHolders": [
+        {
+          "address": "0xe66E3A37C3274Ac24FE8590f7D84A2427194DC17",
+          "balance": "1201860195490578603193315682"
+        },
+        {
+          "address": "0x89D0F320ac73dd7d9513FFC5bc58D1161452a657",
+          "balance": "219330887363825141906317915"
+        },
+        {
+          "address": "0xdC7810B47eAAb250De623F0eE07764afa5F71ED1",
+          "balance": "164199332369302721963319089"
+        },
+        {
+          "address": "0x18b0F4547A89fe4C5FE84F258BeA3601FA281e9f",
+          "balance": "107736741521000779763024575"
+        },
+        {
+          "address": "0x1985EA6E9c68E1C272d8209f3B478AC2Fdb25c87",
+          "balance": "79934196388001834223270397"
+        },
+        {
+          "address": "0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae",
+          "balance": "54642993443695975658477248"
+        },
+        {
+          "address": "0xe9005b078701e2A0948D2EaC43010D35870Ad9d2",
+          "balance": "25125681737085697749688195"
+        },
+        {
+          "address": "0x4B5c71082d027D16d2A146465d66f9EEC11634F6",
+          "balance": "16330762912921249920718260"
+        },
+        {
+          "address": "0x739120AdE7ED878FcA5bbDB806263a8258FE2360",
+          "balance": "12851887752540371589281422"
+        },
+        {
+          "address": "0xdaB36aB306E79355adb0a6839c9035e42053230E",
+          "balance": "10862060860332745401151766"
+        }
+      ]
+    },
+    "ids": [
+      "ownerTrap",
+      "honeypot",
+      "hiddenFee",
+      "lpRug"
+    ],
+    "verdicts": [
+      {
+        "probe": "ownerTrap",
+        "status": "PASS",
+        "title": "The owner holds 2 switches but the contract refused every call",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Calling pause(), mint(address,uint256) as 0x8b621804a7637b781e2BbD58e256a591F2dF7d51 reverted, so the switch is capped or gated by something the owner does not control",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "pause(), mint(address,uint256)",
+          "switchesPulled": "none",
+          "owner": "0x8b621804a7637b781e2BbD58e256a591F2dF7d51",
+          "ownerIsContract": "yes",
+          "implementation": "0xBe08A91ADe130aD61193bE2321ea06c4c39E124A",
+          "proxyAdmin": "0x8D7d2230A2d195F023588eDd13dBAd56dd69770F"
+        },
+        "txHashes": [
+          "0x62f09a4bd575906d9ebe7f92f5dab5d39a8a171edc80cb3b9dc73e082fb7bac6",
+          "0x8715c5101c54622c90e74675fff8ce99724fe1a9f021d7aaf32f70d55edb2bb2",
+          "0x236f05a32d0851db643909f724e7a678da337fa01fbe2718d75846cc1a529c29"
+        ],
+        "reason": "pause(): reverted; mint(address,uint256): reverted"
+      },
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "3,561.32 WELL",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0x62f09a4bd575906d9ebe7f92f5dab5d39a8a171edc80cb3b9dc73e082fb7bac6",
+          "0x3c2b4824ef4233922c405376fcfc005e73a4348dd043b8db1bca2303758e3ca5",
+          "0x54e6827554e9c9eab67607429a198e01c78724251c25ca4454e0cd1ccacf0ced",
+          "0xee6d6f8eb2eaeed40fcc894d93533208aed49f7e87ec73c9becc3c2e27578426"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "1,187.1 WELL",
+          "received": "1,187.1 WELL",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0x62f09a4bd575906d9ebe7f92f5dab5d39a8a171edc80cb3b9dc73e082fb7bac6",
+          "0xe0d53ece96823f58f4e28e648c62927ada2f63017ed4c1d50b66fb44e4a311b9",
+          "0x764327b6a94609d9bfe1051ec8cf7b2a913c54cb54e3c776dcfb1e08471a9b97",
+          "0x5f1d58085d8646ad9efd44c662a0a7639b215b40ea656db8e5d611315547a729"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No V3 position could be found to pull",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "No position with liquidity was minted into this pool in the last 9,000 blocks (0 mints seen)",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000",
+          "venue": "uniswap-v3",
+          "positionId": ""
+        },
+        "txHashes": []
+      }
+    ],
+    "narration": "WELL passed all executed checks. ownerTrap: pause() and mint(address,uint256) both reverted for owner 0x8b621804a7637b781e2BbD58e256a591F2dF7d51, so neither switch could be pulled (switchesSearched 31). honeypot: a buy of 3,561.32 WELL was sold successfully, and a transferred wallet also sold. hiddenFee: buy, sell, and a 1,187.1 WELL transfer all delivered 100% of quoted amounts (feePct, buyTaxPct, sellTaxPct, sellTaxLaterPct all 0%). lpRug returned NA: no V3 mint was found in the last 9,000 blocks (0 mints), so LP lock status could not be verified."
+  },
+  "0xbaa5cc21fd487b8fcc2f632f3f4e8d37262a0842": {
+    "scan": {
+      "token": "0xBAa5CC21fd487B8Fcc2F632f3F4E8D37262a0842",
+      "isErc20": true,
+      "symbol": "MORPHO",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x2F42Df4aF5312B492E9d7F7b2110D9c7bf2D9e4F",
+      "venue": "v3",
+      "poolFee": 3000,
+      "owner": "0xcBa28b38103307Ec8dA98377ffF9816C164f9AFa",
+      "implementation": "0xA860498f8A299526174b539fCc49F13CC082fB18",
+      "proxyKind": "eip1967",
+      "topHolders": [
+        {
+          "address": "0x6308204872BdB7432dF97b04B42443c714904F3E",
+          "balance": "5463792235564985971994536"
+        },
+        {
+          "address": "0xF977814e90dA44bFA03b6295A0616a897441aceC",
+          "balance": "1500000000000000000000000"
+        },
+        {
+          "address": "0xBaeD383EDE0e5d9d72430661f3285DAa77E9439F",
+          "balance": "1267229876614043586681207"
+        },
+        {
+          "address": "0x3304E22DDaa22bCdC5fCa2269b418046aE7b566A",
+          "balance": "627091468677920724855952"
+        },
+        {
+          "address": "0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae",
+          "balance": "557862319062126944504424"
+        },
+        {
+          "address": "0xB5F0b4aE66C14F7EFaA9aA1468E8FC536A3E288c",
+          "balance": "452548768435731391698935"
+        },
+        {
+          "address": "0x2043B296fFC6b2d3bf4A3F3167d2Afb3B0FBdbEE",
+          "balance": "53385385519677908119245"
+        },
+        {
+          "address": "0xd13Da05B9288BA4961973110594bD0fE3428791F",
+          "balance": "43213932910460398122728"
+        },
+        {
+          "address": "0x2F42Df4aF5312B492E9d7F7b2110D9c7bf2D9e4F",
+          "balance": "25902830970469888614237"
+        },
+        {
+          "address": "0x1985EA6E9c68E1C272d8209f3B478AC2Fdb25c87",
+          "balance": "25871780626878358092978"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug",
+      "ownerTrap"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "815.86 MORPHO",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0x3eff1b684048ace0db708c2bfc304b4af47e0b1675f5dfb4904b6370a52863a0",
+          "0xd14f2ab43fa92d64702f37e25b6f5a0f131ffe858e172ea160a380b6663f753b",
+          "0xc14560a219c6d42b365dcb2c50077564b645c38a47f339ba32296683fb20a005",
+          "0xd0ae637bda0f9de4842d99e084d37cb128005958f9b669a506c2cbf34fb6e129"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "271.95 MORPHO",
+          "received": "271.95 MORPHO",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0x3eff1b684048ace0db708c2bfc304b4af47e0b1675f5dfb4904b6370a52863a0",
+          "0xece2406eddf8869d1679ba7101dca9af38f7c2d5d80c586ac1df04b7a44f11ff",
+          "0xf1cb497bca8b110c04a5c0c571269d2c685ef203fda82bbb4e6d6098a5e086d7",
+          "0x065b3cca21017d7a1dc6aecbd31dbe326d1554a68ab7f4cc6df94fdc8ba062a0"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0x7b8D…88A5; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "62% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "62%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "37.42 WETH",
+          "holderValueAfter": "37.42 WETH",
+          "lpOwner": "0x7b8D33A136Df00Ed39EEE7c50EF35E3b3ac788A5",
+          "venue": "uniswap-v3",
+          "positionId": "5805246",
+          "lpHolderKind": "contract"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "PASS",
+        "title": "The owner holds a switch but the contract refused every call",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Calling mint(address,uint256) as 0xcBa28b38103307Ec8dA98377ffF9816C164f9AFa reverted, so the switch is capped or gated by something the owner does not control",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "mint(address,uint256)",
+          "switchesPulled": "none",
+          "owner": "0xcBa28b38103307Ec8dA98377ffF9816C164f9AFa",
+          "ownerIsContract": "yes",
+          "implementation": "0xA860498f8A299526174b539fCc49F13CC082fB18"
+        },
+        "txHashes": [
+          "0x3eff1b684048ace0db708c2bfc304b4af47e0b1675f5dfb4904b6370a52863a0",
+          "0x15cc5c0e2cad6d090239476bab3a42e692867f5997e8e8f909d5d74108fc497c"
+        ],
+        "reason": "mint(address,uint256): reverted"
+      }
+    ],
+    "narration": "Honeypot check: PASS — buying and selling both succeeded, including a sell from a transferee wallet (815.86 MORPHO bought, transferee sell succeeded).\n\nHidden fee check: PASS — 271.95 MORPHO sent equaled 271.95 MORPHO received; buy tax, sell tax, and later sell tax all measured 0%.\n\nLP rug check: NA — 62% of active liquidity is held by an unrecognized contract (0x7b8D…88A5), 0% burned; whether it's withdrawable depends on that contract's own code.\n\nOwner trap check: PASS — of 31 switches searched, only mint(address,uint256) was found, and calling it as the owner reverted; none were pulled."
+  },
+  "0x4f9fd6be4a90f2620860d680c0d4d5fb53d1a825": {
+    "scan": {
+      "token": "0x4F9Fd6Be4a90f2620860d680c0d4d5Fb53d1A825",
+      "isErc20": true,
+      "symbol": "AIXBT",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x47808DdBC91646b21B307FeFBaF7ee200B004CcC",
+      "venue": "v3",
+      "poolFee": 10000,
+      "owner": "0xE220329659D41B2a9F26E83816B424bDAcF62567",
+      "topHolders": [
+        {
+          "address": "0x76eC5A0D3632b2133d9f1980903305B62678Fbd3",
+          "balance": "73197571527400765537944314"
+        },
+        {
+          "address": "0xBaeD383EDE0e5d9d72430661f3285DAa77E9439F",
+          "balance": "28085792773117551107742024"
+        },
+        {
+          "address": "0xc8802fEaB2FaFb48B7d1aDe77e197002c210f391",
+          "balance": "24819220259636821900000074"
+        },
+        {
+          "address": "0x7464850CC1cFb54A2223229b77B1BCA2f888D946",
+          "balance": "21636455025877962438266894"
+        },
+        {
+          "address": "0xc80Afd311c9626528De66D86814770361Fe92416",
+          "balance": "19413184673503662410513056"
+        },
+        {
+          "address": "0x3304E22DDaa22bCdC5fCa2269b418046aE7b566A",
+          "balance": "17916609930900239897033503"
+        },
+        {
+          "address": "0x4e3ae00E8323558fA5Cac04b152238924AA31B60",
+          "balance": "17610533930711022608961365"
+        },
+        {
+          "address": "0xf1Fdc83c3A336bdbDC9fB06e318B08EadDC82FF4",
+          "balance": "13708943241222135803291836"
+        },
+        {
+          "address": "0xb334A61a6209F14b5fA5f1684a4eD7621f66e1eF",
+          "balance": "10955042113304914199759948"
+        },
+        {
+          "address": "0x0D37aF9D8AE74F35F3A38bD2a08FcB29890Ca6d2",
+          "balance": "7524896195482000000000000"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "ownerTrap",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,852.34 AIXBT",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0xe14b3983966cbc311411c2ae97f971e5a7f50cfbd182706a0048284c033ea73d",
+          "0x0120006c727962aa44591f39263a96811cd7eaedb5effcaf2498aecedfa1d351",
+          "0xbe6c376ee5da1a384dd549b052bea6573fa27ecc745e5eedf08b53850519ba6f",
+          "0xb62679af5d0c57ebd630ab381afed9c74faef9e8cc3e7f17aaa6c748fb4db1b9"
+        ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is locked/burned — no single-owner rug path",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Largest LP holder found controls only 100% of active liquidity",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0.2189 WETH",
+          "holderValueAfter": "0.2189 WETH",
+          "lpOwner": "0x9A868b97bAff5Fc3446E947F601Ac402400eA770",
+          "venue": "uniswap-v3",
+          "positionId": "5804324"
+        },
+        "txHashes": [
+          "0xa665c6aa2b60d5d9878d8b22e5fecbea2b24a0a6d968ab18d1702aaf9a219abd"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "617.44 AIXBT",
+          "received": "617.44 AIXBT",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0xe14b3983966cbc311411c2ae97f971e5a7f50cfbd182706a0048284c033ea73d",
+          "0x9418aefb963830e59308803445af686db9a3b10a5953a3a5f3497422b2099380",
+          "0xd18dc4abfedb36105f2a56b95160af7646e67019a5cd0c52cf89d5521f366bbb",
+          "0x761bf59a4d23014bd92ce9e98ccfe61d42530b46ff99797aaad0f2959960365a"
+        ]
+      }
+    ],
+    "narration": "AIXBT passed all four checks. Honeypot probe: buying and selling both succeeded, including a sell from a transferee wallet (1,852.34 AIXBT bought, transfer sell succeeded). Owner-trap probe was not applicable: 31 known owner switches were searched, none found, owner address is the zero address. LP-rug probe passed: largest LP holder controls 100% of active liquidity (0% burned), holder value unchanged at 0.2189 WETH before and after. Hidden-fee probe passed: 617.44 AIXBT sent and received, with buy tax, sell tax, and later sell tax all at 0%."
+  },
+  "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452": {
+    "scan": {
+      "token": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+      "isErc20": true,
+      "symbol": "wstETH",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x20E068D76f9E90b90604500B84c7e19dCB923e7e",
+      "venue": "v3",
+      "poolFee": 100,
+      "implementation": "0x69ce2505CE515C0203160450157366F927243309",
+      "proxyAdmin": "0x0E37599436974a25dDeEdF795C848d30Af46eaCF",
+      "proxyKind": "eip1967",
+      "topHolders": [
+        {
+          "address": "0x99CBC45ea5bb7eF3a5BC08FB1B7E56bB2442Ef0D",
+          "balance": "10639514448963164673080"
+        },
+        {
+          "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+          "balance": "6480853335659495948836"
+        },
+        {
+          "address": "0x52Aa899454998Be5b000Ad077a46Bbe360F4e497",
+          "balance": "2293572331958022555032"
+        },
+        {
+          "address": "0x2805B908a0F9CA58a2b3b7900341b4EBd0B994e9",
+          "balance": "1810898503365693175378"
+        },
+        {
+          "address": "0x627Fe393Bc6EdDA28e99AE648fD6fF362514304b",
+          "balance": "929595732462799331957"
+        },
+        {
+          "address": "0x861A2922bE165a5Bd41b1E482B49216b465e1B5F",
+          "balance": "811299767983814482312"
+        },
+        {
+          "address": "0xb125E6687d4313864e53df431d5425969c15Eb2F",
+          "balance": "300209123935310397765"
+        },
+        {
+          "address": "0x46e6b214b524310239732D51387075E0e70970bf",
+          "balance": "221690467184694451504"
+        },
+        {
+          "address": "0x1524a14C55f097bb54F0b24383f3ae3e3743804A",
+          "balance": "205394392613045889281"
+        },
+        {
+          "address": "0xA6385c73961dd9C58db2EF0c4EB98cE4B60651e8",
+          "balance": "136774638154836000950"
+        }
+      ]
+    },
+    "ids": [
+      "ownerTrap",
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "implementation": "0x69ce2505CE515C0203160450157366F927243309"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0.2814 wstETH",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0x1c4a602e0782d3cab6721ecfa43ca4e4e0f809acb13aa39900166d2e66d669ab",
+          "0x5474447f5987ec76b7c21c5b5a7b5602f411063d7e70ef59061266ee9694d9b0",
+          "0x9cda48027675fdba091f916d8cb124a5a9ee0cd4c8e8cce415049b5e4af121e9",
+          "0x3bf8953ac8dcf78d63375eec0f60cec38378ff64f3c500950fd4907ba96c7577"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0xD392…7470; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "1% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "1%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "17.46 WETH",
+          "holderValueAfter": "17.46 WETH",
+          "lpOwner": "0xD3923BeCCb6e1DdB048ed00a0A9Bd602d16B7470",
+          "venue": "uniswap-v3",
+          "positionId": "5803137",
+          "lpHolderKind": "contract"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "0.09382 wstETH",
+          "received": "0.09382 wstETH",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0x1c4a602e0782d3cab6721ecfa43ca4e4e0f809acb13aa39900166d2e66d669ab",
+          "0x32d9d15c71f45211dc075c90b4ee9c3dc70c8f417af38ec8a53c0d9f0dab1d37",
+          "0x6664a5cdcfe3aae9a14d39fb7cab2692b494518c9ff1aebde2793bd6e792c1a4",
+          "0xa92c7841a897dbe3a8f2394c682037019e1b10212c3ff20f90962aea5b704e75"
+        ]
+      }
+    ],
+    "narration": "No owner-switch was found after searching 31 known mechanisms (pause, blacklist, trading/fee setters, mint); owner address is 0x0000000000000000000000000000000000000000. Buy and sell both succeeded (0.2814 wstETH bought), including from a wallet that received a transfer. No hidden fees on buy, sell, or transfer: sent 0.09382 wstETH, received 0.09382 wstETH, feePct 0%, buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%. LP is 1% held by an unrecognized contract (0xD3923BeCCb6e1DdB048ed00a0A9Bd602d16B7470); whether it can be withdrawn is unverified. 0% of LP is burned."
+  },
+  "0x236aa50979d5f3de3bd1eeb40e81137f22ab794b": {
+    "scan": {
+      "token": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+      "isErc20": true,
+      "symbol": "tBTC",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x9fee7385a2979D15277C3467Db7D99EF1A2669D7",
+      "venue": "v3",
+      "poolFee": 3000,
+      "owner": "0x518385dd31289F1000fE6382b0C65df4d1Cd3bfC",
+      "implementation": "0x41C9b5639E3F2F6C61e9B78b2c6FF3746E79d91A",
+      "proxyAdmin": "0x1293a54e160D1cd7075487898d65266081A15458",
+      "proxyKind": "eip1967",
+      "topHolders": [
+        {
+          "address": "0xb125E6687d4313864e53df431d5425969c15Eb2F",
+          "balance": "16992038220582557920"
+        },
+        {
+          "address": "0xbcFFB4B3beADc989Bd1458740952aF6EC8fBE431",
+          "balance": "6156200682804431548"
+        },
+        {
+          "address": "0xfac15A759d0F887Bc7F5ab874491258CF6EC8acE",
+          "balance": "4764134429025569339"
+        },
+        {
+          "address": "0xf81e1a62cBfA487E807044618661bFD4802B4982",
+          "balance": "3366572519093195256"
+        },
+        {
+          "address": "0x6e53131F68a034873b6bFA15502aF094Ef0c5854",
+          "balance": "2169557970910316357"
+        },
+        {
+          "address": "0xA33f162da19C7273BA1205BFD9D4340dA2446E3a",
+          "balance": "2006153079128202613"
+        },
+        {
+          "address": "0x138aceE5573fA09e7F215965ff60898cc33c6330",
+          "balance": "1525734951051212950"
+        },
+        {
+          "address": "0x488d6ea6064eEE9352fdCDB7BC50d98A7fF3AD4E",
+          "balance": "1445698686649856823"
+        },
+        {
+          "address": "0xEb58703922961813C19Fa755E83F1396FF9c99B0",
+          "balance": "759960671807866168"
+        },
+        {
+          "address": "0x2722C8f9B5E2aC72D1f225f8e8c990E449ba0078",
+          "balance": "592413367237808477"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug",
+      "ownerTrap"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0.0009793 tBTC",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0xe5d838905e10311d8e015973a20d0be5f74e3a6365c60d7d46298b8de31eeb03",
+          "0xcfcf8c7e52680e848973e67c6449121e547b8e3dbe6c62f2c5e2981c9be488df",
+          "0xad16ed52a27e822597a574144966d8c16c164380edb70521286aff3339146263",
+          "0x53f3c501ba791c0149853af0fe65cba6f6736259861dfa16005047450e43d777"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "0.0003264 tBTC",
+          "received": "0.0003264 tBTC",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0xe5d838905e10311d8e015973a20d0be5f74e3a6365c60d7d46298b8de31eeb03",
+          "0xcf84aa020e711818dbbb1f7d34bfed68f49d3c45094eab63bc6016e0478b7aab",
+          "0x051c0971d59937ab4624721adf78381cfc5f629be1af98ce34c25649c74e24d0",
+          "0x09dfdb5e27bbc2b81c7b64a39118800268c74c70eef65e4d255f328495d7656b"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No V3 position could be found to pull",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "No position with liquidity was minted into this pool in the last 9,000 blocks (0 mints seen)",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000",
+          "venue": "uniswap-v3",
+          "positionId": ""
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "PASS",
+        "title": "The owner holds 2 switches but the contract refused every call",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Calling pause(), mint(address,uint256) as 0x518385dd31289F1000fE6382b0C65df4d1Cd3bfC reverted, so the switch is capped or gated by something the owner does not control",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "pause(), mint(address,uint256)",
+          "switchesPulled": "none",
+          "owner": "0x518385dd31289F1000fE6382b0C65df4d1Cd3bfC",
+          "ownerIsContract": "yes",
+          "implementation": "0x41C9b5639E3F2F6C61e9B78b2c6FF3746E79d91A",
+          "proxyAdmin": "0x1293a54e160D1cd7075487898d65266081A15458"
+        },
+        "txHashes": [
+          "0xe5d838905e10311d8e015973a20d0be5f74e3a6365c60d7d46298b8de31eeb03",
+          "0xfd1852e44d200915cae234ab5ffb1f344a1a40e07fdad4231efd8c7a877da6c5",
+          "0x57b8f0615c43ba471c450c0b0e84deb2eba1553dfd1245dc3d1f70d047623b9e"
+        ],
+        "reason": "pause(): reverted; mint(address,uint256): reverted"
+      }
+    ],
+    "narration": "Token passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (bought amount 0.0009793 tBTC). No hidden fees were found on buy, sell, or transfer — 0.0003264 tBTC sent and received in full, with 0% fee, buy tax, sell tax, and later sell tax. The LP-rug probe was not applicable: no V3 position was found (0 mints in the last 9,000 blocks). Owner trap check passed: of 31 switches searched, pause() and mint(address,uint256) were found but both reverted, so none were pulled."
+  },
+  "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42": {
+    "scan": {
+      "token": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+      "isErc20": true,
+      "symbol": "EURC",
+      "decimals": 6,
+      "hasPool": true,
+      "poolAddress": "0x260441e9574c0633c70c5cFF3A47d75dC9bC3E22",
+      "venue": "v3",
+      "poolFee": 3000,
+      "owner": "0xC25A042Ae1a6350F4236139150EA6efF4f7D9B51",
+      "implementation": "0x2Ce6311ddAE708829bc0784C967b7d77D19FD779",
+      "proxyAdmin": "0x4fa3c7461bA47Ff34D4033EbAa30525C939991e1",
+      "proxyKind": "zos",
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug",
+      "ownerTrap"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1.87 EURC",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0xe45e9568633e7ee9cbe684531a3d2b222d058b07ad87934ed8af7b8d219980f7",
+          "0x76558def7f1034361c8dbd6e756f1032e179b60ca554d93f40424c1f5e3d3302",
+          "0xa6318d477fa603c8a7303cb1ad78739d9ab71df3b6687b768de46a11114dd77b",
+          "0x973f8c4b921429dcd4ba1757fd3ae3a8e6544fb6c0012edc33a5f0f4fa25891a"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "0.6246 EURC",
+          "received": "0.6246 EURC",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0xe45e9568633e7ee9cbe684531a3d2b222d058b07ad87934ed8af7b8d219980f7",
+          "0x3c9be4d0535e7cf82b20afa9f7bb744af0ecf039c92d9c32529af8bec05861a2",
+          "0xf712715bee31c44cab490f81282a79ea144631026c7eea169e5628cc2957a75f",
+          "0xad96e3620ec1050e954f64eae3e742c7db3c872afca7dce8ceece9e31fd3c7b7"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No V3 position could be found to pull",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "No position with liquidity was minted into this pool in the last 9,000 blocks (0 mints seen)",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000",
+          "venue": "uniswap-v3",
+          "positionId": ""
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "FAIL",
+        "title": "The proxy admin replaced the token's code and the sell stopped working",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Impersonating the proxy admin 0x4fa3c7461bA47Ff34D4033EbAa30525C939991e1, Sidik pointed the proxy at a contract that reverts everything, and the same sell that returned 0.000994 WETH moments earlier reverted",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "pause(), blacklist(address), mint(address,uint256)",
+          "switchesPulled": "upgradeTo(address)",
+          "owner": "0xC25A042Ae1a6350F4236139150EA6efF4f7D9B51",
+          "implementation": "0x2Ce6311ddAE708829bc0784C967b7d77D19FD779",
+          "proxyAdmin": "0x4fa3c7461bA47Ff34D4033EbAa30525C939991e1",
+          "proceedsBefore": "0.000994 WETH",
+          "proceedsAfter": "reverted"
+        },
+        "txHashes": [
+          "0xe45e9568633e7ee9cbe684531a3d2b222d058b07ad87934ed8af7b8d219980f7",
+          "0x125b9a92a0ba6a606fee7db47a556d780c3ee1ff6904a1364f138f11fcbbec0c",
+          "0xeacf610c89dac69f01790758b5caf464a24b6010ed77ed935ed549c043086275",
+          "0x7d9193bd94b9b97d8cafb82dcc16c1494f74c96f741fa6f4f8136db00c080ec8"
+        ],
+        "reason": "every call into the token reverts after the upgrade (The contract function \"balanceOf\" reverted.)"
+      }
+    ],
+    "narration": "Buy and sell both succeeded, with a transferee sell also working (honeypot: PASS). No hidden fees: sent 0.6246 EURC, received 0.6246 EURC, feePct 0%, buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0% (hiddenFee: PASS). LP rug check was NA: no mints found in the last 9,000 blocks (0 mints seen), ownerLpPct 0%, burnedLpPct 0%. Critically, ownerTrap FAILED: the proxy admin 0x4fa3c7461bA47Ff34D4033EbAa30525C939991e1 upgraded the implementation via upgradeTo(address), and a sell that had returned 0.000994 WETH then reverted, with balanceOf reverting afterward."
+  },
+  "0x1111111111166b7fe7bd91427724b487980afc69": {
+    "scan": {
+      "token": "0x1111111111166b7FE7bd91427724B487980aFc69",
+      "isErc20": true,
+      "symbol": "ZORA",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xA0Ca5bEbC42cDbf3623B1C09206Ae4e3975B0FC7",
+      "venue": "v3",
+      "poolFee": 3000,
+      "topHolders": []
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug",
+      "ownerTrap"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "23,674.48 ZORA",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0x7b3c036545d932fec45f8a205adbd3b1e20baa99f1ca462b19d5f3466905c55c",
+          "0x3111770a594eb2474f56e67afd2e885214321adb2c5f45492d2a9043271b047c",
+          "0x7ea86417f7439ea92a0047dfb7c67846835c5f833d04ef9b509e47e9449090df",
+          "0x3e863676c6bc8270d8a53ec0e48a7bedd49912b63f7493fd0f83fb3f01c65775"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "7,891.49 ZORA",
+          "received": "7,891.49 ZORA",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0x7b3c036545d932fec45f8a205adbd3b1e20baa99f1ca462b19d5f3466905c55c",
+          "0xbc6da3a004a8ec6f29b29dc98d539a7d5e872647055e72662c216860989993c4",
+          "0x94c7cff762834232a5b23cccd3b29f3e73941002ddd7720a0f6c3e3f9238e9f1",
+          "0x2442e0709a581aaf07513694eb1fbc7188061ae95f6c928f0ddb8f14a2dade2c"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "LP held by contract 0x4D84…3122; pulling it needs that contract's own logic",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "22% of active liquidity is held by a contract Sidik does not recognise; whether it can be withdrawn depends on that contract's code",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "22%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x4D840d8ff3fc283401d3F366d372365173523122",
+          "venue": "uniswap-v3",
+          "positionId": "5800619",
+          "lpHolderKind": "contract"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "3 privileged-looking functions found that Sidik does not operate",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches and found none of them. It does carry CLOCK_MODE(), LOCK8605463013(), clock() — named through the 4byte signature database, not operated, so what they do to a holder is unproven.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000",
+          "privilegedNotOperated": "CLOCK_MODE(), LOCK8605463013(), clock()"
+        },
+        "txHashes": [],
+        "applicable": false
+      }
+    ],
+    "narration": "Token passes both trading probes: buy/sell succeeded (23,674.48 ZORA bought, sold fine, including from a transferee wallet), and no hidden fees were found (buyTaxPct 0%, sellTaxPct 0%, sellTaxLaterPct 0%; 7,891.49 ZORA sent and received in full on transfer).\n\nTwo checks are not applicable/unresolved. LP: 22% of active liquidity sits in an unrecognized contract (0x4D84…3122, Uniswap v3 position 5800619); whether it can be withdrawn depends on that contract's own code. Owner traps: none of 31 known owner switches were found; three unoperated functions (CLOCK_MODE(), LOCK8605463013(), clock()) exist but their effects are unproven. Owner address is the zero address."
+  },
+  "0xb6fe221fe9eef5aba221c348ba20a1bf5e73624c": {
+    "scan": {
+      "token": "0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c",
+      "isErc20": true,
+      "symbol": "rETH",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x9e13996A9f5a9870C105D7e3C311848273740e98",
+      "venue": "v3",
+      "poolFee": 500,
+      "topHolders": [
+        {
+          "address": "0xCB1DaCd30638ae38F2B94eA64F066045B7D45f44",
+          "balance": "699150349232904759469"
+        },
+        {
+          "address": "0xbA1333333333a1BA1108E8412f11850A5C319bA9",
+          "balance": "68075635372780949315"
+        },
+        {
+          "address": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
+          "balance": "22290185399150314877"
+        },
+        {
+          "address": "0x9e13996A9f5a9870C105D7e3C311848273740e98",
+          "balance": "12798371034925860736"
+        },
+        {
+          "address": "0x587aC2d1F465099811FdD0C2072B4Fd819092Ad5",
+          "balance": "4449251778503823895"
+        },
+        {
+          "address": "0xb8866732424AcDdd729C6fcf7146b19bFE4A2e36",
+          "balance": "337154002458406645"
+        },
+        {
+          "address": "0x39DC3f31539B0C68C168C8F74b012024eaf6F636",
+          "balance": "120057871907819759"
+        },
+        {
+          "address": "0x8d4C7fa1c00683e265E646A18DBE88049fC284EC",
+          "balance": "72268059176719322"
+        },
+        {
+          "address": "0x7cC822Eb8341fe29A1B1A400d751eF7595752E53",
+          "balance": "20138767251666854"
+        },
+        {
+          "address": "0xcb1F3E1A6BB8A0e2D97bDC9d48DB093B2C0095f9",
+          "balance": "18599046032260811"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "ownerTrap",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0.3256 rETH",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0xea4fe3339808a1f97718fe43b928aac92548c580938901bec232531fcd2d5763",
+          "0x7ec6562389a8480c223f88c4791a481455f814ca10cc9aa7ff64f0d1eff32beb",
+          "0x816345f3cad7d9b2c106be18d15f4965163a533e6d375c2a87337db12bb2d6d0",
+          "0x82ec8e8f2a85f67e0cdc310ab667712432132f8fc6607a352d127bd6f012d835"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No V3 position could be found to pull",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "No position with liquidity was minted into this pool in the last 9,000 blocks (0 mints seen)",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000",
+          "venue": "uniswap-v3",
+          "positionId": ""
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "The switch exists and Sidik could not establish who is allowed to pull it",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "The contract exposes no owner() to read, so there was no privileged address to impersonate. Calling mint(address,uint256) from an unrelated address reverted every time, which rules out only that anyone can",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "mint(address,uint256)",
+          "switchesPulled": "none",
+          "owner": "0x00000000000000000000000000000000005A1Dec"
+        },
+        "txHashes": [
+          "0xea4fe3339808a1f97718fe43b928aac92548c580938901bec232531fcd2d5763",
+          "0xfe7e25dbc686cab98957a9070ff7ef2e232f535fe0dede3324d6308e057070d2"
+        ],
+        "reason": "mint(address,uint256): reverted"
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "0.1085 rETH",
+          "received": "0.1085 rETH",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0xea4fe3339808a1f97718fe43b928aac92548c580938901bec232531fcd2d5763",
+          "0x1dbd2d1ea9ad67f0d686f91030b18efc803dc876613a1aca3319f1d9536f5cb7",
+          "0xcc50c904cdf5120a424f24bf4d5a5fa9e62c35bc8f6198f370c1718becff1233",
+          "0xa95642195262c145c6286fe344341ccc0c05d500c64e73a45d26d3556033af93"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS — buying and selling both succeeded (bought 0.3256 rETH), and a transferee wallet also sold successfully.\n\nHidden fee check: PASS — 0.1085 rETH sent and received on buy/sell, 0% fee, 0% buy tax, 0% sell tax, 0% later sell tax; full transfer recipient got 100%.\n\nLP rug check: NA — no V3 position was found; 0 mints seen in the last 9,000 blocks, ownerLpPct 0%, burnedLpPct 0%.\n\nOwner trap check: NA — no owner() function exists; among 31 switches searched, only mint(address,uint256) was found, and calling it from an unrelated address reverted every time, so no privileged puller was confirmed."
+  },
+  "0x0fd7a301b51d0a83fcaf6718628174d527b373b6": {
+    "scan": {
+      "token": "0x0fD7a301B51d0A83FCAf6718628174D527B373b6",
+      "isErc20": true,
+      "symbol": "LUM",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x717358A47AC99f3Cd233e723be331756b3951164",
+      "venue": "v3",
+      "poolFee": 10000,
+      "topHolders": [
+        {
+          "address": "0x717358A47AC99f3Cd233e723be331756b3951164",
+          "balance": "126258066909413813538881"
+        },
+        {
+          "address": "0x80FDA26eEf8eAEfBbB2c75b84bF351c99c2a6D47",
+          "balance": "10063817269692374370969"
+        },
+        {
+          "address": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
+          "balance": "6839556287998897325199"
+        },
+        {
+          "address": "0x0acfBC656ba2C0d2AAbb4E8efAd3a45C2569C6fD",
+          "balance": "2600816846362787342030"
+        },
+        {
+          "address": "0x95D33fC7daa4776041c1929A87204aeb444773d3",
+          "balance": "1015937726003973307969"
+        },
+        {
+          "address": "0x66D4198154511366d0a43a92482798c91cfc7122",
+          "balance": "210778039722179571044"
+        },
+        {
+          "address": "0x6BdaC2AAD0605d59e4cb97701C38D0E3eE1a3017",
+          "balance": "123750117534966151564"
+        },
+        {
+          "address": "0xbF06d359A283787752B0C3bB4b1f15416B86f2b8",
+          "balance": "30254932679077860958"
+        },
+        {
+          "address": "0xb8c72bBDF48ba1C2d3EC18BE2CA134a879d50AA1",
+          "balance": "17448832593052723163"
+        },
+        {
+          "address": "0x6580240c312C31dAca051DF41D236DDE89AC0DEe",
+          "balance": "5720652230397427984"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "lpRug",
+      "ownerTrap",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "2,389.67 LUM",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0x328dae98387c782a84aecddd826814c40ce0ba1cd808bcbd4cd3c7b2ee04e6a3",
+          "0xa21f2fc30523a6d2d92fa5688f049366840bd17192ba68dc27472721695e5743",
+          "0x596f854e8c93d89eabd4868a86406fd13e071a95ba1b0431315ebd90d0e560c7",
+          "0x6b1073883b00cd1b35212f1ad9581cc80a97df3b617ceef0c879bc6777126c4e"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No V3 position could be found to pull",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "No position with liquidity was minted into this pool in the last 9,000 blocks (0 mints seen)",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000",
+          "venue": "uniswap-v3",
+          "positionId": ""
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "796.55 LUM",
+          "received": "796.55 LUM",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0x328dae98387c782a84aecddd826814c40ce0ba1cd808bcbd4cd3c7b2ee04e6a3",
+          "0xed4b232368094eb4848c313e48d55140345328461d6651e17d74853fd6723918",
+          "0x1e0216ecca988fb2f97693ac13021c5e82ffd19d48e10a977d1c9d11acff7959",
+          "0x65e9ab693c47770be9b5035bbe023f58c344b1485318ed156279e6046e55b16e"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS — buying and selling both succeeded, including a sell from a transferee wallet (bought 2,389.67 LUM).\n\nLP rug check: NA — no V3 position found; 0 mints seen in the last 9,000 blocks, ownerLpPct 0%, burnedLpPct 0%.\n\nOwner trap check: NA — searched 31 known owner switches (pause, blacklist, trading/fee setters, mint) and found none; owner address is the zero address.\n\nHidden fee check: PASS — buy, sell, and full-balance transfer all delivered 100% of amounts, with buyTaxPct 0%, sellTaxPct 0%, and sellTaxLaterPct 0% (796.55 LUM sent and received)."
+  },
+  "0x2da56acb9ea78330f947bd57c54119debda7af71": {
+    "scan": {
+      "token": "0x2Da56AcB9Ea78330f947bD57C54119Debda7AF71",
+      "isErc20": true,
+      "symbol": "Mog",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0xC5C5F65927a4011864fcB261D7499267e101118F",
+      "venue": "v3",
+      "poolFee": 10000,
+      "topHolders": [
+        {
+          "address": "0xBaeD383EDE0e5d9d72430661f3285DAa77E9439F",
+          "balance": "5141411985880348757418841335968"
+        },
+        {
+          "address": "0x4e3ae00E8323558fA5Cac04b152238924AA31B60",
+          "balance": "2148632892979323006069412087880"
+        },
+        {
+          "address": "0x1985EA6E9c68E1C272d8209f3B478AC2Fdb25c87",
+          "balance": "1349159871322728744483763189849"
+        },
+        {
+          "address": "0x4B5c71082d027D16d2A146465d66f9EEC11634F6",
+          "balance": "903605366922234392114819277100"
+        },
+        {
+          "address": "0x83190636c344Cf1220ffcBFc0C1198f7867b3667",
+          "balance": "275946323040260388862141556968"
+        },
+        {
+          "address": "0xD34EA7278e6BD48DefE656bbE263aEf11101469c",
+          "balance": "208892207250239343535445605795"
+        },
+        {
+          "address": "0xA6D44D25f22115e7B88646C5aCaF0370753eb1E9",
+          "balance": "124389811882807609228427666679"
+        },
+        {
+          "address": "0x4A311ac4563abc30E71D0631C88A6232C1309ac5",
+          "balance": "113242954812585171923761551483"
+        },
+        {
+          "address": "0xB7131fC8Cdc43060A6210257f537DBA5FcaE6aEd",
+          "balance": "26348537340564716373180305823"
+        },
+        {
+          "address": "0xC5C5F65927a4011864fcB261D7499267e101118F",
+          "balance": "23190247800371118650794885668"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "hiddenFee",
+      "lpRug",
+      "ownerTrap"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "48,981,716.52 Mog",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0x4134da68674a2fc33919c423d09795f31351a787c513c46e085cff7426427774",
+          "0xc67eb408bf382adb4ba5ac46c9337e0a2c8232918f5540b58a655284749cf859",
+          "0xd62fb45e517bd1e34a2fee52a751fc6e57be0b2f9d1c9cc9c5b243509f474657",
+          "0xfe36783951e35290eef66f83537292c5e9b8fbb55e5f26f78b5ae686927aec3d"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "16,327,238.84 Mog",
+          "received": "16,327,238.84 Mog",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0x4134da68674a2fc33919c423d09795f31351a787c513c46e085cff7426427774",
+          "0x5abd59dac2a022632383893023f8bf3cb34a90b1688af0d22069430f78c803c4",
+          "0x06e93b2e4bd0734691ad400a2fb471b751fb5ed466c78b3ac86148d07aafb186",
+          "0xf9ea289ea3764b70b8cfddff2504692d7c7f8c5434006666180ecc1297582265"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "No V3 position could be found to pull",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "No position with liquidity was minted into this pool in the last 9,000 blocks (0 mints seen)",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "0 WETH",
+          "holderValueAfter": "0 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000",
+          "venue": "uniswap-v3",
+          "positionId": ""
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "The switch exists and Sidik could not establish who is allowed to pull it",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "The contract exposes no owner() to read, so there was no privileged address to impersonate. Calling mint(address,uint256) from an unrelated address reverted every time, which rules out only that anyone can",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "mint(address,uint256)",
+          "switchesPulled": "none",
+          "owner": "0x00000000000000000000000000000000005A1Dec"
+        },
+        "txHashes": [
+          "0x4134da68674a2fc33919c423d09795f31351a787c513c46e085cff7426427774",
+          "0x785b45b03b6d573efd57753be360cfeda56d2444745063c14f103439f18a1473"
+        ],
+        "reason": "mint(address,uint256): reverted"
+      }
+    ],
+    "narration": "Mog token verdicts: Honeypot probe PASSED — a buy of 48,981,716.52 Mog was sold successfully, and a transferee wallet also sold. HiddenFee probe PASSED — 16,327,238.84 Mog sent and received matched exactly, with buyTax 0%, sellTax 0%, sellTaxLater 0%, feePct 0%. LpRug probe returned NA — no V3 liquidity position was found (0 mints in the last 9,000 blocks), so draining could not be assessed. OwnerTrap probe returned NA — no owner() function exists; calling mint(address,uint256) from an unrelated address reverted every time, so privileged control couldn't be confirmed or ruled out."
+  },
+  "0xfa980ced6895ac314e7de34ef1bfae90a5add21b": {
+    "scan": {
+      "token": "0xfA980cEd6895AC314E7dE34Ef1bFAE90a5AdD21b",
+      "isErc20": true,
+      "symbol": "PRIME",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x0C8Fed5DD65542cA5f0ADD1AcAb14C2e470c9110",
+      "venue": "v3",
+      "poolFee": 3000,
+      "owner": "0xb11c0189C5E2b4aCc797e893447bAb452F38811E",
+      "topHolders": [
+        {
+          "address": "0x75a44A70cCb0E886E25084Be14bD45af57915451",
+          "balance": "587164759454839403176026"
+        },
+        {
+          "address": "0x0C8Fed5DD65542cA5f0ADD1AcAb14C2e470c9110",
+          "balance": "181599517739021901250165"
+        },
+        {
+          "address": "0xAc00f29BBD5fe405575749Cd2F9E340Ca1bDF645",
+          "balance": "28106061797018107453714"
+        },
+        {
+          "address": "0x3bC5180d5439B500F381f9A46F15dd6608101671",
+          "balance": "19474245045737668089280"
+        },
+        {
+          "address": "0x87Cd18069B6547a0E88b6155DD657E71779500eA",
+          "balance": "16917587379079492986498"
+        },
+        {
+          "address": "0xaC91724c8024DAcebcb3f3DD9756CAD389708DCD",
+          "balance": "12520900000000000000000"
+        },
+        {
+          "address": "0xd13Da05B9288BA4961973110594bD0fE3428791F",
+          "balance": "11097728950405907621373"
+        },
+        {
+          "address": "0x6ee62Fb521531b587e79262d759dEc8CE4FEF341",
+          "balance": "4730748135782079099415"
+        },
+        {
+          "address": "0xbD43cc24898cC8D17e5e596877C4Ad3FE72eB0c1",
+          "balance": "2223543003840705868316"
+        },
+        {
+          "address": "0x76314BD44d1531b49422E350DC38b15DC8F27c52",
+          "balance": "462752710405584826448"
+        }
+      ]
+    },
+    "ids": [
+      "honeypot",
+      "ownerTrap",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "1,575.2 PRIME",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0x1770e26c737bacd9bae578caca601da738f72d849523c10e29e64ebb0e51d1a8",
+          "0x22c558488c52fb574bda77508a3682cc62bd518b730edb8de092ab6330db7061",
+          "0x14524107caf9b9519a1af16a88de9f99ce28bc2a129e970d5e8f35ac620d7ecd",
+          "0x5e0b371ae370e2b32af3e877f009783f1b4db55a6aef26459dfeec2922a8abb0"
+        ]
+      },
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "No owner switch Sidik can operate is present in this bytecode",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "Searched the deployed bytecode for 31 known owner switches -- pause, blacklist, trading and fee setters, mint -- and found none. Privileged code may still exist under a name Sidik does not know.",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "none",
+          "switchesPulled": "none",
+          "owner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": [],
+        "applicable": false
+      },
+      {
+        "probe": "lpRug",
+        "status": "NA",
+        "title": "The largest V3 position found holds 0% of active liquidity — too little to test a rug",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "Only 0% of LP is burned; the largest holder found controls just 0%, too little to test a rug",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "7.23 WETH",
+          "holderValueAfter": "7.23 WETH",
+          "lpOwner": "0xd59A8DC1948EFB6bF3dC56C6A5C0A20f37548Fb0",
+          "venue": "uniswap-v3",
+          "positionId": "5807357"
+        },
+        "txHashes": [
+          "0x24469f33685c59bc18d15d4e6740f04c901433192581b709b12dd2bc14a8c10c"
+        ]
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "525.06 PRIME",
+          "received": "525.06 PRIME",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0x1770e26c737bacd9bae578caca601da738f72d849523c10e29e64ebb0e51d1a8",
+          "0xbebe751c9b7f8e24026f2d772bca18630ed6d2f881e4c7cd75e6309ba2f9cebf",
+          "0xd21a48774fb84ddb4fa7032aff352f21efb6b3acf676bcc34bb5735fac46fac9",
+          "0xc7fb32e21e1a5f6ff4ba0f124e4a16af4c93f828fa76bb4cf106331f721e3b8f"
+        ]
+      }
+    ],
+    "narration": "Honeypot check: PASS — buying and selling both succeeded, including from a transferee wallet (1,575.2 PRIME bought, transferee sell succeeded).\n\nOwner trap: NA — 31 known owner switches were searched for in the bytecode and none were found; owner address is 0x0000000000000000000000000000000000000000.\n\nLP rug: NA — largest LP position (id 5807357) holds 0% of active liquidity, 0% burned, too little to test a rug; holder value stayed at 7.23 WETH before and after.\n\nHidden fee: PASS — buy, sell, and transfer all delivered 100% of amounts (525.06 PRIME sent and received), with 0% fee, buy tax, and sell tax."
+  },
+  "0x820c137fa70c8691f0e44dc420a5e53c168921dc": {
+    "scan": {
+      "token": "0x820C137fa70C8691f0e44Dc420a5e53c168921Dc",
+      "isErc20": true,
+      "symbol": "USDS",
+      "decimals": 18,
+      "hasPool": true,
+      "poolAddress": "0x912fF30298f0713E56809e567F8074fe195Cb34d",
+      "venue": "v2",
+      "implementation": "0x191CD41681a3fE15aa15a0bec415821CE24CAd5e",
+      "proxyKind": "eip1967",
+      "topHolders": [
+        {
+          "address": "0x1601843c5E9bC251A3272907010AFa41Fa18347E",
+          "balance": "1138002316588600637832441"
+        },
+        {
+          "address": "0xDdd2dE45EDeD93453eB2deb9C061eD1C5eDB8AAA",
+          "balance": "7103574682089254403686"
+        },
+        {
+          "address": "0x3b42964f167702bD2CE18E7703FE3bD328AFF93C",
+          "balance": "6274837372684556401289"
+        },
+        {
+          "address": "0x81057171115672ac7D08bbEbB04481E19AA0bfEb",
+          "balance": "5828421504904092141845"
+        },
+        {
+          "address": "0x5d47182B424E014CA25A08e37b38dF5874C1cc75",
+          "balance": "1719240515357802764146"
+        },
+        {
+          "address": "0xA441378a1CB4DF371535296e539a1E0deF6924e4",
+          "balance": "1450375551864814247372"
+        },
+        {
+          "address": "0xb6419c6C2e60c4025D6D06eE4F913ce89425a357",
+          "balance": "1241765844194917385624"
+        },
+        {
+          "address": "0xEd1fE4FdEf4c4df2501Cb251AB247f324646D7A0",
+          "balance": "789299329246519651115"
+        },
+        {
+          "address": "0x498581fF718922c3f8e6A244956aF099B2652b2b",
+          "balance": "302857879744442029824"
+        },
+        {
+          "address": "0x97219Ef57A528c1f28A07A8c028b13C25464AEA9",
+          "balance": "275000000000000000000"
+        }
+      ]
+    },
+    "ids": [
+      "ownerTrap",
+      "honeypot",
+      "lpRug",
+      "hiddenFee"
+    ],
+    "verdicts": [
+      {
+        "probe": "ownerTrap",
+        "status": "NA",
+        "title": "The switch exists and Sidik could not establish who is allowed to pull it",
+        "rows": [
+          {
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "The contract exposes no owner() to read, so there was no privileged address to impersonate. Calling mint(address,uint256) from an unrelated address reverted every time, which rules out only that anyone can",
+            "ok": false
+          }
+        ],
+        "numbers": {
+          "switchesSearched": "31",
+          "switchesFound": "mint(address,uint256)",
+          "switchesPulled": "none",
+          "owner": "0x00000000000000000000000000000000005A1Dec",
+          "implementation": "0x191CD41681a3fE15aa15a0bec415821CE24CAd5e"
+        },
+        "txHashes": [
+          "0x286f085ad7295f84dcf2b961f0d678fcf05341ccb16d7a33054bf9d0040fbe2b",
+          "0xce0327f11b563d20b44908a8a39e250bee180bd03245fa370756126ff3c3d24a"
+        ],
+        "reason": "mint(address,uint256): reverted"
+      },
+      {
+        "probe": "honeypot",
+        "status": "PASS",
+        "title": "Not a honeypot — buy and sell both succeed",
+        "rows": [
+          {
+            "label": "Sell after buying",
+            "claimed": "Freely tradable",
+            "proven": "Sell succeeded",
+            "ok": true
+          },
+          {
+            "label": "Sell from a wallet that received a transfer",
+            "claimed": "Anyone holding it can sell",
+            "proven": "Sold",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "boughtAmount": "0.000009245 USDS",
+          "transfereeSell": "succeeded"
+        },
+        "txHashes": [
+          "0x286f085ad7295f84dcf2b961f0d678fcf05341ccb16d7a33054bf9d0040fbe2b",
+          "0xb3bb9e92fa73717e1ac9009dd99c36b591e18cbd310c7e2e49e4477d3828b543",
+          "0xb1f167e603188490b453c022b1fd0af9b032fc289dc48acfe835a51e056f5c7a",
+          "0x94a1822468acfa24edbbcf594f23e62ef2439321c217eb54d81a5bee6d4b6896"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP is burned — 100% of it cannot be withdrawn by anyone",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "100% of LP supply sits at a burn address, beyond any owner's reach",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "0%",
+          "burnedLpPct": "100%",
+          "holderValueBefore": "0.00000000838 WETH",
+          "holderValueAfter": "0.00000000838 WETH",
+          "lpOwner": "0x0000000000000000000000000000000000000000"
+        },
+        "txHashes": []
+      },
+      {
+        "probe": "hiddenFee",
+        "status": "PASS",
+        "title": "No hidden fee on buying, selling or transferring",
+        "rows": [
+          {
+            "label": "Buy through the pool",
+            "claimed": "You receive the full quoted amount",
+            "proven": "Received the full quoted amount",
+            "ok": true
+          },
+          {
+            "label": "Sell back through the pool",
+            "claimed": "You receive the full quoted proceeds",
+            "proven": "Proceeds matched the quote",
+            "ok": true
+          },
+          {
+            "label": "Transfer the full balance",
+            "claimed": "Recipient gets 100%",
+            "proven": "Recipient got 100%",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "sent": "0.000003081 USDS",
+          "received": "0.000003081 USDS",
+          "feePct": "0%",
+          "buyTaxPct": "0%",
+          "sellTaxPct": "0%",
+          "sellTaxLaterPct": "0%"
+        },
+        "txHashes": [
+          "0x286f085ad7295f84dcf2b961f0d678fcf05341ccb16d7a33054bf9d0040fbe2b",
+          "0x717361036b6c84cbdf6669461928c51d419279b3864ce35841d8dab84bd2a37a",
+          "0x470d0bc368934b42df62febcc8353badf0710a578f21c6d48bda9e5d290bfaaa",
+          "0xa4a7551dd8e97a9230991f331026770f499242f0bff746adf61c63750413c9c9"
+        ]
+      }
+    ],
+    "narration": "**Token-safety verdict summary:**\n\nOwnership-trap check was inconclusive (NA): no readable owner() function was found among 31 switches searched, and the only switch found, mint(address,uint256), reverted every time it was called from an unrelated address (\"mint(address,uint256): reverted\"). This rules out unrestricted access but couldn't establish who, if anyone, controls it.\n\nThe token passed honeypot, LP-rug, and hidden-fee checks. Buy and sell both succeeded, including from a transferred wallet. LP is 100% burned (0% owner-held), with lpOwner at the null address. No fees were detected: feePct, buyTaxPct, sellTaxPct, and sellTaxLaterPct all measured 0%, with sent and received amounts matching exactly at 0.000003081 USDS."
   }
 };
 
@@ -28405,8 +30653,8 @@ export const FIXTURE_META: {
   anvil: string | null;
   probes: string[];
 } = {
-  "recordedThrough": "2026-08-28",
-  "engineCommit": "5dde759121935402f7558bc36e084d0bee849983",
+  "recordedThrough": "2026-08-31",
+  "engineCommit": "3952573a6c7d0bd504f566e0201bc606d60dcecd",
   "anvil": "anvil Version: 1.8.0\nCommit SHA: 61ae26af36320d4fa1020f7db53785885e29eeb5\nBuild Timestamp: 2026-08-26T13:16:35.013767800Z (1787750195)\nBuild Profile: dist",
   "probes": [
     "honeypot",
@@ -28418,7 +30666,7 @@ export const FIXTURE_META: {
   ]
 };
 
-export const FIXTURE_COUNT = 194;
+export const FIXTURE_COUNT = 207;
 
 // Symbols that more than one recorded address claims. Small by nature, and
 // safe to send to the browser — unlike FIXTURES itself.
