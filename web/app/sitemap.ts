@@ -25,6 +25,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: SITE, changeFrequency: "monthly", priority: 1 },
+    // The findings are the result the catalogue exists to support, so they
+    // rank above the index of it.
+    { url: `${SITE}/findings`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${SITE}/catalogue`, changeFrequency: "monthly", priority: 0.8 },
     ...runs,
   ];

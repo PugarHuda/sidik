@@ -10,6 +10,11 @@ it — on a forked mainnet sandbox, in real time, in front of you.
 
 **[sidik-eight.vercel.app](https://sidik-eight.vercel.app)**
 
+If you read one page, read
+**[/findings](https://sidik-eight.vercel.app/findings)** — the three measured
+results of executing the whole catalogue, each with its method, the rows
+behind it, and the one comparison Sidik loses.
+
 The live site replays runs that already happened: every token in it was
 bought, sold and transferred against a fork of Base at a pinned block, and
 what you see is that run's own event stream, tx hashes and all. It carries no
@@ -34,9 +39,9 @@ forked copy of Base mainnet and shows you what actually happens.
   worse than showing nothing. The token address *is* linked, because that one
   is real.
 
-**And reading the contract would not have caught these.** Of the 194 recorded
-addresses, 191 publish verified source code on Blockscout — and so do 58 of
-the 59 with a finding against them: every honeypot, every taxed token, every
+**And reading the contract would not have caught these.** Of the 207 recorded
+addresses, 203 of the 206 Blockscout could answer for publish verified source
+code — and so do 59 of the 60 with a finding against them: every honeypot, every taxed token, every
 ruggable pool, every owner trap and every upgradeable proxy. "Check that the contract is verified" is the
 standard advice, and across this catalogue it separates almost nothing. That
 number is measured, not asserted: see [Corroboration](#corroboration).
@@ -125,10 +130,10 @@ pnpm dev:engine
 # example runs instead of reaching an engine (see Deployment).
 pnpm dev:web
 
-# engine test suite (vitest) — 242 unit + 30 integration
+# engine test suite (vitest) — 250 unit + 30 integration
 pnpm test
 
-# browser suite (Playwright) — 613 tests across chromium, firefox, webkit,
+# browser suite (Playwright) — 780 tests across chromium, firefox, webkit,
 # and both mobile viewports, run against a production build. Includes an
 # axe-core accessibility audit of every page.
 pnpm e2e
@@ -184,7 +189,7 @@ what the token does today, but what one address can still decide to do to you
 after you have bought. It reads the owner-only switches straight out of the
 deployed bytecode — the PUSH4 constants a solc dispatcher compares against, so
 they are there whether or not the source was ever published — and then calls
-them. 52 of the 194 recorded addresses carry something an owner can operate
+them. 56 of the 207 recorded addresses carry something an owner can operate
 — a switch, or a proxy whose admin can replace the code outright — and 24 of
 those failed when it was operated. Sixteen are proxies: USDC, cbBTC and cbETH
 among them, where the recorded admin was made to point the proxy at a contract
@@ -277,7 +282,7 @@ and answered:
 SIDIK_RERECORD=1 pnpm --filter @sidik/engine fixtures
 ```
 
-That converges rather than starting over: 194 tokens is roughly a thousand
+That converges rather than starting over: 207 tokens is roughly a thousand
 anvil forks, Windows stops creating processes long before that (0xC0000142),
 and each restart picks up only what is still stale.
 
@@ -288,8 +293,8 @@ Every finding comes from a transaction mined on a fork; nothing below can
 change one.
 
 **Verified source code.** `shared/src/verification.ts` records, per address,
-whether Blockscout holds published verified source for it — 191 of 194 do, as
-do 58 of the 59 with a finding against them. It is here because it answers the
+whether Blockscout holds published verified source for it — 203 of the 206 it
+could answer for do, as do 59 of the 60 with a finding against them. It is here because it answers the
 obvious objection to the whole project: no, reading the contract first would
 not have caught these. Sourcify is asked the same question independently
 (`SOURCIFY_STATS`: exact and partial matches counted separately, an exact

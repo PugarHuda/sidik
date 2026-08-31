@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
-import { FIXTURE_BLOCK, FIXTURE_COUNT, headlineOf, recordedRun } from "@sidik/shared";
+import { FIXTURE_BLOCK, FIXTURE_COUNT, VERIFICATION_STATS, headlineOf, recordedRun } from "@sidik/shared";
 
 export const runtime = "nodejs";
 
@@ -46,16 +46,25 @@ function short(address: string): string {
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token") ?? "";
   const run = ADDRESS_RE.test(token) ? recordedRun(token) : undefined;
+  // ?card=findings is the whole catalogue's result rather than one address's.
+  // It is the page most likely to be shared, and the generic card described
+  // the product instead of the finding — which wastes the only line anybody
+  // reads before deciding whether to click.
+  const findings = !run && req.nextUrl.searchParams.get("card") === "findings";
 
   const headline = run ? headlineOf(run.verdicts) : null;
-  const symbol = run ? safeSymbol(run.scan.symbol) : "Sidik";
+  const symbol = run ? safeSymbol(run.scan.symbol) : findings
+    ? `${VERIFICATION_STATS.failingVerified} of ${VERIFICATION_STATS.failing}`
+    : "Sidik";
   const failing = run?.verdicts.find((v) => v.status === "FAIL");
   // A failing token leads with what was proven against it. A passing one
   // leads with the thing that is actually load-bearing: it was executed.
   const line = failing?.title
     ?? (run
       ? "Bought, sold and transferred against a fork of Base — every applicable probe passed"
-      : "Proves what a Base token does to you, by doing it on a fork of Base");
+      : findings
+        ? "addresses Sidik caught publish verified source code. Checking that a contract is verified separates almost nothing."
+        : "Proves what a Base token does to you, by doing it on a fork of Base");
   const txCount = run?.verdicts.reduce((n, v) => n + v.txHashes.length, 0) ?? 0;
   const block = Number(FIXTURE_BLOCK).toLocaleString("en-US");
 

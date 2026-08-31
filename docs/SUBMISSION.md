@@ -8,8 +8,8 @@ the catalogue, re-count before reusing this:
 pnpm --filter @sidik/engine counts
 ```
 
-Last recounted: **2026-08-31**, against catalogue commit `bb4b632` as deployed
-at `9ccd873`. Deadline: **2026-09-02 23:59 UTC**.
+Last recounted: **2026-08-31**, after the catalogue was widened from 194 to
+207 addresses to cover what a judge actually pastes. Deadline: **2026-09-02 23:59 UTC**.
 
 ---
 
@@ -26,13 +26,14 @@ BingX. Listing a token that cannot be sold is their downside, not a
 hypothetical, and the standard pre-listing checks are exactly the ones this
 project measured and found wanting:
 
-- **"Is the contract verified?"** 191 of 194 addresses are. So are 58 of the
-  59 with a finding against them. It separates almost nothing.
+- **"Is the contract verified?"** 203 of the 206 Blockscout can answer for
+  are. So are 59 of the 60 with a finding against them. It separates almost
+  nothing.
 - **"What does the scanner say?"** GoPlus and honeypot.is were run over the
   same catalogue and the answers published in both directions. On buy tax they
-  are excellent — GoPlus matched the executed figure on **164 of 164**. On
+  are excellent — GoPlus matched the executed figure on **183 of 183**. On
   who can still stop a holder from leaving, GoPlus agreed with the fork on
-  **9 of 38**.
+  **11 of 41**.
 - **"Does it trade?"** Sidik corroborates pool pricing against **BingX and
   Gate** — one of those venues is on the judging panel — and treats the
   agreement as context, never as a verdict.
@@ -42,32 +43,34 @@ by reading the contract.
 
 ## The one number to lead with
 
-> **191 of the 194 addresses Sidik probed publish verified source code — and so
-> do 58 of the 59 it caught.** Every honeypot. Every hidden fee. Every ruggable
+> **203 of the 206 addresses Blockscout could answer for publish verified
+> source code — and so do 59 of the 60 Sidik caught.** Every honeypot. Every hidden fee. Every ruggable
 > pool. Every owner trap. "Check that the contract is verified" is the advice
 > everyone gives, and on Base it separates almost nothing.
 
 Measured per address from Blockscout's public API and recorded in
 `shared/src/verification.ts`. **Sourcify was then asked the same question
-independently**: 61 exact matches (metadata hash included), 37 partial, 96 it
+independently**: 67 exact matches (metadata hash included), 39 partial, 97 it
 holds nothing for. Two verifiers, same conclusion — publishing your source is
 not evidence of anything.
 
 Per probe, of the tokens that failed it: honeypots 7/7 verified, hidden fees
-18/18, LP rugs 29/29, owner traps 24/24.
+18/18, LP rugs 29/29, owner traps 25/25.
 
 ## The second number, and the one people argue with
 
-> **24 tokens have a privileged address that can still stop a holder from
-> leaving. 8 of them pass every other probe Sidik has.**
+> **25 tokens have a privileged address that can still stop a holder from
+> leaving. 9 of them pass every other probe Sidik has.**
 
-Those eight are XYJ, DEGEN, cbBTC, USDbC, cbETH, E3D, PP and **USDC**. They
+Those nine are XYJ, DEGEN, cbBTC, USDbC, cbETH, E3D, PP, **USDC** and **EURC**. They
 buy, sell, transfer and price exactly like a clean token. Then the owner-switch
 probe impersonates the privileged address, pulls the switch, and makes the
 identical sell again — and it fails.
 
-**16 of the 24 are proxy admins replacing the implementation**, which is why
-USDC, cbBTC, cbETH and USDbC are among them. State this plainly and it is the
+**17 of the 25 are proxy admins replacing the implementation**, which is why
+USDC, EURC, cbBTC, cbETH and USDbC are among them. Circle's euro stablecoin
+fails for exactly the reason its dollar one does, which is what makes this a
+property of the pattern rather than a quirk of a token. State this plainly and it is the
 most interesting result in the project; state it carelessly and it reads as an
 accusation against Circle and Coinbase. It is neither a prediction nor a
 discovery of wrongdoing: it is proof that the upgrade path is real and
@@ -88,20 +91,20 @@ tokens and sold them into the same pool, and the identical exit then paid
 The catalogue was run through GoPlus (the check most wallets embed) and
 honeypot.is (which simulates its own buy and sell), and the answers recorded
 beside the executed verdicts — both directions of disagreement, dated, never
-touching a verdict. 193 addresses carry a scanner reading.
+touching a verdict. 206 addresses carry a scanner reading.
 
 | Question | Agreement | Sidik-only | Scanner-only |
 |---|---|---|---|
-| Buy tax (GoPlus) | **164 / 164** | 0 | 0 |
-| Buy tax (honeypot.is) | 175 / 177 | 2 — 7SiN 2.99%, ROOTED 6.99% | 0 |
-| Honeypot (honeypot.is) | 173 / 179 | 0 | 6 |
-| Honeypot (GoPlus) | 125 / 131 | 3 — Anastasia, TZ, ROOTED | 3 |
-| Owner can trap (GoPlus) | **9 / 38** | **20** | 9 |
+| Buy tax (GoPlus) | **183 / 183** | 0 | 0 |
+| Buy tax (honeypot.is) | 187 / 189 | 2 — 7SiN 2.99%, ROOTED 6.99% | 0 |
+| Honeypot (honeypot.is) | 185 / 192 | 1 — DEAI | 6 |
+| Honeypot (GoPlus) | 140 / 146 | 3 — Anastasia, TZ, ROOTED | 3 |
+| Owner can trap (GoPlus) | **11 / 41** | **21** | 9 |
 
 Read that table honestly and it says two things at once. **Where the scanners
 are strong, they are excellent** — buy tax is a solved problem and GoPlus
 solved it. **Where the question is "what could a privileged address still
-do?", inference and execution part company almost entirely.** The 20
+do?", inference and execution part company almost entirely.** The 21
 Sidik-only owner traps include every one of the proxies.
 
 Scanners describe today; verdicts describe the pinned block. So the disputed
@@ -119,8 +122,8 @@ arrived, Drift-d publishes that its own signal performs worse than chance.
 
 What separates Sidik is how many times it has been made to hold:
 
-- **194 addresses**, not one protocol or one proposal.
-- **1,692 fork transactions** mined across six probes.
+- **207 addresses**, not one protocol or one proposal.
+- **1,816 fork transactions** mined across six probes.
 - The whole catalogue **re-recorded end to end** after the owner-switch probe
   was added, rather than patched.
 - Every disagreement with two independent scanners **published in both
@@ -133,18 +136,18 @@ What separates Sidik is how many times it has been made to hold:
 
 The entries that infer — scoring tokens by holder distribution, tax mechanics,
 rug surface, proxy slots — are doing the thing this project measured. The
-191/194 number is the reply.
+203-of-206 number is the reply.
 
 ## What it found (counted, not estimated)
 
-- **194 Base addresses** probed end to end, **1,692 fork transactions** mined
-- **59 fail at least one probe**, 16 pass everything that applied, 119 come
+- **207 Base addresses** probed end to end, **1,816 fork transactions** mined
+- **60 fail at least one probe**, 17 pass everything that applied, 130 come
   back N/A
-- The findings: **29 LP rugs, 24 owner traps, 18 hidden fees, 7 honeypots,
+- The findings: **29 LP rugs, 25 owner traps, 18 hidden fees, 7 honeypots,
   1 drainable wallet** (a token can fail more than one)
-- 104 trade on Uniswap V3, 87 on V2
-- The owner-switch probe applied to 49 addresses: 24 failed, 14 passed, 11
-  could not be answered; on 142 it did not apply at all
+- 116 trade on Uniswap V3, 88 on V2
+- The owner-switch probe applied to 56 addresses: 25 failed, 17 passed, 14
+  could not be answered; on 148 it did not apply at all
 - **6 tickers are claimed by more than one contract** — four separate contracts
   on Base call themselves BRIAN, three call themselves CRASH — and their
   verdicts differ. Picking a token by its ticker can pick the wrong one.
@@ -204,7 +207,7 @@ published one. Anyone with a Base archive RPC can run the same command against
 any address in the catalogue and get the same answer.
 
 The catalogue was re-recorded end to end after the owner-switch probe was
-added — 194 addresses, every verdict regenerated rather than patched — so the
+added — then widened to 207, every verdict regenerated rather than patched — so the
 published catalogue and the current probe set are the same generation of code.
 
 ## Honest limits
@@ -217,9 +220,9 @@ State these; the field rewards it.
   not mock data, and the code that produced them is in the repo. **There is no
   hosted engine, and the site says so rather than naming a URL that does not
   answer.**
-- **119 of 194 addresses come back N/A**, and the single largest cause is LP
+- **130 of 207 addresses come back N/A**, and the single largest cause is LP
   rug on Uniswap V3: the probe looks for a position in a 9,000-block window —
-  about five hours on Base — and 91 V3 tokens were funded once at launch,
+  about five hours on Base — and 98 V3 tokens were funded once at launch,
   months before the pinned block. It did not find a position so it does not
   claim one, which is the right behaviour, but it is the biggest usability cost
   in the project. The cause is known precisely, and so is the fix: record each
@@ -242,6 +245,7 @@ State these; the field rewards it.
 | Field | Value |
 |---|---|
 | Website / demo | https://sidik-eight.vercel.app |
+| The one page to put in front of a judge | https://sidik-eight.vercel.app/findings |
 | GitHub | https://github.com/PugarHuda/sidik |
 | Catalogue (deep link worth showing a judge) | https://sidik-eight.vercel.app/catalogue?filter=ownerTrap |
 | The single best run to open first | https://sidik-eight.vercel.app/run?token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed |
@@ -273,9 +277,13 @@ Nothing in this list can be done from the repository.
 Give them this, in order. Add `&instant=1` to any run link to skip the paced
 replay.
 
-0. https://sidik-eight.vercel.app — the landing page states both findings as
-   figures before anything is clicked: 58 of 59 caught addresses publish
-   verified source, and 8 of the 24 owner traps pass every other probe.
+0. https://sidik-eight.vercel.app/findings — **open this first if they only
+   open one thing.** Three measured results of executing the whole catalogue,
+   each with its method and a link to the rows behind it: verified source is
+   not safety, inference agrees about tax and not about power, and a token can
+   pass every trade test and still have an exit its owner controls. It also
+   names the one comparison Sidik loses, which is the point. Every figure on
+   it is counted from the catalogue at build time, so it cannot go stale.
 1. https://sidik-eight.vercel.app/run?token=0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed
    — **DEGEN**, and the best two minutes this project has. A top-tier Base
    token that passes every trade test: the buy lands, the sell lands, no hidden
@@ -291,7 +299,7 @@ replay.
 3. https://sidik-eight.vercel.app/run?token=0x48F617e5b1B214a90800348D7944bBc0E9290Fbb
    — Anastasia. The buy lands, the sell reverts with
    `TransferHelper: TRANSFER_FROM_FAILED`, and that string is the evidence. Its
-   source is published and verified, like 58 of the 59 Sidik caught.
+   source is published and verified, like 59 of the 60 Sidik caught.
 4. https://sidik-eight.vercel.app/catalogue?filter=ownerTrap — every token whose
    owner can still trap a holder, then `?filter=scannerDisagrees` for the rows
    where a scanner and the fork part ways.
@@ -324,21 +332,21 @@ pass as much as for a human: concrete, counted, and explicit about its limits.
 > figure that does not appear verbatim in the run data, so it cannot invent a
 > verdict, a hash or a number.
 >
-> The catalogue is 194 Base addresses and 1,692 fork transactions. 59 fail at
-> least one probe: 29 LP rugs, 24 owner traps, 18 hidden fees, 7 honeypots, 1
-> drainable wallet. 16 pass everything that applied; 119 return N/A, and the
+> The catalogue is 207 Base addresses and 1,816 fork transactions. 60 fail at
+> least one probe: 29 LP rugs, 25 owner traps, 18 hidden fees, 7 honeypots, 1
+> drainable wallet. 17 pass everything that applied; 130 return N/A, and the
 > largest single cause is LP-rug on Uniswap V3 finding no position in its
 > search window — reported as "not answered", never as "safe".
 >
-> The finding the project exists for: 191 of the 194 addresses publish verified
-> source code, and so do 58 of the 59 with a finding against them. Sourcify,
-> asked independently, holds 61 exact and 37 partial matches. "Check that the
+> The finding the project exists for: 203 of the 206 checkable addresses publish verified
+> source code, and so do 59 of the 60 with a finding against them. Sourcify,
+> asked independently, holds 67 exact and 39 partial matches. "Check that the
 > contract is verified" separates almost nothing on Base. The catalogue was
 > also run through GoPlus and honeypot.is, with every disagreement published in
-> both directions: on buy tax GoPlus matched the executed figure on 164 of 164
+> both directions: on buy tax GoPlus matched the executed figure on 183 of 183
 > addresses, and on whether a privileged address can still stop a holder from
-> leaving it agreed on 9 of 38. 24 tokens have such an address, and 8 of them —
-> including USDC, cbBTC and cbETH — pass every other probe. 16 of the 24 are
+> leaving it agreed on 11 of 41. 25 tokens have such an address, and 9 of them —
+> including USDC, EURC, cbBTC and cbETH — pass every other probe. 17 of the 25 are
 > proxy admins replacing the implementation. That is a proof of capability, not
 > an accusation or a prediction, and the interface says so on the page.
 >
@@ -351,6 +359,12 @@ pass as much as for a human: concrete, counted, and explicit about its limits.
 > engine in this repository, frozen, and `pnpm --filter @sidik/engine reproduce
 > <address>` re-forks Base at the same block with your own RPC and diffs the
 > result against what is published. It runs in CI on every push.
+>
+> Reproducibility is the claim it stakes everything on, so it is stated as a
+> number rather than a promise: `reproduce --sample 3` re-forked Base at the
+> same block and returned 12 verdicts reproduced, 0 differed. All three
+> findings, each with its method and the rows behind it, are at
+> /findings — including the one comparison Sidik loses.
 >
 > Every surface is machine-readable: JSON per address and for the catalogue,
 > an OpenAPI 3.1 schema, an llms.txt, provenance on every body (recording date,

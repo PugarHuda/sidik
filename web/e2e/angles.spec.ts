@@ -254,6 +254,84 @@ test.describe("numbers have to agree across surfaces", () => {
   });
 });
 
+test.describe("an N/A headline says what actually happened", () => {
+  // WELL passes honeypot, hiddenFee and ownerTrap, and lands on N/A only
+  // because no V3 position turned up in the search window. A bare "N/A"
+  // reads as a broken run; it has to name the score and the gap.
+  const WELL = "0xA88594D404727625A9437C3f886C7643872296AE";
+
+  test("names how many probes passed and which one could not answer", async ({ page }) => {
+    await page.goto(`/run?token=${WELL}&instant=1`);
+    const strip = page.locator("[data-overall-verdict]");
+    await expect(strip).toBeVisible({ timeout: 45_000 });
+    await expect(strip).toHaveAttribute("data-overall-verdict", "NA");
+    await expect(strip).toContainText(/\d+ of \d+ probes passed/);
+    await expect(strip).toContainText(/could not be answered/);
+  });
+
+  test("still refuses to call an unanswered probe clean", async ({ page }) => {
+    await page.goto(`/run?token=${WELL}&instant=1`);
+    const strip = page.locator("[data-overall-verdict]");
+    await expect(strip).toBeVisible({ timeout: 45_000 });
+    await expect(strip).toContainText(/unanswered is not the same as clean/);
+    // The headline must not have been upgraded to PASS by the friendlier copy.
+    await expect(strip).not.toHaveAttribute("data-overall-verdict", "PASS");
+  });
+});
+
+test.describe("the findings page states results, not claims", () => {
+  test("every figure on it agrees with the API it was counted from", async ({ page, request }) => {
+    await page.goto("/findings");
+    const body = (await page.locator("body").textContent()) ?? "";
+
+    const all = await (await request.get("/api/catalogue")).json();
+    const traps = await (await request.get("/api/catalogue?filter=ownerTrap")).json();
+    const failing = await (await request.get("/api/catalogue?filter=failing")).json();
+    console.log(`[angles] findings page vs api: total=${all.total} traps=${traps.total} failing=${failing.total}`);
+
+    // The headline counts have to be the catalogue's own, not a copy that can
+    // drift — the submission copy drifted exactly this way for three commits.
+    expect(body).toContain(String(all.total));
+    expect(body).toContain(String(traps.total));
+    expect(body).toContain(String(failing.total));
+  });
+
+  test("it publishes the comparison it loses as well as the one it wins", async ({ page }) => {
+    await page.goto("/findings");
+    const body = (await page.locator("body").textContent()) ?? "";
+    // Where inference beats execution, the page has to say so out loud.
+    expect(body).toMatch(/where inference is good, it is very good|matched the executed figure on all/i);
+    expect(body).toMatch(/both directions are\s+published|the scanner flagged/i);
+  });
+
+  test("it never links a fork transaction anywhere a reader could check it", async ({ page }) => {
+    await page.goto("/findings");
+    const hrefs = await page.locator("a[href]").evaluateAll((els) => els.map((e) => (e as HTMLAnchorElement).href));
+    // The whole project's central refusal: no explorer will resolve a hash
+    // that was never broadcast, so nothing may point one there.
+    for (const h of hrefs) expect(h).not.toMatch(/basescan\.org\/tx|etherscan\.io\/tx/);
+  });
+
+  test("its share card leads with the finding, not the tagline", async ({ page, request }) => {
+    const res = await request.get("/api/og?card=findings");
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toContain("image");
+    // And the page actually points at that card rather than the generic one.
+    await page.goto("/findings");
+    const og = page.locator('meta[property="og:image"]');
+    await expect(og).toHaveAttribute("content", /card=findings/);
+  });
+
+  test("the landing page routes a reader to it", async ({ page }) => {
+    await page.goto("/");
+    const link = page.locator('a[href="/findings"]').first();
+    await expect(link).toBeVisible();
+    await link.click();
+    await expect(page).toHaveURL(/\/findings/);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
+});
+
 test.describe("what an agent is told to connect to", () => {
   test("llms.txt does not hand a machine an unresolved placeholder host", async ({ request }) => {
     const llms = await (await request.get("/llms.txt")).text();

@@ -53,6 +53,12 @@ Recorded addresses: ${FIXTURE_COUNT}
 - Every recorded verdict can be reproduced: the repository's reproduce
   command forks Base at the same block and diffs the result.
 
+## Start here
+
+- ${SITE}/findings — the three measured results of executing the whole
+  catalogue, each with its method and how to re-run it. If you only read one
+  page, read that one: it is what the exercise found, not what one address did.
+
 ## Endpoints
 
 - ${SITE}/api/catalogue — every recorded address, paged.

@@ -342,7 +342,35 @@ function consequenceOf(verdicts: Verdict[], overall: Verdict["status"]): string 
   if (failing.length === 1) return failing[0]!.title;
   if (failing.length > 1) return `${failing.length} probes found something: ${failing.map((v) => v.title).join(" · ")}`;
   if (overall === "PASS") return "Bought, sold, transferred and pulled against a fork of Base — every probe that could apply passed.";
+  // An N/A headline used to say only that something went unanswered, which
+  // reads like the run failed. Most of these tokens passed most of what ran
+  // and stalled on one question — WELL passes three probes and lands here
+  // because no V3 position turned up in the search window. Saying which, and
+  // how many passed, is more informative without claiming an inch more: the
+  // headline stays N/A precisely because an unanswered question is not a
+  // clean one.
+  const answered = verdicts.filter((v) => v.applicable !== false);
+  const passed = answered.filter((v) => v.status === "PASS").length;
+  const unanswered = answered.filter((v) => v.status === "NA").map((v) => PROBE_NAME[v.probe] ?? v.probe);
+  if (passed > 0 && unanswered.length > 0) {
+    return `${passed} of ${answered.length} probes passed. ${listOf(unanswered)} could not be answered — and unanswered is not the same as clean.`;
+  }
   return "Not every probe could answer. Read the cards below before deciding anything.";
+}
+
+/** Probe ids as a reader would say them, for the one sentence that names them. */
+const PROBE_NAME: Record<string, string> = {
+  honeypot: "The honeypot check",
+  hiddenFee: "The hidden-fee check",
+  lpRug: "The LP-rug check",
+  ownerTrap: "The owner-switch check",
+  approvalDrain: "The approval-drain check",
+  crossVenue: "The cross-venue check",
+};
+
+function listOf(items: string[]): string {
+  if (items.length === 1) return items[0]!;
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]!.replace(/^The /, "the ")}`;
 }
 
 export default function RunView(

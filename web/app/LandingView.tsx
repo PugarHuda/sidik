@@ -199,6 +199,19 @@ export default function Home({ trap }: { trap: TrapStat }) {
             See every one of them →
           </a>
         </div>
+
+        <a
+          href="/findings"
+          className="mt-6 block rounded-md border border-accent/40 bg-accent/5 px-5 py-4 transition hover:border-accent/70"
+        >
+          <div className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
+            All three findings, with the method →
+          </div>
+          <p className="mt-2 text-sm leading-6 text-fg-dim">
+            What executing the whole catalogue established — including the one place inference wins,
+            and how to re-run any of it yourself.
+          </p>
+        </a>
       </div>
     </div>
   );
