@@ -8,15 +8,18 @@ claim, and one field has two versions depending on when you submit.
 
 ## Which description to paste
 
-**The live run is built and pushed but NOT deployed** — the Vercel account hit
-its 100-deployments-a-day limit at about 14:40 UTC on 2026-08-31 and clears
-roughly 24 hours later. Until it is deployed and verified, describing it would
-be a claim nobody can check, and VETTE re-audits every entry's claims against
-the hackathon's own API daily at 06:00 UTC.
+**Use Version B.** The live run is deployed and verified on the public site as
+of 2026-09-01 15:5x UTC. Three Base tokens that are NOT in the catalogue were
+executed against a fork through `/api/live` and returned full verdict sets:
+TYBG in 18s, BENJI in 14s, ALB in 11s. The assembled text is in
+[version-b.txt](version-b.txt) — copy that file, not the fragments below.
 
-- **Version A — submit before the live run is deployed.** Accurate today.
-- **Version B — submit after it is deployed and verified.** Use this only once
-  `/run?token=0x…&live=1` actually answers on the public site.
+Version A is kept only as the fallback if the live route ever stops answering;
+it is the same text with the live paragraph removed. Check before pasting:
+
+```bash
+curl -N "https://sidik-eight.vercel.app/api/live?token=0x0d97F261b1e88845184f678e2d1e7a98D9FD38dE" | head -5
+```
 
 Everything else on the form is the same either way.
 
