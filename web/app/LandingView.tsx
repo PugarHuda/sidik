@@ -202,6 +202,21 @@ export default function Home({ trap }: { trap: TrapStat }) {
           </a>
         </div>
 
+        {/* A plain link, never an embedded player: the page is about 78KB and
+            the file is 14MB, so autoplaying it would cost every visitor the
+            weight of the whole demo to read two figures. */}
+        <a
+          href="/sidik-demo.mp4"
+          className="mt-6 flex items-center gap-3 rounded-md border border-border bg-panel px-5 py-3 text-sm text-fg-dim transition hover:border-accent/60"
+          data-demo-video
+        >
+          <span aria-hidden="true" className="text-accent">▶</span>
+          <span>
+            <span className="text-fg">Watch the 95-second demo</span> — a token outside the
+            catalogue, forked and executed on camera.
+          </span>
+        </a>
+
         <a
           href="/findings"
           className="mt-6 block rounded-md border border-accent/40 bg-accent/5 px-5 py-4 transition hover:border-accent/70"

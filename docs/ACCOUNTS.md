@@ -30,7 +30,12 @@ Proves what a Base token does to you by doing it — buys, sells and rugs it on 
 
 **Location:** `Base` · **Link:** `https://sidik-eight.vercel.app`
 
-**One more post worth making, once the live run is deployed and verified:**
+**Attach the demo video to the pinned post.** It is 95 seconds, 14 MB, and
+within X's limits: `https://sidik-eight.vercel.app/sidik-demo.mp4`. A post with
+video reaches far more people than one without, and upvotes are the one part of
+the score that cannot be improved by writing more code.
+
+**One more post worth making, now that the live run is deployed and verified:**
 
 ```
 You can now paste any Base token into Sidik and it will fork the chain and
