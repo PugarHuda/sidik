@@ -59,6 +59,17 @@ test.describe("the comparison against the pinned block", () => {
     await expect(page.locator("[data-since-pin]")).toHaveCount(0);
   });
 
+  // Caught on production: rendered mid-run, the panel compared a complete
+  // recorded run against a partial one and announced that every probe still
+  // executing had disappeared. It waits for the run to finish now.
+  test("never renders against a half-finished run", async ({ page }) => {
+    await page.goto(`/run?token=${RECORDED}&live=1&at=head`);
+    // The stream cannot complete in this build (no archive RPC), so the panel
+    // must stay absent rather than appear with a partial comparison.
+    await page.waitForTimeout(1500);
+    await expect(page.locator("[data-since-pin]")).toHaveCount(0);
+  });
+
   // The link that gets a reader from one block to the other.
   test("a pinned live run offers the head run", async ({ page }) => {
     await page.goto(`/run?token=${RECORDED}&live=1`);

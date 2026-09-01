@@ -535,7 +535,11 @@ export default function RunView(
           block, and the whole point of running at the head is that the answer
           may have changed since. Only rendered when there is a recorded run to
           compare against, and only when this run is the later of the two. */}
-      {atHead && pinned && verdicts.length > 0 && (() => {
+      {/* Only once the run has finished. Rendered mid-run it compared a
+          complete recorded run against a partial one and reported every probe
+          that had not reported yet as having disappeared — "ownerTrap: FAIL →
+          absent" while the owner-trap probe was still executing. */}
+      {atHead && pinned && isDone && verdicts.length > 0 && (() => {
         const d = diffRuns(pinned, verdicts);
         const sentence = describeDiff(d, Number(FIXTURE_BLOCK).toLocaleString("en-US"), block);
         return (
