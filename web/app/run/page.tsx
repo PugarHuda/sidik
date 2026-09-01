@@ -78,9 +78,15 @@ export default async function RunPage({
   // every rechecked address, and importing it from the client component
   // shipped all of them to every visitor.
   const recheck = recheckOf(token ?? "");
+  // The pinned run's verdicts, for the head-block comparison. Looked up here
+  // for the same reason as everything above it: FIXTURES holds every recorded
+  // run, and importing it from the client component ships all of them to every
+  // visitor. Only this token's verdicts cross the boundary, and only when the
+  // page is going to compare them against something.
+  const pinned = atHead ? (recordedRun(token ?? "")?.verdicts ?? null) : null;
   // Keyed by token AND instant. RunView never resets its event list — it
   // relies on being remounted — so changing only `instant` (which is exactly
   // what the "skip the replay" link does) would re-run the stream effect and
   // append a second copy of the trace to the first.
-  return <RunView key={`${token ?? ""}:${instant}:${live}:${atHead}`} token={token ?? ""} instant={instant} live={live} atHead={atHead} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
+  return <RunView key={`${token ?? ""}:${instant}:${live}:${atHead}`} token={token ?? ""} instant={instant} live={live} atHead={atHead} pinned={pinned} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
 }

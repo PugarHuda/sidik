@@ -129,6 +129,10 @@ What separates Sidik is how many times it has been made to hold:
   safe" calls a fork execution instead of a scanner, without running anything.
   The MCP server existed before; what is new is that it answers on the
   internet, which is the difference between a protocol and a capability.
+- **A diff between the two blocks.** Run a recorded token at the head and the
+  page states what moved since August — a probe that passed then and does not
+  now, or the fact that nothing changed at all. A pinned catalogue cannot
+  produce that sentence however many times it is re-read.
 - **A run at today's block, not just the pinned one.** `&at=head` forks Base
   where it is now. The catalogue is deliberately pinned so its 207 runs are
   comparable with each other; that is the wrong answer to "is this safe

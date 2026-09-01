@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import {
-  EXAMPLES, FIXTURE_BLOCK, FIXTURE_META, headlineOf, impostorsOf, unprobeableReason, venueListings,
+  EXAMPLES, FIXTURE_BLOCK, FIXTURE_META, describeDiff, diffRuns, headlineOf, impostorsOf, unprobeableReason, venueListings,
   type Recheck, type ScannerReadings, type Verdict, type Verification,
 } from "@sidik/shared";
 import { streamRunEvents, type RunEvent } from "@/lib/sse";
@@ -376,7 +376,7 @@ function listOf(items: string[]): string {
 }
 
 export default function RunView(
-  { token, instant = false, live = false, atHead = false, source, scanners, recheck }: { token: string; instant?: boolean; live?: boolean; atHead?: boolean; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
+  { token, instant = false, live = false, atHead = false, pinned = null, source, scanners, recheck }: { token: string; instant?: boolean; live?: boolean; atHead?: boolean; pinned?: Verdict[] | null; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
 ) {
   const tokenValid = TOKEN_RE.test(token);
   const [events, setEvents] = useState<RunEvent[]>([]);
@@ -529,6 +529,39 @@ export default function RunView(
           )}
         </p>
       )}
+
+      {/* What moved between the pinned block and now. The catalogue cannot say
+          this on its own however many times it is re-read: it describes one
+          block, and the whole point of running at the head is that the answer
+          may have changed since. Only rendered when there is a recorded run to
+          compare against, and only when this run is the later of the two. */}
+      {atHead && pinned && verdicts.length > 0 && (() => {
+        const d = diffRuns(pinned, verdicts);
+        const sentence = describeDiff(d, Number(FIXTURE_BLOCK).toLocaleString("en-US"), block);
+        return (
+          <section
+            data-since-pin
+            className={`animate-reveal rounded-lg border px-5 py-4 ${d.regressed ? "border-fail/50 bg-fail/10" : d.changed.length ? "border-na/50 bg-na/10" : "border-border bg-panel"}`}
+          >
+            <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">
+              Since block {Number(FIXTURE_BLOCK).toLocaleString("en-US")}
+            </h2>
+            <p className="mt-2 text-base leading-7 text-fg">
+              {sentence ?? <>Nothing changed. Every probe reaches the same answer at block {block} as it did at the pinned block.</>}
+            </p>
+            {d.changed.length > 0 && (
+              <ul className="mt-3 space-y-1.5 font-mono text-sm text-fg-dim">
+                {d.changed.map((c) => (
+                  <li key={c.probe}>
+                    <span className="text-fg">{c.probe}</span>: {c.before} → <span className={c.after === "FAIL" ? "text-fail" : c.after === "PASS" ? "text-pass" : "text-na"}>{c.after}</span>
+                    {c.title ? <span className="text-fg-dim"> — {c.title}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        );
+      })()}
 
       {replay && (
         // Informational, so neutral. It used to be a three-line uppercase

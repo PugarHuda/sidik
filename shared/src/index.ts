@@ -6,6 +6,7 @@ export * from "./types";
 export * from "./headline";
 export * from "./events";
 export * from "./catalogue";
+export * from "./diff";
 export * from "./narration";
 export * from "./examples";
 export * from "./fixtures";

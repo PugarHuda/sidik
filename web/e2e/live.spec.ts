@@ -45,6 +45,27 @@ test.describe("the live route", () => {
   });
 });
 
+test.describe("the comparison against the pinned block", () => {
+  // The panel only means anything when this run is the later of two, so it
+  // must not appear on a replay or on a pinned live run -- there it would be
+  // comparing a run against itself.
+  test("is absent from a replay", async ({ page }) => {
+    await page.goto(`/run?token=${RECORDED}&instant=1`);
+    await expect(page.locator("[data-since-pin]")).toHaveCount(0);
+  });
+
+  test("is absent from a live run at the pinned block", async ({ page }) => {
+    await page.goto(`/run?token=${RECORDED}&live=1`);
+    await expect(page.locator("[data-since-pin]")).toHaveCount(0);
+  });
+
+  // The link that gets a reader from one block to the other.
+  test("a pinned live run offers the head run", async ({ page }) => {
+    await page.goto(`/run?token=${RECORDED}&live=1`);
+    await expect(page.locator("[data-at-head]")).toHaveAttribute("href", /at=head/);
+  });
+});
+
 test.describe("where the offer to execute appears", () => {
   test("an address with no recorded run is offered a live one", async ({ page }) => {
     await page.goto(`/run?token=${UNRECORDED}`);

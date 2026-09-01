@@ -32,6 +32,13 @@ this safe today" — a token can renounce its owner, or acquire one, in between.
 The run page names the block it forked either way, because the one number a
 reader cannot check is the one the page assumed.
 
+When a head run has a recorded run to compare against, the page says **what
+changed**. That is the sentence a pinned catalogue cannot produce however many
+times it is re-read: `crossVenue: PASS → NA`, or the one worth shouting about,
+a probe that passed in August and does not now. Checked on DEGEN at block
+50,747,849 — twelve days past the pin, its honeypot, hidden-fee and owner-trap
+answers were identical, which is itself a result.
+
 And **`POST /api/mcp`** is Sidik as a tool, hosted:
 
 ```bash
