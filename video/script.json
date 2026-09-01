@@ -1,0 +1,30 @@
+{
+  "voice": "en-US-AndrewNeural",
+  "rate": "-4%",
+  "note": "One entry per subtitle cue. Each is synthesised separately so the caption timing is measured from the audio rather than guessed at, and so a line can be re-recorded without redoing the whole track. Every figure here is the one the site serves; see docs/SUBMIT-FORM.md and engine/test/docsDrift.test.ts.",
+  "lines": [
+    { "id": "hook1", "scene": "title", "text": "Every token safety tool reads the contract and infers." },
+    { "id": "hook2", "scene": "title", "text": "Sidik doesn't infer. It buys the token, sells it, and tries to rug it." },
+    { "id": "hook3", "scene": "landing", "text": "On a forked copy of Base mainnet. Then it shows you the transactions." },
+
+    { "id": "live1", "scene": "paste", "text": "Paste any Base address." },
+    { "id": "live2", "scene": "paste", "text": "If it's one of the 207 already recorded, the answer is instant." },
+    { "id": "live3", "scene": "live", "text": "If it isn't, Sidik forks the chain and executes it while you watch." },
+    { "id": "live4", "scene": "live", "text": "Under half a minute. A real fork, and real transactions." },
+    { "id": "live5", "scene": "live", "text": "None of them broadcast, and the page says so rather than linking to an explorer that would be empty." },
+
+    { "id": "find1", "scene": "findings", "text": "Across 207 addresses and 1,843 fork transactions, here is what it found." },
+    { "id": "find2", "scene": "verified", "text": "203 of the 206 checkable addresses publish verified source code." },
+    { "id": "find3", "scene": "verified", "text": "So do 59 of the 60 Sidik caught. Checking that a contract is verified separates almost nothing." },
+
+    { "id": "trap1", "scene": "ownertrap", "text": "25 tokens have a privileged address that can still stop you selling." },
+    { "id": "trap2", "scene": "ownertrap", "text": "Nine of them pass every other probe. USDC and DEGEN are on that list." },
+    { "id": "trap3", "scene": "ownertrap", "text": "Sidik pulled each switch on a fork and made the identical sell again. It proves the capability, not the intent." },
+
+    { "id": "lose1", "scene": "scanners", "text": "And where the scanners beat us, we publish that too." },
+    { "id": "lose2", "scene": "scanners", "text": "On buy tax, GoPlus matched the executed figure on 185 out of 185." },
+
+    { "id": "end1", "scene": "outro", "text": "207 addresses. Every verdict reproducible from a fork you run yourself." },
+    { "id": "end2", "scene": "outro", "text": "Sidik. Executed, not inferred." }
+  ]
+}

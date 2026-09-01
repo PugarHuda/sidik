@@ -52,7 +52,7 @@ by reading the contract.
 
 Measured per address from Blockscout's public API and recorded in
 `shared/src/verification.ts`. **Sourcify was then asked the same question
-independently**: 67 exact matches (metadata hash included), 39 partial, 97 it
+independently**: 67 exact matches (metadata hash included), 42 partial, 97 it
 holds nothing for. Two verifiers, same conclusion — publishing your source is
 not evidence of anything.
 
@@ -401,7 +401,7 @@ one mistake this entry cannot afford to make.
 >
 > The finding the project exists for: 203 of the 206 checkable addresses publish verified
 > source code, and so do 59 of the 60 with a finding against them. Sourcify,
-> asked independently, holds 67 exact and 39 partial matches. "Check that the
+> asked independently, holds 67 exact and 42 partial matches. "Check that the
 > contract is verified" separates almost nothing on Base. The catalogue was
 > also run through GoPlus and honeypot.is, with every disagreement published in
 > both directions: on buy tax GoPlus matched the executed figure on 185 of 185

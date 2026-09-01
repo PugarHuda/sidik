@@ -1,0 +1,22 @@
+{
+  "name": "sidik-video",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render Demo out/sidik-demo.mp4 --concurrency=2"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.373",
+    "remotion": "4.0.373",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.0",
+    "typescript": "5.9.3"
+  },
+  "allowScripts": {
+    "esbuild@0.25.0": true
+  }
+}

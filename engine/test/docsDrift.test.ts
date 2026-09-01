@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { FIXTURE_COUNT, FIXTURES, SCANNER_STATS, VERIFICATION_STATS, headlineOf, type Verdict } from "@sidik/shared";
+import { FIXTURE_COUNT, FIXTURES, SCANNER_STATS, SOURCIFY_STATS, VERIFICATION_STATS, headlineOf, type Verdict } from "@sidik/shared";
 
 /**
  * The documents quote numbers; the catalogue produces them. This fails when
@@ -71,6 +71,14 @@ describe("the documents quote the catalogue that exists", () => {
     const { agree, total } = c as { agree: number; total: number };
     const near = String.raw`\b${agree}\b[^.]{0,40}\b${total}\b|\b${total}\b[^.]{0,40}\b${agree}\b`;
     expect(README).toMatch(new RegExp(near));
+  });
+
+  // The second verifier. Caught stale only because a frame of the demo video
+  // showed the site saying 42 where every document said 39 -- a number nobody
+  // was watching, in the paragraph the pitch leads with.
+  it("SUBMISSION.md quotes what Sourcify actually holds", () => {
+    expect(SUBMISSION).toContain(`${SOURCIFY_STATS.exact} exact`);
+    expect(SUBMISSION).toContain(`${SOURCIFY_STATS.partial} partial`);
   });
 
   it("SUBMISSION.md quotes the current verdict split and transaction count", () => {
