@@ -31,6 +31,16 @@ export interface PreScan {
   symbol: string;
   decimals: number;
   hasPool: boolean;
+  /**
+   * False when the address holds no code at the block that was forked.
+   *
+   * Distinguishes "this is not a token" from "nothing is deployed here yet".
+   * A contract created after the pinned block reads as neither an ERC-20 nor
+   * a wallet, and the run used to fall through to the approvals probe and
+   * answer "no live approvals to test" — a statement about a wallet, made
+   * about a token that simply did not exist at that block.
+   */
+  hasCode?: boolean;
   poolAddress?: Hex;
   /** Which venue the pool lives on. Probes trade where the liquidity is. */
   venue?: "v2" | "v3";

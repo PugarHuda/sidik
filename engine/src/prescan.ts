@@ -51,8 +51,15 @@ export async function prescan(fork: ForkClient, token: Hex): Promise<PreScan> {
     await fork.read<bigint>({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [BALANCE_PROBE] });
   } catch {
     // Not an ERC-20 (or reads failed) — bail with sane defaults, no point
-    // probing pool/owner/holders for a non-token.
-    return { token, isErc20: false, symbol: "", decimals: 18, hasPool: false, topHolders: [] };
+    // probing pool/owner/holders for a non-token. One extra read on the way
+    // out, because "not a token" and "not deployed yet" are different answers
+    // and only one of them is about the token.
+    let hasCode = true;
+    try {
+      const code = await pub.getCode({ address: token });
+      hasCode = Boolean(code && code !== "0x");
+    } catch { /* leave it as unknown-but-assumed-present rather than guess */ }
+    return { token, isErc20: false, symbol: "", decimals: 18, hasPool: false, hasCode, topHolders: [] };
   }
 
   // Both venues are measured and the deeper one wins. Picking V2 just because

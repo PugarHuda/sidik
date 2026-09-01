@@ -27,7 +27,7 @@ function weth(raw: string | bigint): string {
   return amount(raw, 18, "WETH");
 }
 
-export function interpretApprovalDrain(raw: RawResult, _ctx: ProbeCtx): Verdict {
+export function interpretApprovalDrain(raw: RawResult, ctx: ProbeCtx): Verdict {
   const approvals = (raw.approvals ?? []) as { spender: Hex; allowance: string; reachableWeth: string }[];
   const drainedWei = BigInt(String(raw.drainedWeth ?? "0"));
   const reachableWei = approvals.reduce((sum, a) => sum + BigInt(a.reachableWeth || "0"), 0n);
@@ -43,6 +43,21 @@ export function interpretApprovalDrain(raw: RawResult, _ctx: ProbeCtx): Verdict 
     approvalCount: String(approvals.length),
     skipped: String(raw.skipped ?? 0),
   };
+
+  // Nothing is deployed here at the block that was forked, so this is not a
+  // wallet with no approvals — it is an address with no contract. Reported
+  // before the approvals branch, which would otherwise answer a question
+  // about a wallet that was never asked, and which is how a token created
+  // after the pinned block used to be described.
+  if (ctx?.scan?.hasCode === false) {
+    return {
+      probe: "approvalDrain", status: "NA", applicable: false,
+      title: "Nothing is deployed at this address at the block that was forked",
+      rows: [{ label: "Live token approvals", claimed: "n/a",
+        proven: "The address holds no code at this block. If the contract was created later, running at today's block will find it.", ok: false }],
+      numbers, txHashes,
+    };
+  }
 
   if (approvals.length === 0) {
     return {

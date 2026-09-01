@@ -50,3 +50,36 @@ describe("interpretApprovalDrain", () => {
     expect(v.status).toBe("FAIL");
   });
 });
+
+describe("an address with no contract at the forked block", () => {
+  // A token created after the pinned block reads as neither an ERC-20 nor a
+  // wallet, and the run used to answer "no live approvals to test" — a
+  // statement about a wallet, made about a contract that did not exist yet.
+  // Three earlier bugs in this project had the same shape: a technical
+  // condition reported as a finding about the token.
+  const ctxWith = (hasCode: boolean | undefined) => ({
+    token: "0x0000000000000000000000000000000000000001",
+    scan: { hasCode },
+  }) as never;
+
+  it("says nothing is deployed there, and does not count as a probe that ran", () => {
+    const v = interpretApprovalDrain({ approvals: [], reachable: "0", drained: false }, ctxWith(false));
+    expect(v.status).toBe("NA");
+    expect(v.applicable).toBe(false);
+    expect(v.title).toMatch(/nothing is deployed/i);
+    expect(v.rows[0]!.proven).toMatch(/today's block/i);
+  });
+
+  it("still reports an empty wallet as an empty wallet", () => {
+    const v = interpretApprovalDrain({ approvals: [], reachable: "0", drained: false }, ctxWith(true));
+    expect(v.title).toMatch(/no live approvals/i);
+    expect(v.applicable).not.toBe(false);
+  });
+
+  // hasCode is optional, and an older recorded run carries no value for it.
+  // Absence must not be read as "no contract".
+  it("does not treat an unknown as an absence", () => {
+    const v = interpretApprovalDrain({ approvals: [], reachable: "0", drained: false }, ctxWith(undefined));
+    expect(v.title).toMatch(/no live approvals/i);
+  });
+});
