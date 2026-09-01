@@ -75,9 +75,17 @@ registered one — `0x39D2bae5EAedA9283535dDC98F1991c81eD5Cd7E`.
 
 ## Images
 
-Both optional. If you want a logo, screenshot the site header at 2× and crop
-square; it will match the OG cards a judge has already seen. Skip the banner
-rather than improvise one.
+Both are made and sit in [`docs/brand/`](brand/):
+
+| Form field | File | Size |
+|---|---|---|
+| Agent Logo | `docs/brand/sidik-logo.png` | 1024×1024 |
+| Banner Image | `docs/brand/sidik-banner.png` | 1200×630 |
+
+The logo is a fingerprint — *sidik jari* — drawn from the site's own palette
+and checked down to 32px, which is roughly how big it lands on a gallery card.
+The banner is the site's OG card, so the address count printed on it is
+counted from the catalogue rather than typed. [Notes](brand/README.md).
 
 ---
 
