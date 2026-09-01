@@ -96,6 +96,8 @@ function logLine(e: RunEvent): string {
       return `ERROR     ${e.message}`;
     case "replay":
       return `REPLAY    recorded fork run at block ${e.block} — no live engine`;
+    case "forked":
+      return `FORK      Base forked at block ${Number(e.block).toLocaleString("en-US")}${e.head ? " — the head of the chain, not the pinned block" : ""}`;
   }
 }
 
@@ -374,7 +376,7 @@ function listOf(items: string[]): string {
 }
 
 export default function RunView(
-  { token, instant = false, live = false, source, scanners, recheck }: { token: string; instant?: boolean; live?: boolean; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
+  { token, instant = false, live = false, atHead = false, source, scanners, recheck }: { token: string; instant?: boolean; live?: boolean; atHead?: boolean; source?: Verification | null; scanners?: ScannerReadings | null; recheck?: Recheck | null },
 ) {
   const tokenValid = TOKEN_RE.test(token);
   const [events, setEvents] = useState<RunEvent[]>([]);
@@ -390,7 +392,7 @@ export default function RunView(
       let settled = false;
       try {
         const url = live
-          ? `/api/live?token=${token}`
+          ? `/api/live?token=${token}${atHead ? "&at=head" : ""}`
           : `/api/run?token=${token}${instant ? "&instant=1" : ""}`;
         for await (const event of streamRunEvents(url, controller.signal)) {
           if (event.type === "done" || event.type === "error") settled = true;
@@ -414,7 +416,7 @@ export default function RunView(
     })();
 
     return () => controller.abort();
-  }, [token, tokenValid, instant, live]);
+  }, [token, tokenValid, instant, live, atHead]);
 
   if (!tokenValid) {
     return (
@@ -456,7 +458,12 @@ export default function RunView(
   const overall = headlineOf(verdicts);
   const planned = findLast("plan")?.ids.length ?? 0;
   const txCount = verdicts.reduce((n, v) => n + v.txHashes.length, 0);
-  const block = Number(replay?.block ?? FIXTURE_BLOCK).toLocaleString("en-US");
+  // The engine now names the block it forked. Falling back to FIXTURE_BLOCK
+  // was right while every run happened at the pin and became a lie the moment
+  // one did not -- it would print the catalogue's block under a run taken at
+  // the head of the chain.
+  const forked = events.find((e) => e.type === "forked");
+  const block = Number(forked?.block ?? replay?.block ?? FIXTURE_BLOCK).toLocaleString("en-US");
   const symbol = prescan?.symbol || null;
 
   // Once the run is done the pill IS the verdict. It used to say DONE in
@@ -505,7 +512,21 @@ export default function RunView(
       {live && (
         <p className="-mt-4 font-mono text-xs text-accent" data-live-banner>
           <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" aria-hidden="true" />
-          Executing now on a fork of Base — not a replay. Nothing here is broadcast.
+          {forked?.head
+            ? <>Executing now against Base at block {block} — the head of the chain, not the pinned block. This is what the token does today.</>
+            : <>Executing now on a fork of Base — not a replay. Nothing here is broadcast.</>}
+          {/* Offered only on a pinned live run: every recorded verdict, and the
+              default live run, describe one block in August. Whether that still
+              holds is a different question, and the only honest way to answer it
+              is to execute again where the chain is now. */}
+          {!forked?.head && (
+            <>
+              {" · "}
+              <a href={`/run?token=${token}&live=1&at=head`} className="underline underline-offset-4 hover:text-fg" data-at-head>
+                run it at today&rsquo;s block
+              </a>
+            </>
+          )}
         </p>
       )}
 

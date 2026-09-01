@@ -85,7 +85,9 @@ describe("runSidik", () => {
     expect(closed).toBe(1);
 
     expect(events.map((e) => e.type)).toEqual([
-      "prescan", "plan", "probe:start", "verdict", "probe:start", "verdict", "narration", "done",
+      // "forked" leads every run: the block is emitted before any probe so a
+      // reader can label the run even if a probe then fails.
+      "forked", "prescan", "plan", "probe:start", "verdict", "probe:start", "verdict", "narration", "done",
     ]);
 
     const verdicts = events.filter((e): e is RunEvent & { type: "verdict" } => e.type === "verdict")
@@ -151,6 +153,8 @@ describe("runSidik", () => {
     })) {
       events.push(ev);
     }
-    expect(events.map((e) => e.type)).toEqual(["prescan", "plan", "verdict", "narration", "done"]);
+    // "forked" leads a cached replay too: the cache is keyed by block, so the
+    // hit describes one, and the page must not have to guess which.
+    expect(events.map((e) => e.type)).toEqual(["forked", "prescan", "plan", "verdict", "narration", "done"]);
   });
 });

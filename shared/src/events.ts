@@ -15,6 +15,15 @@ import type { PreScan, Verdict } from "./types";
  * hono and the anvil tooling, none of which belongs in a browser bundle.
  */
 export type EngineEvent =
+  /**
+   * First frame of every run: the block the fork was taken at.
+   *
+   * Added when runs stopped always happening at the pinned block. Without it
+   * the page fell back to FIXTURE_BLOCK and printed "proven at block
+   * 50,200,000" under a run executed somewhere else entirely — the one number
+   * on that card a reader has no way to check.
+   */
+  | { type: "forked"; block: string; head: boolean }
   | { type: "prescan"; scan: PreScan }
   | { type: "plan"; ids: string[] }
   | { type: "probe:start"; id: string }

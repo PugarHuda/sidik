@@ -64,6 +64,23 @@ export async function GET(req: NextRequest) {
   const { runSidik } = await import("@sidik/engine/orchestrator");
   const { acquireRunSlot, MAX_CONCURRENT_RUNS } = await import("@sidik/engine/concurrency");
 
+  // ?at=head forks Base where it is right now instead of at the pinned block.
+  // The catalogue answers "what did this token do in August"; this answers
+  // "what does it do today", and they are different questions -- a token can
+  // renounce ownership, or acquire an owner, in between.
+  let block: bigint | undefined;
+  if (req.nextUrl.searchParams.get("at") === "head") {
+    try {
+      const { headBlock } = await import("@sidik/engine/head");
+      block = await headBlock(process.env.BASE_ARCHIVE_RPC!);
+    } catch (e) {
+      return new Response(
+        frame("error", { type: "error", message: `Could not read the head of Base: ${e instanceof Error ? e.message : String(e)}. That is a fault here, not a finding about this token.` }),
+        { headers: sseHeaders },
+      );
+    }
+  }
+
   const release = acquireRunSlot();
   if (!release) {
     return new Response(
@@ -75,7 +92,7 @@ export async function GET(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        for await (const event of runSidik(token as Hex)) {
+        for await (const event of runSidik(token as Hex, block ? { block } : {})) {
           controller.enqueue(frame(event.type, event));
         }
       } catch (e) {

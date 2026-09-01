@@ -36,6 +36,8 @@
   },
   "exports": {
     "./orchestrator": "./src/orchestrator.ts",
-    "./concurrency": "./src/concurrency.ts"
+    "./concurrency": "./src/concurrency.ts",
+    "./head": "./src/head.ts",
+    "./mcp": "./src/mcp.ts"
   }
 }

@@ -124,6 +124,15 @@ arrived, Drift-d publishes that its own signal performs worse than chance.
 
 What separates Sidik is how many times it has been made to hold:
 
+- **Sidik as a hosted tool.** `claude mcp add --transport http sidik
+  https://sidik-eight.vercel.app/api/mcp` and an agent asked "is this token
+  safe" calls a fork execution instead of a scanner, without running anything.
+  The MCP server existed before; what is new is that it answers on the
+  internet, which is the difference between a protocol and a capability.
+- **A run at today's block, not just the pinned one.** `&at=head` forks Base
+  where it is now. The catalogue is deliberately pinned so its 207 runs are
+  comparable with each other; that is the wrong answer to "is this safe
+  today", and both questions are now answerable from the same page.
 - **A live run, hosted.** Paste any Base address and Sidik forks the chain and
   executes the probes while you watch. Getting there meant giving up on
   container hosts — Fly wants a card, Hugging Face Spaces a paid tier — and

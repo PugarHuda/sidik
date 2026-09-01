@@ -186,6 +186,27 @@ async function handleMcpMessage(msg: JsonRpcRequest): Promise<unknown | undefine
   }
 }
 
+/**
+ * The protocol itself, with no transport attached: messages in, replies out.
+ *
+ * Extracted so the same implementation answers on the self-hosted engine
+ * (Hono, below) and on the deployed site (a Next route handler). Two copies of
+ * a JSON-RPC dispatcher would drift the way the event union used to, and a
+ * drift here means an agent gets a different Sidik depending on which URL it
+ * found.
+ */
+export async function mcpHandle(body: unknown): Promise<{ status: number; body?: unknown }> {
+  const messages = Array.isArray(body) ? body : [body];
+  const replies: unknown[] = [];
+  for (const m of messages) {
+    const reply = await handleMcpMessage(m as JsonRpcRequest);
+    if (reply !== undefined) replies.push(reply);
+  }
+  // A batch of nothing but notifications is acknowledged with no body.
+  if (replies.length === 0) return { status: 202 };
+  return { status: 200, body: Array.isArray(body) ? replies : replies[0] };
+}
+
 /** Hono handler for POST /mcp (Streamable HTTP, JSON responses). */
 export async function mcpPost(c: Context): Promise<Response> {
   let body: unknown;
@@ -194,15 +215,9 @@ export async function mcpPost(c: Context): Promise<Response> {
   } catch {
     return c.json(rpcError(null, -32700, "parse error"), 400);
   }
-  const messages = Array.isArray(body) ? body : [body];
-  const replies: unknown[] = [];
-  for (const m of messages) {
-    const reply = await handleMcpMessage(m as JsonRpcRequest);
-    if (reply !== undefined) replies.push(reply);
-  }
-  // A batch of nothing but notifications is acknowledged with no body.
-  if (replies.length === 0) return c.body(null, 202);
-  return c.json(Array.isArray(body) ? replies : replies[0]);
+  const out = await mcpHandle(body);
+  if (out.status === 202) return c.body(null, 202);
+  return c.json(out.body);
 }
 
 /** GET /mcp: this server does not open a server-initiated stream. */

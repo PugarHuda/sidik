@@ -25,6 +25,19 @@ then**, against a fork of Base, and streams the trace as it happens. It takes
 about half a minute. An address outside the recorded catalogue now offers that
 instead of only an error.
 
+Add **`&at=head`** and it forks where Base is at this moment instead of at the
+pinned block. Every recorded verdict describes one block in August, which is
+what makes 207 runs comparable with each other and is the wrong answer to "is
+this safe today" — a token can renounce its owner, or acquire one, in between.
+The run page names the block it forked either way, because the one number a
+reader cannot check is the one the page assumed.
+
+And **`POST /api/mcp`** is Sidik as a tool, hosted:
+
+```bash
+claude mcp add --transport http sidik https://sidik-eight.vercel.app/api/mcp
+```
+
 Hosting it was the hard part, and the answer turned out not to be a container
 host at all — Fly wants a card, Hugging Face Spaces wants a paid tier. Forking
 Base needs an archive RPC and a Foundry binary, and a serverless function can
@@ -455,7 +468,7 @@ also available as data:
 | `GET /api/run?token=<address>` | The same run as a Server-Sent Event stream, in the order the probes produced it. |
 | `GET /llms.txt` | What the data means, and the two things a consumer will otherwise get wrong. |
 | `GET /openapi.json` | OpenAPI 3.1 for the JSON endpoints, Verdict schema included. Every JSON body carries `schemaVersion`, `chainId` and `provenance` (recording date, engine commit, catalogue sha256, site commit). CORS-open. |
-| `POST /mcp` (engine, self-hosted) | The engine as a [Model Context Protocol](https://modelcontextprotocol.io) server over Streamable HTTP — `pnpm dev:engine`, then `claude mcp add --transport http sidik http://localhost:8787/mcp`. Tools: `sidik_token` (executed verdicts for an address), `sidik_catalogue` (paged, filtered), `sidik_run` (execute the probes now on a fresh fork). No SDK: the protocol Sidik speaks is `engine/src/mcp.ts`, tested end to end through Hono. The MCP server itself is still self-hosted — `GET /api/live` is the hosted way to execute a run. |
+| `POST /mcp` (engine, self-hosted) | The engine as a [Model Context Protocol](https://modelcontextprotocol.io) server over Streamable HTTP — `pnpm dev:engine`, then `claude mcp add --transport http sidik http://localhost:8787/mcp`. Tools: `sidik_token` (executed verdicts for an address), `sidik_catalogue` (paged, filtered), `sidik_run` (execute the probes now on a fresh fork). No SDK: the protocol Sidik speaks is `engine/src/mcp.ts`, tested end to end through Hono and shared with the hosted route rather than reimplemented. |
 | `GET /api/og?token=<address>` | The 1200x630 card a shared link unfurls into, carrying that token's verdict. |
 
 Corroboration always travels in its own `corroboration` field, never inside a

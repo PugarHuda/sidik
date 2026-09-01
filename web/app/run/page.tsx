@@ -49,7 +49,7 @@ export async function generateMetadata(
 export default async function RunPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string | string[]; instant?: string | string[]; live?: string | string[] }>;
+  searchParams: Promise<{ token?: string | string[]; instant?: string | string[]; live?: string | string[]; at?: string | string[] }>;
 }) {
   const params = await searchParams;
   const raw = params.token;
@@ -64,6 +64,10 @@ export default async function RunPage({
   // milliseconds and cannot be rate-limited.
   const rawLive = params.live;
   const live = (Array.isArray(rawLive) ? rawLive[0] : rawLive) === "1";
+  // ?at=head forks where Base is now rather than at the pinned block, so the
+  // answer describes today. Only meaningful alongside live=1.
+  const rawAt = params.at;
+  const atHead = (Array.isArray(rawAt) ? rawAt[0] : rawAt) === "head";
   // Looked up here rather than in the client: the map covers every recorded
   // addresses and the page shows exactly one of them. Handing the component
   // the whole thing is how the catalogue got shipped to the browser twice
@@ -78,5 +82,5 @@ export default async function RunPage({
   // relies on being remounted — so changing only `instant` (which is exactly
   // what the "skip the replay" link does) would re-run the stream effect and
   // append a second copy of the trace to the first.
-  return <RunView key={`${token ?? ""}:${instant}:${live}`} token={token ?? ""} instant={instant} live={live} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
+  return <RunView key={`${token ?? ""}:${instant}:${live}:${atHead}`} token={token ?? ""} instant={instant} live={live} atHead={atHead} source={source ?? null} scanners={scanners ?? null} recheck={recheck ?? null} />;
 }

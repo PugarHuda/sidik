@@ -64,6 +64,12 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
     const cached = d.getCached<CachedRun>(token, d.block);
     if (cached) {
       log.info({ event: "run.cached", token, count: cached.verdicts.length, ms: since(started) });
+      // Also on the cached path. The cache is keyed by (token, block), so a
+      // hit describes the block it was keyed with -- and a second run at the
+      // head of the chain is served from cache, where a missing event would
+      // have let the page fall back to the catalogue's block and print it
+      // under a run taken 500,000 blocks later.
+      yield { type: "forked", block: d.block.toString(), head: d.block !== BASE_FORK_BLOCK };
       yield { type: "prescan", scan: cached.scan };
       yield { type: "plan", ids: cached.ids };
       for (const verdict of cached.verdicts) yield { type: "verdict", verdict };
@@ -80,6 +86,8 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
     // and rolled back after it, which gives every probe the same pristine
     // state a fresh process did.
     opened = await d.openFork(d.block);
+    // Before any probe, so the page can label the run even if a probe fails.
+    yield { type: "forked", block: d.block.toString(), head: d.block !== BASE_FORK_BLOCK };
     const fork = opened.fork;
 
     const scan = await d.prescan(fork, token);
