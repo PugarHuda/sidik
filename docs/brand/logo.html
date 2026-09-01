@@ -1,0 +1,50 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Sidik logo</title>
+<style>
+  /* Palette lifted from web/app/globals.css, not re-picked by eye. */
+  :root { --ink: #0a0c0e; --accent: #8aa4ff; }
+  html, body { margin: 0; padding: 0; background: transparent; }
+  .plate { width: 1024px; height: 1024px; background: var(--ink); display: grid; place-items: center; }
+</style>
+
+<div class="plate">
+  <!--
+    A fingerprint, because that is what the name means: sidik jari.
+
+    The first attempt drew concentric ellipses and cut a wedge out of the
+    bottom. It read as a wifi icon: a wedge that wide leaves a symmetric
+    triangle of empty space, and trimming the right side turned the outer ring
+    into a letter C. Rings are not what makes a print legible.
+
+    Nested ARCHES are. Each ridge runs off the bottom edge rather than closing,
+    which is what a loop pattern actually does, and the eye reads "print"
+    before it reads "circle". Two ridges stop short of the edge — ridge
+    endings, the feature a real print is identified by, and the detail that
+    keeps this from looking like a rainbow.
+
+    Drawn for the size it is seen at. In the entries gallery this is a small
+    square beside a title, so it is four ridges and a core rather than the
+    dozen a real print carries; at 32px anything denser fills to a solid blob.
+    Strokes are 46px on a 1024 plate, a little over a pixel when it lands at 32.
+  -->
+  <svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sidik">
+    <g stroke="#8aa4ff" stroke-width="46" stroke-linecap="round" fill="none">
+      <!-- Outermost ridge, faintest. Runs off both bottom corners. Each pair
+           of control points sits OUTSIDE its endpoints, which rounds the apex;
+           with them level the innermost ridge came to a point and read as a
+           needle rather than as the top of a loop. -->
+      <path d="M 120 1024 C 74 -150, 950 -150, 904 1024" opacity="0.26"/>
+      <!-- Ridge ending on the left: stops short instead of reaching the edge. -->
+      <path d="M 218 918 C 176 60, 848 60, 806 1024" opacity="0.42"/>
+      <path d="M 316 1024 C 278 270, 746 270, 708 1024" opacity="0.62"/>
+      <!-- Ridge ending on the right, staggered against the one above. -->
+      <path d="M 398 1024 C 364 520, 660 520, 626 902" opacity="0.85"/>
+    </g>
+
+    <!-- The core, and the same accent dot the wordmark uses in the header. It
+         sits low inside the innermost ridge: level with that ridge's apex it
+         touched the stroke and read as an eye. -->
+    <ellipse cx="512" cy="806" rx="44" ry="54" fill="#8aa4ff"/>
+  </svg>
+</div>
