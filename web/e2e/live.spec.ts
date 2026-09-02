@@ -70,6 +70,24 @@ test.describe("the comparison against the pinned block", () => {
     await expect(page.locator("[data-since-pin]")).toHaveCount(0);
   });
 
+  // Discoverability, which a feature nobody can reach does not have. The head
+  // run used to be linked only from a live run's banner -- which a reader of a
+  // recorded verdict never sees, so the newest capability was unreachable from
+  // the page where the question it answers actually occurs to someone.
+  test("a recorded verdict asks whether it still holds today", async ({ page }) => {
+    await page.goto(`/run?token=${RECORDED}&instant=1`);
+    const link = page.locator("[data-check-today]");
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("href", /live=1&at=head/);
+  });
+
+  // The banner said "replayed with no live engine" for as long as that was
+  // true, and kept saying it afterwards.
+  test("does not tell a visitor there is no live engine", async ({ page }) => {
+    await page.goto(`/run?token=${RECORDED}&instant=1`);
+    await expect(page.locator("body")).not.toContainText(/no live engine/i);
+  });
+
   // The link that gets a reader from one block to the other.
   test("a pinned live run offers the head run", async ({ page }) => {
     await page.goto(`/run?token=${RECORDED}&live=1`);

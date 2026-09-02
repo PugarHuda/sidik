@@ -95,7 +95,7 @@ function logLine(e: RunEvent): string {
     case "error":
       return `ERROR     ${e.message}`;
     case "replay":
-      return `REPLAY    recorded fork run at block ${e.block} — no live engine`;
+      return `REPLAY    recorded fork run at block ${e.block} — replayed, not re-executed`;
     case "forked":
       return `FORK      Base forked at block ${Number(e.block).toLocaleString("en-US")}${e.head ? " — the head of the chain, not the pinned block" : ""}`;
   }
@@ -572,7 +572,10 @@ export default function RunView(
         // amber banner — the NA colour, shouting, above the verdict.
         <p className="-mt-4 font-mono text-xs text-fg-dim">
           <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-na align-middle" aria-hidden="true" />
-          Recorded run — real fork proof from block {replay.block}, replayed with no live engine
+          {/* "replayed with no live engine" was true for as long as there was
+              no live engine. There is one now, and a banner telling every
+              visitor otherwise contradicted the landing page. */}
+          Recorded run — real fork proof from block {replay.block}, replayed rather than re-executed
           {/* The trace is paced so it reads as a sequence, which costs about
               six seconds. That is right for the first run somebody opens and
               wrong for the twentieth, so the pacing is skippable. It is
@@ -589,6 +592,17 @@ export default function RunView(
               </Link>
             </>
           )}
+          {/* The question a recorded verdict invites, and until now there was
+              no way to ask it from here: the head run was reachable only from
+              a live run's banner, which a reader of a replay never sees. */}
+          {" · "}
+          <Link
+            href={`/run?token=${token}&live=1&at=head`}
+            data-check-today
+            className="text-accent underline underline-offset-4 hover:text-fg"
+          >
+            does this still hold today?
+          </Link>
         </p>
       )}
 
