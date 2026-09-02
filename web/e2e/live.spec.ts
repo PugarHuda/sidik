@@ -128,3 +128,37 @@ test.describe("where the offer to execute appears", () => {
     await expect(page.locator("[data-live-banner]")).toContainText(/not a replay/i);
   });
 });
+
+test.describe("the demo link is usable", () => {
+  // /findings is what the entry submits as its demo link, and the rules say
+  // judges try what they can run. It had three findings, four deep links, and
+  // nothing to point Sidik at.
+  test("the findings page can run a token", async ({ page }) => {
+    await page.goto("/findings");
+    await expect(page.locator("[data-try-it]")).toBeVisible();
+    const box = page.locator("#findings-address");
+    await box.fill(RECORDED);
+    await page.getByRole("button", { name: /run it/i }).click();
+    // A literal comparison, not a pattern: "?" in a hand-built RegExp is a
+    // quantifier, so the first version quietly asserted something else.
+    await expect(page).toHaveURL(`/run?token=${RECORDED}`);
+  });
+
+  test("it names the live run, the head run and the MCP endpoint", async ({ page }) => {
+    await page.goto("/findings");
+    const panel = page.locator("[data-try-it]");
+    await expect(panel).toContainText(/forks Base and executes/i);
+    await expect(panel).toContainText(/at=head/);
+    await expect(panel).toContainText(/api\/mcp/);
+  });
+
+  // The paste handling is the part with judgement in it, and it now has one
+  // implementation. Both pages must still reject the same nonsense.
+  test("both pages reject a paste with no address in it", async ({ page }) => {
+    for (const [url, id] of [["/", "token-address"], ["/findings", "findings-address"]] as const) {
+      await page.goto(url);
+      await page.locator(`#${id}`).fill("https://example.com/nothing-here");
+      await expect(page.locator(`#${id}-problem`)).toContainText(/No 0x… address found/i);
+    }
+  });
+});

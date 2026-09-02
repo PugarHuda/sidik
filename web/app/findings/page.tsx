@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AddressBox from "../AddressBox";
 import {
   FIXTURES,
   SCANNER_STATS,
@@ -177,6 +178,40 @@ export default function FindingsPage() {
           </Link>
         </Figure>
       </div>
+
+      {/* This page is the demo link, and the rules say judges try what they
+          can run. Until now there was nothing on it to run: three findings, a
+          few deep links, and no way to point Sidik at anything. */}
+      <section className="mt-14 rounded-xl border border-accent/40 bg-accent/5 p-6" data-try-it>
+        <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Try it on your own token</h2>
+        <p className="mt-3 text-sm leading-6 text-fg-dim">
+          Paste any Base address. If it is one of the {f.addresses} already recorded you get that
+          run instantly; if it is not,{" "}
+          <span className="text-fg">Sidik forks Base and executes the probes while you watch</span>,
+          in about half a minute. Nothing is broadcast, and nothing needs a wallet.
+        </p>
+        <div className="mt-4">
+          <AddressBox id="findings-address" label="Base token address" cta="Run it →" />
+        </div>
+        <div className="mt-5 grid gap-3 text-sm leading-6 text-fg-dim sm:grid-cols-2">
+          <div>
+            <div className="font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">At today&rsquo;s block</div>
+            <p className="mt-1">
+              Every recorded verdict describes one block in August. Add{" "}
+              <code className="font-mono text-fg">&amp;live=1&amp;at=head</code> to any run and Sidik
+              forks Base where it is now, then says what changed since.
+            </p>
+          </div>
+          <div>
+            <div className="font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">As a tool</div>
+            <p className="mt-1">
+              An agent can call a fork execution instead of a scanner:
+            </p>
+            <pre className="mt-2 overflow-x-auto rounded-md border border-border bg-ink p-3 font-mono text-[11px] leading-5 text-fg">
+claude mcp add --transport http   sidik https://sidik-eight.vercel.app/api/mcp</pre>
+          </div>
+        </div>
+      </section>
 
       <h2 className="mt-14 font-mono text-xs uppercase tracking-[0.3em] text-accent">
         If you decide what gets listed

@@ -1,10 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import AddressBox from "./AddressBox";
 import { EXAMPLES, FIXTURE_COUNT, VERIFICATION_STATS } from "@sidik/shared";
 
-const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 // What each example's run ends on. Shown on the button so the page teaches
 // its own output before the first tap: a reader who has never seen a verdict
@@ -30,24 +29,6 @@ export interface TrapStat {
 
 export default function Home({ trap }: { trap: TrapStat }) {
   const router = useRouter();
-  const [address, setAddress] = useState("");
-  // A phone's clipboard almost never holds a bare address: it holds a
-  // Basescan, DEX Screener or Uniswap URL with the address inside. Take the
-  // first address found in whatever was pasted; only a paste with none in it
-  // is a mistake.
-  const extracted = address.match(/0x[0-9a-fA-F]{40}/)?.[0];
-  const trimmed = extracted ?? address.trim();
-  const valid = ADDRESS_RE.test(trimmed);
-  // Only once something has been typed: an empty box is not a mistake, and
-  // scolding someone before they have started is noise. Until this existed
-  // the button simply sat there greyed out with nothing saying why, which
-  // reads as a broken page rather than as invalid input.
-  const problem = !trimmed || valid ? null
-    : /^https?:\/\//i.test(trimmed) ? "No 0x… address found in that link."
-    : !trimmed.startsWith("0x") ? "A Base address starts with 0x."
-    : /[^0-9a-fA-F]/.test(trimmed.slice(2)) ? "Only the digits 0-9 and letters a-f can appear after 0x."
-    : `That is ${trimmed.length - 2} characters after 0x; an address has 40.`;
-
   function run(token: string) {
     router.push(`/run?token=${token}`);
   }
@@ -76,51 +57,7 @@ export default function Home({ trap }: { trap: TrapStat }) {
           <span className="text-fg">fork Base and execute it while you watch</span>.
         </p>
 
-        <form
-          className="mt-8 flex flex-col gap-3 sm:flex-row"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (valid) run(trimmed);
-          }}
-        >
-          <label htmlFor="token-address" className="sr-only">
-            Token address
-          </label>
-          <input
-            id="token-address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="0x…"
-            spellCheck={false}
-            autoComplete="off"
-            inputMode="text"
-            aria-invalid={problem ? true : undefined}
-            aria-describedby={problem ? "token-address-problem" : undefined}
-            className={`flex-1 rounded-md border bg-panel px-4 py-3 font-mono text-sm text-fg placeholder:text-fg-dim/60 outline-none focus:ring-1 ${
-              problem
-                ? "border-fail/60 focus:border-fail focus:ring-fail"
-                : "border-border focus:border-accent focus:ring-accent"
-            }`}
-          />
-          <button
-            type="submit"
-            disabled={!valid}
-            className="rounded-md bg-accent px-6 py-3 font-mono text-sm font-semibold text-ink transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-35"
-          >
-            Run trace →
-          </button>
-        </form>
-
-        {/* Announced, not just coloured: someone using a screen reader gets
-            the same explanation as someone watching the border turn red. */}
-        <p
-          id="token-address-problem"
-          role="status"
-          aria-live="polite"
-          className={`mt-2 font-mono text-xs ${problem ? "text-fail" : "sr-only"}`}
-        >
-          {problem ?? ""}
-        </p>
+        <AddressBox id="token-address" label="Token address" cta="Run trace →" className="mt-8" />
 
         <div className="mt-10">
           <div className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-fg-dim">
