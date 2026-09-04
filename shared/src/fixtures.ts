@@ -12714,12 +12714,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "PASS",
-        "title": "LP is locked/burned — no single-owner rug path",
+        "title": "LP can be pulled, but doing it barely moved a holder's exit",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "Largest LP holder found controls only 10% of active liquidity",
+            "proven": "The owner holds 10% of active liquidity and it is neither burned nor locked, but removing all of it moved a holder's position only from 4.03 WETH to 4.03 WETH",
             "ok": true
           }
         ],
@@ -12814,7 +12814,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "txHashes": []
       }
     ],
-    "narration": "HIGHER passed the honeypot check: buying and selling both succeeded, including from a wallet that received a transfer (1,424,180.31 HIGHER bought, transferee sell succeeded). LP is locked, with the largest LP holder controlling only 10% of active liquidity (0% burned); pool value held steady at 4.03 WETH before and after. No hidden fees were found on buy, sell, or transfer (0% fee/buy tax/sell tax on 474,726.77 HIGHER). The ownerTrap probe found no owner switches among 31 searched, though it is marked not applicable since privileged code under unknown names could still exist. Cross-venue pricing was not applicable — HIGHER wasn't trading on BingX at that hour."
+    "narration": "HIGHER passed the honeypot check: buying and selling both succeeded, including a sell from a wallet that received a transfer (1,424,180.31 HIGHER bought, sell succeeded). The LP-rug check also passed: the owner holds 10% of active liquidity, unlocked and unburned, but draining it left a holder's position unchanged at 4.03 WETH. No hidden fees were found on buy, sell, or transfer (0% fee/tax, 474,726.77 HIGHER sent and received in full). The owner-trap probe found no known owner switches among 31 searched, though it's not applicable/conclusive. No BingX price data existed for cross-venue comparison at that time."
   },
   "0xf6e932ca12afa26665dc4dde7e27be02a7c02e50": {
     "scan": {
@@ -27930,10 +27930,10 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "lpRug",
-      "crossVenue",
-      "ownerTrap"
+      "hiddenFee",
+      "ownerTrap",
+      "crossVenue"
     ],
     "verdicts": [
       {
@@ -27963,6 +27963,31 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x2296a756acdcf4d412ec1b3c58f22ce3ce362dcddec90e9b1bad599d85ab79d2",
           "0x55cb67f4a91229d0231332f53c35f27c884b112080787c69ce88ec8d1752c87a",
           "0xb70f0356afa39b3c9327efde5e0a3c885c991d9f1de5a33478026f6af9f6fec4"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP can be pulled, but doing it barely moved a holder's exit",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "The owner holds 8% of active liquidity and it is neither burned nor locked, but removing all of it moved a holder's position only from 8.09 WETH to 8.07 WETH",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "8%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "8.09 WETH",
+          "holderValueAfter": "8.07 WETH",
+          "lpOwner": "0xF2e16487621c145F56dDAA6aeB1Fa68ce94B08dE",
+          "venue": "uniswap-v3",
+          "positionId": "5810459"
+        },
+        "txHashes": [
+          "0x7372c62d34e6cca8679aa35ee187cd16a1348aa059b07f29484aa8c5dc578da4"
         ]
       },
       {
@@ -28005,29 +28030,29 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       },
       {
-        "probe": "lpRug",
+        "probe": "ownerTrap",
         "status": "PASS",
-        "title": "LP is locked/burned — no single-owner rug path",
+        "title": "The switch exists, but ownership is renounced and the call reverted",
         "rows": [
           {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "Largest LP holder found controls only 8% of active liquidity",
+            "label": "Owner can trap a holder after the buy",
+            "claimed": "Once you hold it, exiting is up to you",
+            "proven": "owner() is 0x00000000000000000000000000000000005A1Dec, an address nobody can sign for, so no one can satisfy an owner check. Calling setSwapEnabled(bool) from an unrelated address reverted every time",
             "ok": true
           }
         ],
         "numbers": {
-          "ownerLpPct": "8%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "8.09 WETH",
-          "holderValueAfter": "8.07 WETH",
-          "lpOwner": "0xF2e16487621c145F56dDAA6aeB1Fa68ce94B08dE",
-          "venue": "uniswap-v3",
-          "positionId": "5810459"
+          "switchesSearched": "31",
+          "switchesFound": "setSwapEnabled(bool)",
+          "switchesPulled": "none",
+          "owner": "0x00000000000000000000000000000000005A1Dec"
         },
         "txHashes": [
-          "0x7372c62d34e6cca8679aa35ee187cd16a1348aa059b07f29484aa8c5dc578da4"
-        ]
+          "0x8418d9f26041f7e413f8fc3946b6573faeabd8397716681770be0db19e4a7036",
+          "0x38cff5b969dcc4e7ee3858898dd98f805cda51507f42c5054b4c1a07501af313",
+          "0x800882b07b5b5169a382bb6d5c379b7473c9d6027b595392a8dab899a590d28c"
+        ],
+        "reason": "setSwapEnabled(bool): reverted"
       },
       {
         "probe": "crossVenue",
@@ -28060,34 +28085,9 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "txHashes": [
           "0x8418d9f26041f7e413f8fc3946b6573faeabd8397716681770be0db19e4a7036"
         ]
-      },
-      {
-        "probe": "ownerTrap",
-        "status": "PASS",
-        "title": "The switch exists, but ownership is renounced and the call reverted",
-        "rows": [
-          {
-            "label": "Owner can trap a holder after the buy",
-            "claimed": "Once you hold it, exiting is up to you",
-            "proven": "owner() is 0x00000000000000000000000000000000005A1Dec, an address nobody can sign for, so no one can satisfy an owner check. Calling setSwapEnabled(bool) from an unrelated address reverted every time",
-            "ok": true
-          }
-        ],
-        "numbers": {
-          "switchesSearched": "31",
-          "switchesFound": "setSwapEnabled(bool)",
-          "switchesPulled": "none",
-          "owner": "0x00000000000000000000000000000000005A1Dec"
-        },
-        "txHashes": [
-          "0x8418d9f26041f7e413f8fc3946b6573faeabd8397716681770be0db19e4a7036",
-          "0x38cff5b969dcc4e7ee3858898dd98f805cda51507f42c5054b4c1a07501af313",
-          "0x800882b07b5b5169a382bb6d5c379b7473c9d6027b595392a8dab899a590d28c"
-        ],
-        "reason": "setSwapEnabled(bool): reverted"
       }
     ],
-    "narration": "✓ Not a honeypot — buy and sell both succeed\n✓ No hidden fee on buying, selling or transferring\n✓ LP is locked/burned — no single-owner rug path\n✓ Pool price matches 2 independent venues within +4.39%\n✓ The switch exists, but ownership is renounced and the call reverted"
+    "narration": "All five probes passed. Buying and selling both succeed, including from a wallet that received a transfer (519,356.17 BRETT bought, transferee sell succeeded). LP owner holds 8% of liquidity, unlocked/unburned (0% burned), but draining it only moved a holder's position from 8.09 WETH to 8.07 WETH. No hidden fees: 173,118.72 BRETT sent and received in full, 0% buy/sell tax. Ownership is renounced (owner 0x00000000000000000000000000000000005A1Dec), and calling setSwapEnabled(bool) reverted. Pool price of $0.004360 was within +4.39% (BingX) and +4.42% (Gate) of external venues."
   },
   "0xac1bd2486aaf3b5c0fc3fd868558b082a531b2b4": {
     "scan": {
@@ -28145,8 +28145,8 @@ export const FIXTURES: Record<string, FrozenRun> = {
     },
     "ids": [
       "honeypot",
-      "hiddenFee",
       "lpRug",
+      "hiddenFee",
       "crossVenue",
       "ownerTrap"
     ],
@@ -28178,6 +28178,31 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0xd472f99c0159d5f1ec95699a8824e4cc641bfc5729c2e291d6e1474124ea6fdf",
           "0xd9f70a6854a780d2e5e54a311fbf5613e6a869004ad04cb1aecde2d1c0a133e7",
           "0x75deeae17ec8a4429c35f0d04e5ba35a1be4b53ebdcde549f531a19255dad85e"
+        ]
+      },
+      {
+        "probe": "lpRug",
+        "status": "PASS",
+        "title": "LP can be pulled, but doing it barely moved a holder's exit",
+        "rows": [
+          {
+            "label": "LP owner can drain the pool",
+            "claimed": "Liquidity is locked/safe",
+            "proven": "The owner holds 100% of active liquidity and it is neither burned nor locked, but removing all of it moved a holder's position only from 139.94 WETH to 136.88 WETH",
+            "ok": true
+          }
+        ],
+        "numbers": {
+          "ownerLpPct": "100%",
+          "burnedLpPct": "0%",
+          "holderValueBefore": "139.94 WETH",
+          "holderValueAfter": "136.88 WETH",
+          "lpOwner": "0xC216BfA5dA000965E820845c32e6FD88DB275743",
+          "venue": "uniswap-v3",
+          "positionId": "5811968"
+        },
+        "txHashes": [
+          "0x7a0a3495aa84a41780c919623df163374bcc3e81127bd6e71d4a0e4071bcb33a"
         ]
       },
       {
@@ -28217,31 +28242,6 @@ export const FIXTURES: Record<string, FrozenRun> = {
           "0x671576c4dfefdd8e32331459d60ee7d382114101487b5307377cf41774990ea9",
           "0x7d5183bd3597e68601bffac8aa92567d59da055223a2b74e9ffe991d147dee72",
           "0xe1f4dc4cb32ca7a1dc901a8201c252f49ae68cd6857842b1d2df2b18a875c5c5"
-        ]
-      },
-      {
-        "probe": "lpRug",
-        "status": "PASS",
-        "title": "LP is locked/burned — no single-owner rug path",
-        "rows": [
-          {
-            "label": "LP owner can drain the pool",
-            "claimed": "Liquidity is locked/safe",
-            "proven": "Largest LP holder found controls only 100% of active liquidity",
-            "ok": true
-          }
-        ],
-        "numbers": {
-          "ownerLpPct": "100%",
-          "burnedLpPct": "0%",
-          "holderValueBefore": "139.94 WETH",
-          "holderValueAfter": "136.88 WETH",
-          "lpOwner": "0xC216BfA5dA000965E820845c32e6FD88DB275743",
-          "venue": "uniswap-v3",
-          "positionId": "5811968"
-        },
-        "txHashes": [
-          "0x7a0a3495aa84a41780c919623df163374bcc3e81127bd6e71d4a0e4071bcb33a"
         ]
       },
       {
@@ -28295,7 +28295,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         "reason": "setSwapEnabled(bool): reverted"
       }
     ],
-    "narration": "TOSHI passed all five checks. Buying and selling both succeeded, including from a wallet that received a transfer. No hidden fees appeared: buy tax, sell tax, and later sell tax were all 0%, and a full-balance transfer of 6,944,098.53 TOSHI arrived intact. LP is controlled 100% by one holder (0% burned), with holder value moving from 139.94 WETH to 136.88 WETH. Pool price was $0.0001087 versus BingX's $0.0001061, a +2.42% difference. Ownership is renounced (owner 0x00000000000000000000000000000000005A1Dec), and calling setSwapEnabled(bool) reverted every time."
+    "narration": "TOSHI passed all five checks. Buying, selling, and transfers work with no hidden fees (0% buy/sell tax), tested with amounts like 20,832,295.6 and 6,944,098.53 TOSHI. LP is 100% owner-held and unlocked, but a full drain only moved a holder's position from 139.94 WETH to 136.88 WETH. Pool price ($0.0001087) was within +2.42% of BingX ($0.0001061). Ownership sits at a burn-style address (0x...5A1Dec); the only found switch, setSwapEnabled(bool), reverted on every call from an unrelated address."
   },
   "0x940181a94a35a4569e4529a3cdfb74e38fd98631": {
     "scan": {
@@ -29282,12 +29282,12 @@ export const FIXTURES: Record<string, FrozenRun> = {
       {
         "probe": "lpRug",
         "status": "PASS",
-        "title": "LP is locked/burned — no single-owner rug path",
+        "title": "LP can be pulled, but doing it barely moved a holder's exit",
         "rows": [
           {
             "label": "LP owner can drain the pool",
             "claimed": "Liquidity is locked/safe",
-            "proven": "Largest LP holder found controls only 100% of active liquidity",
+            "proven": "The owner holds 100% of active liquidity and it is neither burned nor locked, but removing all of it moved a holder's position only from 0.2189 WETH to 0.2189 WETH",
             "ok": true
           }
         ],
@@ -29344,7 +29344,7 @@ export const FIXTURES: Record<string, FrozenRun> = {
         ]
       }
     ],
-    "narration": "AIXBT passed all four checks. Honeypot probe: buying and selling both succeeded, including a sell from a transferee wallet (1,852.34 AIXBT bought, transfer sell succeeded). Owner-trap probe was not applicable: 31 known owner switches were searched, none found, owner address is the zero address. LP-rug probe passed: largest LP holder controls 100% of active liquidity (0% burned), holder value unchanged at 0.2189 WETH before and after. Hidden-fee probe passed: 617.44 AIXBT sent and received, with buy tax, sell tax, and later sell tax all at 0%."
+    "narration": "AIXBT passed all four checks. Honeypot test: buying 1,852.34 AIXBT and selling succeeded, and a transferee's sell also succeeded. Owner-trap probe found none of 31 known owner switches in bytecode (owner address is null), though unnamed privileged code can't be ruled out. LP rug check: owner holds 100% of liquidity, unburned/unlocked (Uniswap v3 position 5804324), but a full LP removal left a holder's value unchanged at 0.2189 WETH before and after. Hidden fee test showed 0% buy/sell/transfer tax, with 617.44 AIXBT sent and received in full."
   },
   "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452": {
     "scan": {
@@ -30899,8 +30899,8 @@ export const FIXTURE_META: {
   anvil: string | null;
   probes: string[];
 } = {
-  "recordedThrough": "2026-08-31",
-  "engineCommit": "b64d21c39d4354969236b0d29ff9f6e40a1a58de",
+  "recordedThrough": "2026-09-04",
+  "engineCommit": "fcf711302da0f80e4e0a1eb5f43e33d0ee2a40b6",
   "anvil": "anvil Version: 1.8.0\nCommit SHA: 61ae26af36320d4fa1020f7db53785885e29eeb5\nBuild Timestamp: 2026-08-26T13:16:35.013767800Z (1787750195)\nBuild Profile: dist",
   "probes": [
     "honeypot",

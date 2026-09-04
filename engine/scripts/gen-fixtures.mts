@@ -484,6 +484,13 @@ function upToDate(run: FrozenRun): boolean {
   // never asked. Self-terminating: every contract-held verdict produced now
   // records the number, including zero.
   if (lp && /held by contract/.test(lp.title) && lp.numbers.releaseTried === undefined) return false;
+  // 2026-09-04: the fall-through PASS titled itself "LP is locked/burned -- no
+  // single-owner rug path", which is reached only after burned LP and a locker
+  // have both been ruled out -- so it asserted the two facts the branch had
+  // just disproved, over numbers reading 0% burned. HIGHER, BRETT, TOSHI and
+  // AIXBT all carried it. Self-terminating: no sentence the probe can produce
+  // now contains that phrase.
+  if (lp && lp.title.startsWith("LP is locked/burned")) return false;
   return true;
 }
 

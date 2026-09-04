@@ -16,6 +16,37 @@ describe("interpretLpRug", () => {
     expect(v.status).toBe("PASS");
   });
 
+  // Regression, found in the shipped catalogue on HIGHER, BRETT, TOSHI and
+  // AIXBT: this branch is reached only after burned LP and a locker have both
+  // been ruled out, and it titled itself "LP is locked/burned" anyway — over
+  // numbers reading 0% burned. On TOSHI and AIXBT it also said the holder
+  // "controls only 100%".
+  it("never claims the LP is locked or burned on a pull that was executed", () => {
+    const v = interpretLpRug({ lpOwner: "0xo", lpHolderFound: true, ownerLpPct: 100, burnedLpPct: 0,
+      holderValueBefore: "139.94", holderValueAfter: "136.88", pullTxHash: "0xp" }, ctx);
+    expect(v.status).toBe("PASS");
+    expect(v.title).not.toMatch(/locked|burned/i);
+    expect(v.rows[0]?.proven).not.toMatch(/only 100%/i);
+    expect(v.rows[0]?.proven).toMatch(/neither burned nor locked/i);
+  });
+
+  // A pull that costs a holder 40% of their exit is the harm this probe exists
+  // to find; only a >50% collapse used to count, so it read PASS.
+  it("FAILs when the pull repriced a holder's exit without draining the pool", () => {
+    const v = interpretLpRug({ lpOwner: "0xo", lpHolderFound: true, ownerLpPct: 36, burnedLpPct: 0,
+      holderValueBefore: "1.93", holderValueAfter: "1.16", pullTxHash: "0xp" }, ctx);
+    expect(v.status).toBe("FAIL");
+    expect(v.title).toMatch(/39.9%|40%/);
+  });
+
+  // Removing a position always moves the price a little; that is impact, not a
+  // rug, and calling it one would fail most of the catalogue's deepest pools.
+  it("stays PASS when the pull cost less than the material-loss line", () => {
+    const v = interpretLpRug({ lpOwner: "0xo", lpHolderFound: true, ownerLpPct: 8, burnedLpPct: 0,
+      holderValueBefore: "8.09", holderValueAfter: "8.07", pullTxHash: "0xp" }, ctx);
+    expect(v.status).toBe("PASS");
+  });
+
   // Burned LP cannot be withdrawn by anyone, so this is real proof of safety
   // and needs no holder discovery — the common case for a locked pool.
   it("PASSes on burned LP without needing to find a holder", () => {

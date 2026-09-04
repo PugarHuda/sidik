@@ -29,6 +29,15 @@ const MIN_TESTABLE_LP_PCT = 1;
 // projects routinely leave a dust remainder behind.
 const BURNED_LP_PCT_FOR_PASS = 99;
 
+// Removing a position always moves the price a little — that is ordinary
+// impact, not a rug, and on a V3 pool with liquidity in adjacent ranges even
+// pulling every in-range position can cost a holder only a couple of percent
+// (TOSHI: 100% of active liquidity pulled, exit 139.94 -> 136.88 WETH). Above
+// this, the owner's pull repriced the exit by more than the market would have,
+// which is the thing a holder is actually exposed to. Below the "collapsed"
+// line, so a drained pool still reads as the stronger finding.
+const MATERIAL_EXIT_LOSS_PCT = 10;
+
 // 9k blocks — the logs RPC caps a single eth_getLogs at 10k, so this takes
 // the window right up to what one request allows. At 3k the holder sample
 // came back empty for 56% of the catalogue, which is what starved lpRug's
@@ -111,6 +120,8 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
   const beforeN = Number(beforeWei);
   const afterN = Number(afterWei);
   const collapsed = beforeN > 0 && afterN <= beforeN * 0.5;
+  const exitLossPct = beforeN > 0 ? Math.max(0, (1 - afterN / beforeN) * 100) : 0;
+  const loss = `${exitLossPct.toFixed(1).replace(/[.]0$/, "")}%`;
 
   // Burned LP is unreachable by definition, so this is a positive proof of
   // safety rather than an absence of evidence — and it needs no holder
@@ -238,10 +249,28 @@ export function interpretLpRug(raw: RawResult, _ctx: ProbeCtx): Verdict {
     };
   }
 
+  // Reaching here means the pull was EXECUTED and the exit did not collapse.
+  // Burned LP and a locker are the only two ways liquidity is genuinely out of
+  // reach, and both returned above — so nothing here may claim either. It said
+  // "LP is locked/burned — no single-owner rug path" for every one of these,
+  // which asserted the two facts this branch has already ruled out, over
+  // numbers reading 0% burned; on TOSHI and AIXBT it also read "controls only
+  // 100%". What was actually proven is the pull and what it cost.
+  const held = `${who === "owner" ? "The owner" : who === "a Safe multisig" ? "A Safe multisig" : "The holding contract's owner"} holds ${share}`;
+  if (exitLossPct >= MATERIAL_EXIT_LOSS_PCT) {
+    return {
+      probe: "lpRug", status: "FAIL",
+      title: `LP rug possible — pulling it cost a holder ${loss} of their exit`,
+      rows: [{ label: ROW_LABEL, claimed: CLAIMED,
+        proven: `${held}, and removing it repriced a holder's position from ${before} to ${after} — ${loss} of their exit, without the pool being drained`, ok: false }],
+      numbers, txHashes,
+    };
+  }
   return {
-    probe: "lpRug", status: "PASS", title: "LP is locked/burned — no single-owner rug path",
+    probe: "lpRug", status: "PASS",
+    title: "LP can be pulled, but doing it barely moved a holder's exit",
     rows: [{ label: ROW_LABEL, claimed: CLAIMED,
-      proven: `Largest LP holder found controls only ${share}`, ok: true }],
+      proven: `${held} and it is neither burned nor locked, but removing all of it moved a holder's position only from ${before} to ${after}`, ok: true }],
     numbers, txHashes,
   };
 }
