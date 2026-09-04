@@ -41,6 +41,14 @@ export interface Deps {
   narrate: (verdicts: Verdict[]) => Promise<string>;
   block: bigint;
   testWallet: Hex;
+  /**
+   * Overridable because the ceiling has to sit under whatever will kill the
+   * process first. On Vercel that is maxDuration, and at the 10-minute default
+   * the guard below could never fire there: the platform always won, killing
+   * the stream mid-probe instead of letting the run finish and say which
+   * probes it gave up on.
+   */
+  budgetMs: number;
   getCached: typeof getCached;
   setCached: typeof setCached;
 }
@@ -52,6 +60,7 @@ const defaultDeps: Deps = {
   narrate: realNarrate,
   block: BASE_FORK_BLOCK,
   testWallet: TEST_WALLET,
+  budgetMs: RUN_BUDGET_MS,
   getCached,
   setCached,
 };
@@ -103,11 +112,11 @@ export async function* runSidik(token: Hex, deps: Partial<Deps> = {}): AsyncGene
     const verdicts: Verdict[] = [];
     for (const id of ids) {
       yield { type: "probe:start", id };
-      if (performance.now() - started > RUN_BUDGET_MS) {
+      if (performance.now() - started > d.budgetMs) {
         // An NA with no rows: the shape isProbeFailure recognises, so the
         // generator never freezes a budget overrun as a verdict.
         log.error({ event: "probe.skipped", token, probe: id, ms: since(started), reason: "run budget exceeded" });
-        const verdict = naVerdict(id, `probe ${id} could not run — the run exceeded its ${Math.round(RUN_BUDGET_MS / 60_000)}-minute budget`);
+        const verdict = naVerdict(id, `probe ${id} could not run — the run exceeded its ${Math.round(d.budgetMs / 60_000)}-minute budget`);
         verdicts.push(verdict);
         yield { type: "verdict", verdict };
         continue;

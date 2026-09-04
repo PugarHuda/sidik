@@ -86,7 +86,16 @@ export async function anvilCommand(): Promise<string> {
   // One download per instance even when several runs start at once: the
   // second caller waits on the first one's promise rather than racing it to
   // the same path with a half-written file in between.
-  provisioning ??= fetchAnvil();
+  //
+  // A REJECTED promise is not worth keeping, though, and `??=` kept it: one
+  // GitHub 5xx or a single timed-out fetch disabled live runs for the whole
+  // life of the instance, and defeated spawnAnvilWithRetry into three instant
+  // re-throws of the same settled rejection. Cleared on failure so the next
+  // caller downloads again; the success path still caches.
+  provisioning ??= fetchAnvil().catch((e: unknown) => {
+    provisioning = undefined;
+    throw e;
+  });
   return provisioning;
 }
 

@@ -46,8 +46,7 @@ const THROTTLE_BASE_MS = 500;
 const THROTTLE_MAX_MS = 8_000;
 
 async function forwardWithBackoff(upstream: string, body: string): Promise<Response> {
-  let last: Response | undefined;
-  for (let attempt = 0; attempt < THROTTLE_ATTEMPTS; attempt++) {
+  for (let attempt = 0; ; attempt++) {
     const up = await fetch(upstream, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -57,7 +56,12 @@ async function forwardWithBackoff(upstream: string, body: string): Promise<Respo
     });
     if (up.status !== 429) return up;
     stats.throttled++;
-    last = up;
+    // Out of attempts: hand the 429 back with its body intact. The loop used
+    // to drain it and sleep first anyway, so the caller re-read a spent
+    // Response, threw, and booked the event as `unreachable` — the opposite of
+    // what happened, on the one counter that exists to tell throttling from an
+    // outage — after a wait of up to eight seconds that nothing came after.
+    if (attempt >= THROTTLE_ATTEMPTS - 1) return up;
     const retryAfter = Number(up.headers.get("retry-after"));
     const wait = Number.isFinite(retryAfter) && retryAfter > 0
       ? Math.min(retryAfter * 1000, THROTTLE_MAX_MS)
@@ -65,7 +69,6 @@ async function forwardWithBackoff(upstream: string, body: string): Promise<Respo
     await up.text().catch(() => ""); // release the socket before sleeping
     await new Promise((r) => setTimeout(r, wait));
   }
-  return last!;
 }
 
 /**

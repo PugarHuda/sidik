@@ -38,6 +38,24 @@ describe("diffRuns", () => {
     expect(d.changed[0]).toMatchObject({ before: "NA", after: "n/a here" });
   });
 
+  // The engine emits a plain NA for a probe that threw or ran out of budget,
+  // so this is what a rate-limited head run looks like — and it was being
+  // announced as "something that failed no longer does", i.e. a honeypot cured
+  // by an RPC refusal.
+  it("does not call a probe that could not be re-run an improvement", () => {
+    const d = diffRuns([v("honeypot", "FAIL")], [v("honeypot", "NA")]);
+    expect(d.improved).toBe(false);
+    expect(d.regressed).toBe(false);
+    expect(describeDiff(d, "50,200,000", "50,747,104")).toMatch(/No answer could be obtained/);
+  });
+
+  // Losing the switch from the bytecode IS the token improving, and it is the
+  // exact shape of a renounced owner — so this must stay an improvement.
+  it("still calls a mechanism that is gone at the later block an improvement", () => {
+    const d = diffRuns([v("ownerTrap", "FAIL")], [v("ownerTrap", "NA", { applicable: false })]);
+    expect(d.improved).toBe(true);
+  });
+
   // A probe that ran at only one block is exactly what happens when a contract
   // gains or loses a switch; dropping it silently would hide that.
   it("reports a probe appearing and disappearing", () => {

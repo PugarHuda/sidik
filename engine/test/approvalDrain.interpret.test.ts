@@ -39,6 +39,18 @@ describe("interpretApprovalDrain", () => {
     expect(JSON.stringify(v)).not.toContain("$");
   });
 
+  // The same bug shape as "nothing is deployed here", one branch further in:
+  // every approval the wallet has errored, so the list is empty and the probe
+  // announced an absence — in green — that its own skipped count contradicts.
+  it("does not report approvals it could not read as no approvals at all", () => {
+    const v = interpretApprovalDrain({ approvals: [], drainedWeth: "0", drainTxHash: "0x", skipped: 7 }, ctx);
+    expect(v.status).toBe("NA");
+    expect(v.title).toMatch(/none of this wallet's 7 approvals could be tested/i);
+    expect(v.rows[0]!.proven).not.toMatch(/no approvals found/i);
+    expect(v.rows[0]!.ok).toBe(false);
+    expect(v.numbers.skipped).toBe("7");
+  });
+
   // Two of three real wallets lost the whole probe to one contract that
   // reverts on allowance(); the survivors' approvals still deserve a verdict.
   it("counts approvals it had to skip rather than losing the run", () => {

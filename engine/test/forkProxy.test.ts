@@ -109,6 +109,31 @@ describe("fork proxy", () => {
     } finally { via.close(); flaky.close(); }
   });
 
+  // A gateway that never stops throttling is a different fact from one that is
+  // down, and /health has one counter for each. The exhausted backoff used to
+  // drain the last 429's body and sleep before returning it, so the caller's
+  // re-read threw and the event was booked as `unreachable`.
+  it("hands back the last 429 intact instead of booking it as unreachable", async () => {
+    let calls = 0;
+    const always429 = createServer((_req, res) => {
+      calls++;
+      // A fractional retry-after keeps the five real backoff sleeps to a few
+      // milliseconds. What is under test is running OUT of attempts, not how
+      // long the waiting takes.
+      res.writeHead(429, { "retry-after": "0.01", "content-type": "application/json" });
+      res.end(JSON.stringify({ jsonrpc: "2.0", id: 9, error: { code: -32005, message: "rate limited" } }));
+    });
+    await new Promise<void>((r) => always429.listen(0, "127.0.0.1", () => r()));
+    const a = always429.address();
+    const via = await startForkProxy(`http://127.0.0.1:${typeof a === "string" ? 0 : a!.port}`);
+    try {
+      const { status, body } = await rpc(via.url, { jsonrpc: "2.0", id: 9, method: "eth_chainId", params: [] });
+      expect(status).toBe(429);
+      expect(body.error?.message).toBe("rate limited");
+      expect(body.error?.message).not.toMatch(/unreachable/);
+    } finally { via.close(); always429.close(); }
+  });
+
   it("reports an unreachable upstream as a JSON-RPC error, not a hang", async () => {
     const dead = await startForkProxy("http://127.0.0.1:1");
     try {

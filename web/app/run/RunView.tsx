@@ -55,7 +55,7 @@ function byImportance(a: Verdict, b: Verdict): number {
  *
  * That distinction used to be invisible and cost little, because only one
  * probe was ever inapplicable. With the owner-switch probe it is the common
- * case — 161 of the recorded addresses carry no switch at all — so a clean
+ * case — most recorded addresses carry no switch at all — so a clean
  * token would show two N/A cards among six and read as poorly covered when
  * every check that could apply had answered.
  */
@@ -539,7 +539,12 @@ export default function RunView(
           complete recorded run against a partial one and reported every probe
           that had not reported yet as having disappeared — "ownerTrap: FAIL →
           absent" while the owner-trap probe was still executing. */}
-      {atHead && pinned && isDone && verdicts.length > 0 && (() => {
+      {/* Gated on the fork that actually happened, not on the URL. `at=head`
+          without `live=1` streams the REPLAY, so this compared the recorded
+          run against itself and concluded "Nothing changed. Every probe
+          reaches the same answer" — an affirmative statement about the chain
+          today, assembled from August and nothing else. */}
+      {atHead && forked?.head && pinned && isDone && verdicts.length > 0 && (() => {
         const d = diffRuns(pinned, verdicts);
         const sentence = describeDiff(d, Number(FIXTURE_BLOCK).toLocaleString("en-US"), block);
         return (
@@ -681,7 +686,15 @@ export default function RunView(
               // difference between "not yet" and "not ever" is the same
               // distinction this whole project turns on.
               ? <>Sidik cannot trade this address at all, so no run for it will ever exist.</>
-              : <>Sidik has not traded this token yet. It only shows results for addresses it actually bought and sold on a fork.</>}
+              // Every failure a live run can hit — the engine busy, the archive
+              // RPC refusing, anvil not starting — used to be headlined as a
+              // coverage gap. That states a fact about the token ("never
+              // traded") on the strength of our own infrastructure, one click
+              // after the reader asked us to trade it, and it printed directly
+              // above whatever verdict cards the run had already produced.
+              : live || verdicts.length > 0
+                ? <>This run stopped before it finished. What follows is about the run, not a finding about the token.</>
+                : <>Sidik has not traded this token yet. It only shows results for addresses it actually bought and sold on a fork.</>}
           </p>
           <p className="wrap-anywhere mt-1 text-sm text-fg-dim">{errorEvent?.message}</p>
           {/* The recorded catalogue cannot cover an address nobody has probed
@@ -886,7 +899,7 @@ export default function RunView(
           )}
           {/* The advice everyone gives is "check that the contract is
               verified". Across this catalogue that advice separates almost
-              nothing: 46 of the 47 addresses with a finding against them
+              nothing: all but one of the addresses with a finding against them
               publish verified source. Stated per token so a reader can see it
               on the one in front of them rather than take the aggregate on
               trust. Read from Blockscout, and no part of any verdict. */}

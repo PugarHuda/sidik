@@ -60,6 +60,23 @@ export function interpretApprovalDrain(raw: RawResult, ctx: ProbeCtx): Verdict {
   }
 
   if (approvals.length === 0) {
+    // Approvals that were found but could not be read or executed land in
+    // `skipped`, and an empty list then means the opposite of what it says. It
+    // rendered "No approvals found for this wallet" in green next to a skipped
+    // count of its own making — an absence asserted out of a count of our own
+    // failures, on the probe that runs for any address that is not an ERC-20.
+    const skipped = Number(raw.skipped ?? 0);
+    if (skipped > 0) {
+      return {
+        probe: "approvalDrain", status: "NA",
+        title: skipped === 1
+          ? "The one approval this wallet has could not be tested"
+          : `None of this wallet's ${skipped} approvals could be tested`,
+        rows: [{ label: "Live token approvals", claimed: "n/a",
+          proven: `${skipped} approval${skipped === 1 ? "" : "s"} were found, and every one failed to read or execute on the fork — so this says nothing about whether they are drainable.`, ok: false }],
+        numbers, txHashes,
+      };
+    }
     return {
       probe: "approvalDrain", status: "NA", title: "No live approvals to test",
       rows: [{ label: "Live token approvals", claimed: "n/a", proven: "No approvals found for this wallet", ok: true }],

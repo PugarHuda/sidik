@@ -67,19 +67,35 @@ export function diffRuns(before: Verdict[], after: Verdict[]): RunDiff {
     changes,
     changed,
     regressed: changed.some((c) => c.before === "PASS" && c.after === "FAIL"),
-    improved: changed.some((c) => c.before === "FAIL" && c.after !== "FAIL" && c.after !== "absent"),
+    // Landing on NA is the one move that says nothing about the token: the
+    // engine emits a plain NA for a probe that threw or ran out of budget, so
+    // "FAIL -> NA" is a probe that could not be re-run, not a fault that got
+    // fixed. Counted as an improvement, it announced a honeypot as cured on
+    // the strength of a rate-limited RPC. Reaching "n/a here" is different and
+    // stays an improvement — the mechanism is genuinely gone from the
+    // bytecode, which is what a renounced owner looks like.
+    improved: changed.some((c) => c.before === "FAIL" && !UNMEASURED.has(c.after) && c.after !== "FAIL" && c.after !== "absent"),
   };
 }
+
+/** States that mean "no answer was obtained", as opposed to an answer. */
+const UNMEASURED = new Set<ProbeState>(["NA"]);
 
 /** One sentence a reader can act on, or undefined when nothing moved. */
 export function describeDiff(diff: RunDiff, beforeBlock: string, afterBlock: string): string | undefined {
   if (diff.changed.length === 0) return undefined;
   const n = diff.changed.length;
   const which = diff.changed.map((c) => c.probe).join(", ");
+  // When every move was into "could not tell", nothing about the token was
+  // measured at the later block, and "the answer changed" would be a claim
+  // built out of our own failure to get one.
+  const measured = diff.changed.filter((c) => !UNMEASURED.has(c.after));
   const lead = diff.regressed
     ? "Something that passed at the pinned block does not pass now."
     : diff.improved
       ? "Something that failed at the pinned block no longer does."
-      : "The answer changed between the two blocks.";
+      : measured.length === 0
+        ? "No answer could be obtained at the later block for what changed, so nothing here is a finding about the token."
+        : "The answer changed between the two blocks.";
   return `${lead} ${n} probe${n === 1 ? "" : "s"} changed between block ${beforeBlock} and block ${afterBlock}: ${which}.`;
 }

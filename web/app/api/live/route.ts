@@ -22,6 +22,12 @@ import type { Hex } from "@sidik/shared";
  */
 export const runtime = "nodejs";
 export const maxDuration = 300;
+// Under maxDuration, with room left for the narration and the closing frames.
+// The engine's own budget defaults to ten minutes, which is right for a laptop
+// and unreachable here: the platform would kill the invocation mid-probe at
+// five, so the reader got a truncated stream instead of a finished run naming
+// the probes it had to give up on.
+const RUN_BUDGET_MS = 240_000;
 // Never cached: two runs of the same address are two executions, and a cached
 // stream would show the second one somebody else's transactions.
 export const dynamic = "force-dynamic";
@@ -92,7 +98,7 @@ export async function GET(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        for await (const event of runSidik(token as Hex, block ? { block } : {})) {
+        for await (const event of runSidik(token as Hex, { budgetMs: RUN_BUDGET_MS, ...(block ? { block } : {}) })) {
           controller.enqueue(frame(event.type, event));
         }
       } catch (e) {
