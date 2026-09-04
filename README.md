@@ -644,3 +644,14 @@ shared/                     what both sides import, so the contract cannot drift
   src/narration.ts            refuses to serve prose that contradicts its own verdicts
   src/catalogue.ts            rows, filters and paging, used by the page and the API
 ```
+
+## Licence
+
+MIT — see [LICENSE](LICENSE).
+
+That covers the code. The recorded runs in `shared/src/fixtures.ts` are
+measurements of public contracts on a public chain, and none of the
+transactions in them were ever broadcast, so reuse them freely — but a verdict
+describes **one block**, and a token can acquire an owner or lose its liquidity
+after it. `provenance.forkBlock` is on every run and every JSON response for
+exactly that reason; re-run it rather than quoting an old answer as current.

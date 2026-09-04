@@ -71,10 +71,11 @@ export default async function CataloguePage({
     "@type": "Dataset",
     name: "Sidik — executed Base token runs",
     description: `${rows.length} Base addresses bought, sold and transferred against a fork of Base at block ${Number(FIXTURE_BLOCK).toLocaleString("en-US")}, with every verdict and measured figure.`,
-    // No `license` key: it pointed at a LICENSE file the repository does not
-    // have, so every catalogue page served a machine-readable 404 to exactly
-    // the automated readers this block exists for. Add it back with the URL
-    // once a licence is chosen.
+    // The canonical SPDX page rather than the repository's own LICENSE file:
+    // this key used to point at a path that 404'd, and a repo URL 404s again
+    // the moment anything is renamed or moved. What an automated reader wants
+    // here is the licence, not our copy of it.
+    license: "https://opensource.org/license/mit",
     isAccessibleForFree: true,
     keywords: ["Base", "ERC-20", "honeypot", "token safety", "fork execution"],
     distribution: [
