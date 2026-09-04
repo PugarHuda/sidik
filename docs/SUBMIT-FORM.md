@@ -103,7 +103,7 @@ The catalogue is 207 Base addresses and 1,843 fork transactions. 68 fail at leas
 
 The finding the project exists for: 203 of the 206 checkable addresses publish verified source code, and so do 59 of the 60 with a finding against them. Sourcify, asked independently, holds 67 exact and 42 partial matches. "Check that the contract is verified" separates almost nothing on Base. The catalogue was also run through GoPlus and honeypot.is, with every disagreement published in both directions: on buy tax GoPlus matched the executed figure on 185 of 185 addresses, and on whether a privileged address can still stop a holder from leaving it agreed on 12 of 42. 25 tokens have such an address, and 9 of them — including USDC, EURC, cbBTC and cbETH — pass every other probe. 17 of the 25 are proxy admins replacing the implementation. That is a proof of capability, not an accusation or a prediction, and the interface says so on the page.
 
-What it refuses to do is as deliberate as what it does. Fork transactions are never linked to a block explorer, because they were never broadcast. An address with no recorded run returns an error, never a clean bill of health. A probe with no mechanism to test returns N/A rather than PASS. The public site replays recorded runs — they are genuine output of the engine in this repository, frozen, and `pnpm --filter @sidik/engine reproduce <address>` re-forks Base at the same block with your own RPC and diffs the result against what is published. It runs in CI on every push.
+What it refuses to do is as deliberate as what it does. Fork transactions are never linked to a block explorer, because they were never broadcast. An address with no recorded run returns an error, never a clean bill of health. A probe with no mechanism to test returns N/A rather than PASS. The public site replays recorded runs — they are genuine output of the engine in this repository, frozen, and `pnpm --filter @sidik/engine reproduce <address>` re-forks Base at the same block with your own RPC and diffs the result against what is published. It runs in CI on every push to master, in the job that has an archive RPC.
 
 Reproducibility is the claim it stakes everything on, so it is stated as a number rather than a promise: `reproduce --sample 3` re-forked Base at the same block and returned 9 verdicts reproduced, 0 differed. All three findings, each with its method and the rows behind it, are at /findings — including the one comparison Sidik loses.
 
@@ -127,7 +127,7 @@ Paste any Base address and it will fork the chain and execute the probes while y
 output…` **with:**
 
 ```
-The public site replays the recorded catalogue by default, because a replay answers instantly and cannot be rate-limited, and executes a fresh run on request. The recorded runs are genuine output of the engine in this repository, frozen, and `pnpm --filter @sidik/engine reproduce <address>` re-forks Base at the same block with your own RPC and diffs the result against what is published. It runs in CI on every push.
+The public site replays the recorded catalogue by default, because a replay answers instantly and cannot be rate-limited, and executes a fresh run on request. The recorded runs are genuine output of the engine in this repository, frozen, and `pnpm --filter @sidik/engine reproduce <address>` re-forks Base at the same block with your own RPC and diffs the result against what is published. It runs in CI on every push to master, in the job that has an archive RPC.
 ```
 
 ---

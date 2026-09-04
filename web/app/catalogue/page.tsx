@@ -71,7 +71,10 @@ export default async function CataloguePage({
     "@type": "Dataset",
     name: "Sidik — executed Base token runs",
     description: `${rows.length} Base addresses bought, sold and transferred against a fork of Base at block ${Number(FIXTURE_BLOCK).toLocaleString("en-US")}, with every verdict and measured figure.`,
-    license: "https://github.com/PugarHuda/sidik/blob/master/LICENSE",
+    // No `license` key: it pointed at a LICENSE file the repository does not
+    // have, so every catalogue page served a machine-readable 404 to exactly
+    // the automated readers this block exists for. Add it back with the URL
+    // once a licence is chosen.
     isAccessibleForFree: true,
     keywords: ["Base", "ERC-20", "honeypot", "token safety", "fork execution"],
     distribution: [

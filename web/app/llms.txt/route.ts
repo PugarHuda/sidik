@@ -64,7 +64,7 @@ Recorded addresses: ${FIXTURE_COUNT}
 
 - ${SITE}/api/catalogue — every recorded address, paged.
   Query: filter (all, failing, honeypot, hiddenFee, lpRug, ownerTrap,
-  scannerDisagrees), q
+  approvalDrain, scannerDisagrees), q
   (symbol or address substring), page (1-based).
 - ${SITE}/api/token/<address> — the full recorded run for one address:
   every verdict, every row, every measured figure, the fork block, and the

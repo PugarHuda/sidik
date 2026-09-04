@@ -262,7 +262,7 @@ claude mcp add --transport http   sidik https://sidik-eight.vercel.app/api/mcp</
           pnpm --filter @sidik/engine reproduce &lt;address&gt;
         </pre>
         <p>
-          It diffs what comes back against what is published, and runs in CI on every push. Every
+          It diffs what comes back against what is published, and runs in CI on every push to master, in the job that has an archive RPC. Every
           JSON response carries the recording date, the engine commit and a sha256 of the catalogue
           you can recompute from a checkout.
         </p>

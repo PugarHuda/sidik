@@ -166,7 +166,7 @@ pnpm dev:engine
 # example runs instead of reaching an engine (see Deployment).
 pnpm dev:web
 
-# engine test suite (vitest) — 299 unit + 30 integration
+# engine test suite (vitest) — 306 unit + 30 integration
 pnpm test
 
 # browser suite (Playwright) — 895 tests across chromium, firefox, webkit,
@@ -239,10 +239,14 @@ after.
 Absence is reported as absence. A token carrying none of the switches Sidik
 knows how to operate gets `N/A` with the number it searched for, not a `PASS`
 — a bytecode scan cannot prove there is no privileged code under a name
-nobody has seen before. What it does carry is named: every PUSH4 selector
-across the recorded bytecodes was resolved through the 4byte signature
-database (922 of 1,152), and functions that look privileged but that Sidik
+nobody has seen before. What it does carry is named where a name exists: every
+PUSH4 selector across the recorded bytecodes was looked up in the 4byte
+signature database, and 922 of the 1,152 resolved. Functions that look
+privileged but that Sidik
 has no hostile arguments for are listed on the verdict as found-not-operated.
+The 230 that 4byte had no name for stay as bare selectors rather than being
+guessed at, and the table was generated over the 194 addresses recorded when
+it was last built, not the 207 there are now.
 A renounced owner is not taken on faith either: `unlock()` in the bytecode
 means a timed lock, and the verdict says so instead of `PASS`.
 
@@ -257,14 +261,19 @@ pre-scan asks DEX Screener where the liquidity is, and the `N/A` names the
 venue and its depth (`scan.otherVenues`) rather than saying "no liquidity"
 about a token with a million dollars on Aerodrome Slipstream.
 
-The second boundary is structural rather than fixable. A family of Base tokens
-living at `0xb2…` addresses — CLANKER among them — has exactly one byte of
-code on chain, `0xef`, which is not a valid EVM opcode. Both Alchemy and
-Base's own public RPC answer `symbol()` for them anyway, so the node is
-serving these calls outside ordinary EVM execution. anvil can only run what
-the code says, so a fork of such a token reverts on every read. Sidik cannot
-probe them by executing them, and executing them is the whole point — so it
-declines rather than guessing.
+The second boundary is structural rather than fixable. Some Base contracts hold
+a single byte of code, `0xef`, which is not a valid EVM opcode. Both Alchemy
+and Base's own public RPC answer `symbol()` for them anyway, so the node is
+serving those calls outside ordinary EVM execution. anvil can only run what the
+code says, so a fork of such a token reverts on every read, and executing it is
+the whole point.
+
+Sidik does not currently *say* that, and this is the honest version of a claim
+this file used to make. Such an address is simply absent from the catalogue,
+so pasting one gets the same "no recorded run" answer as any address nobody
+has probed — a gap, not a considered refusal. Only `WETH` has a real
+explanation attached (`shared/src/unprobeable.ts`), because it is what the
+probes trade *with* and so can never have a run at all.
 
 ## What "assumed" means
 
@@ -297,8 +306,8 @@ Two things they buy:
 
 - **The engine answers a known token without touching the network** — it seeds
   them into the cache it already replays from. Measured at 64ms versus 13.5s
-  for a live run. That matters because every live run spawns one fork per
-  probe, and a free-tier archive RPC returns 429 once forks overlap.
+  for a live run. That matters because every live run spawns a fork, and a
+  free-tier archive RPC returns 429 once forks overlap.
 - **The demo works with no engine at all.** With `ENGINE_URL` unset, web
   replays them; an address with no recorded run gets an explicit error rather
   than an invented answer.
@@ -319,9 +328,9 @@ and answered:
 SIDIK_RERECORD=1 pnpm --filter @sidik/engine fixtures
 ```
 
-That converges rather than starting over: 207 tokens is roughly a thousand
-anvil forks, Windows stops creating processes long before that (0xC0000142),
-and each restart picks up only what is still stale.
+That converges rather than starting over: a full sweep is 207 consecutive
+anvil forks, Windows stops creating processes long before it finishes
+(0xC0000142), and each restart picks up only what is still stale.
 
 ## Corroboration
 
@@ -358,8 +367,8 @@ ways:
 - **Gate** publishes the contract address behind every ticker, per chain, so
   those pairs are matched **by address** and the exchange itself asserts the
   pairing. Where both venues cover an address, Gate is used to audit the hand
-  matching: it confirms 7 of the 10 and contradicts none, and the generator
-  refuses to write a file where they disagree.
+  matching: it covers 6 of the 10, confirms all 6 and contradicts none, and the
+  generator refuses to write a file where they disagree.
 
 **Read-only scanners.** `shared/src/scanners.ts` records what GoPlus — the
 check most wallets embed — and honeypot.is, which runs a simulation of its
@@ -368,9 +377,11 @@ lines up with what was executed. Both directions are listed, because a
 comparison that shows only the flattering half is not one:
 
 - Honeypots, against GoPlus (147 addresses where both answered): 141 agree.
-  Execution caught three GoPlus cleared — Anastasia, ROOTED, and TZ, whose
-  pool holds WETH but whose buy reverts at every size tried. GoPlus flagged
-  three the fork sold: NVO, ANSEMCAT, CASHCAT.
+  Execution caught three GoPlus cleared, by three different mechanisms:
+  Anastasia lets you buy and then reverts the sell, ROOTED skims 6.99% off
+  every transfer so the V3 sell cannot balance, and TZ has a WETH pool whose
+  buy reverts at every size tried. GoPlus flagged three the fork sold: NVO,
+  ANSEMCAT, CASHCAT.
 - Honeypots, against honeypot.is (193): 186 agree. Execution caught one it
   cleared — DEAI — and it flagged six the fork sold: DGAI, FOLD, COBIE, Alpe,
   KEYCAT, VLTX. The scanners describe the chain on the day they were asked
@@ -470,7 +481,7 @@ also available as data:
 
 | Endpoint | What it answers |
 |---|---|
-| `GET /api/catalogue` | Every recorded address, paged. `?filter=` (`all`, `failing`, `honeypot`, `hiddenFee`, `lpRug`, `ownerTrap`), `?q=` (symbol or address), `?page=`. |
+| `GET /api/catalogue` | Every recorded address, paged. `?filter=` (`all`, `failing`, `honeypot`, `hiddenFee`, `lpRug`, `ownerTrap`, `approvalDrain`, `scannerDisagrees`), `?q=` (symbol or address), `?page=`. |
 | `GET /api/token/<address>` | The full recorded run: every verdict, row, measured figure, the fork block and the narration. **404 when the address has no recorded run** — which is not the same answer as "nothing found wrong". |
 | `GET /api/run?token=<address>` | The same run as a Server-Sent Event stream, in the order the probes produced it. |
 | `GET /llms.txt` | What the data means, and the two things a consumer will otherwise get wrong. |
@@ -566,8 +577,8 @@ Arbitrary addresses are probed live by `/api/live` on the same deployment —
 
 Note that the engine seeds the same recorded runs into its cache at startup,
 so an example token is answered without touching the network even when the
-engine *is* deployed. That matters under load: every live run spawns one fork
-per probe, and a free-tier archive RPC returns 429 once forks overlap.
+engine *is* deployed. That matters under load: every live run spawns a fork,
+and a free-tier archive RPC returns 429 once forks overlap.
 
 ### 3. Verify end-to-end
 

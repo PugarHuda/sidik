@@ -57,7 +57,7 @@ holds nothing for. Two verifiers, same conclusion — publishing your source is
 not evidence of anything.
 
 Per probe, of the tokens that failed it: honeypots 7/7 verified, hidden fees
-18/18, LP rugs 29/29, owner traps 25/25.
+18/18, LP rugs 37/37, owner traps 25/25.
 
 ## The second number, and the one people argue with
 
@@ -213,7 +213,7 @@ Worth saying out loud, because it is the hard part:
 `pnpm --filter @sidik/engine reproduce <address>` re-forks Base at the same
 block with your own archive RPC, re-executes the probes, and diffs the result
 against what is published for that address. `--sample N` does it for a spread
-of the catalogue. It runs in CI on every push.
+of the catalogue. It runs in CI on every push to master, in the job that has an archive RPC.
 
 Run fresh on **2026-08-31**, against the re-recorded catalogue:
 
@@ -281,9 +281,11 @@ State these; the field rewards it.
   made to call it, and the position did not move.
 - Probes trade through Uniswap V2 and V3 only. A token whose liquidity lives on
   Aerodrome comes back N/A, with the reason attached.
-- Three Base contracts (CLANKER, ELENA, WIFHAIR) hold a single byte of code,
-  `0xef`, which is not a valid EVM opcode. Public nodes answer for them anyway;
-  a fork cannot. Reported as unprobeable, not as safe.
+- Some Base contracts hold a single byte of code, `0xef`, which is not a valid
+  EVM opcode. Public nodes answer for them anyway; a fork cannot. They are
+  absent from the catalogue, and Sidik gives them the ordinary "no recorded
+  run" answer rather than naming the reason — a gap, not a refusal. Only WETH
+  carries a real explanation, because the probes trade with it.
 - The scanner readings describe the day they were taken, not the pinned fork
   block. That is why disputed addresses are re-forked at the head of day.
 
@@ -433,7 +435,7 @@ one mistake this entry cannot afford to make.
 > The recorded runs are genuine output of the engine in this repository,
 > frozen, and `pnpm --filter @sidik/engine reproduce <address>` re-forks Base
 > at the same block with your own RPC and diffs the result against what is
-> published. It runs in CI on every push.
+> published. It runs in CI on every push to master, in the job that has an archive RPC.
 >
 > Reproducibility is the claim it stakes everything on, so it is stated as a
 > number rather than a promise: `reproduce --sample 3` re-forked Base at the
